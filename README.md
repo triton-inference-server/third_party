@@ -1,4 +1,4 @@
-# Repository Template
+# Triton Third-Party Packages
 
-Repository template that should be used for all new repositories in
-triton-inference-server.
+This repo contains software that Triton must patch or otherwise modify
+before using.
