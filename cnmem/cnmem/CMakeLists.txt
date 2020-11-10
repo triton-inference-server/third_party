@@ -9,7 +9,7 @@ include_directories(${CUDA_INCLUDE_DIRS})
 # Rules to build the cnmem library.
 include_directories(include)
 add_definitions(-DCNMEM_DLLEXPORT)
-add_library(cnmem SHARED src/cnmem.cpp)
+add_library(cnmem STATIC src/cnmem.cpp)
 set_target_properties(cnmem PROPERTIES VERSION 1.0.0 SOVERSION 1)
 target_link_libraries(cnmem LINK_PUBLIC ${CUDA_LIBRARIES})
 install(TARGETS cnmem RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
