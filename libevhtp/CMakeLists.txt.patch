@@ -1,0 +1,17 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 481ddd0..3827e93 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -54,10 +54,10 @@ set(LIBEVHTP_SOURCE_FILES
+     parser.c
+     log.c)
+ 
+-find_package(LibEvent REQUIRED)
++find_package(Libevent REQUIRED)
+ list(APPEND LIBEVHTP_EXTERNAL_LIBS ${LIBEVENT_LIBRARIES})
+ list(APPEND LIBEVHTP_EXTERNAL_INCLUDES ${LIBEVENT_INCLUDE_DIRS})
+-list(APPEND package_deps LibEvent)
++list(APPEND package_deps Libevent)
+ 
+ set(evhtp_dir_headers
+   "include/evhtp/evhtp.h"
