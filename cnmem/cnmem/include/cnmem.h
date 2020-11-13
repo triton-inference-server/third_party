@@ -35,11 +35,8 @@
 #include "cuda_runtime_api.h"
 
 #if defined(_MSC_VER) || defined(WIN32)
-#ifdef CNMEM_DLLEXPORT
-#define CNMEM_API __declspec(dllexport)
-#else
-#define CNMEM_API __declspec(dllimport)
-#endif
+// Don't define dllexport / dllimport as cnmem will be built as static library
+#define CNMEM_API
 #else
 #ifdef CNMEM_DLLEXPORT
 #define CNMEM_API __attribute__((visibility ("default")))
