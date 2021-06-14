@@ -240,6 +240,21 @@ ExternalProject_Add(c-ares
 )
 
 #
+# Build absl (abseil) project from grpc-repo
+#
+ExternalProject_Add(absl
+  PREFIX absl
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/abseil-cpp"
+  DOWNLOAD_COMMAND ""
+  CMAKE_CACHE_ARGS
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
+    -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/absl
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DBUILD_TESTING:BOOL=OFF
+  DEPENDS grpc-repo
+)
+
+#
 # Build GRPC
 #
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
@@ -264,7 +279,7 @@ ExternalProject_Add(grpc
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc
-  DEPENDS grpc-repo c-ares protobuf
+  DEPENDS grpc-repo absl c-ares protobuf
 )
 
 #
