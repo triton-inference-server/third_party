@@ -25,8 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 3.17)
-
-project(tritoncommon LANGUAGES C CXX)
+project(tritonthirdparty LANGUAGES C CXX)
 
 #
 # ExternalProject Dependencies
@@ -58,6 +57,9 @@ if (OPENSSL_ROOT_DIR)
   set(_CMAKE_ARGS_OPENSSL_ROOT_DIR "-DOPENSSL_ROOT_DIR:PATH=${OPENSSL_ROOT_DIR}")
 endif()
 
+#
+# Build libcurl
+#
 ExternalProject_Add(curl
   PREFIX curl
   GIT_REPOSITORY "https://github.com/curl/curl.git"
@@ -93,6 +95,38 @@ ExternalProject_Add(grpc-repo
 )
 
 #
+# The GCS build requires a abseil newer than the one found in grpc
+# v1.25.0 so grab a newer grpc just for abseil.
+#
+ExternalProject_Add(grpc-repo-new
+  PREFIX grpc-repo-new
+  GIT_REPOSITORY "https://github.com/grpc/grpc.git"
+  GIT_TAG "v1.29.1"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo-new/src/grpc"
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+  TEST_COMMAND ""
+)
+
+#
+# Build nlohmann/json
+#
+ExternalProject_Add(nlohmann-json
+  PREFIX nlohmann-json
+  GIT_REPOSITORY "https://github.com/nlohmann/json.git"
+  GIT_TAG "v3.9.0"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/json"
+  CMAKE_CACHE_ARGS
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DBUILD_SHARED_LIBS:STRING=yes
+    -DBUILD_TESTING:BOOL=OFF
+    -H. -Bcmake-out
+)
+
+#
 # Build protobuf project from grpc-repo
 #
 # Use -DCMAKE_BUILD_TYPE:STRING=RELEASE to workaround the protobuf build issue
@@ -114,6 +148,36 @@ ExternalProject_Add(protobuf
   DEPENDS grpc-repo
 )
 
+#
+# Build absl (abseil) project from grpc-repo-new (see comment above).
+#
+ExternalProject_Add(absl
+  PREFIX absl
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo-new/src/grpc/third_party/abseil-cpp"
+  DOWNLOAD_COMMAND ""
+  CMAKE_CACHE_ARGS
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DBUILD_TESTING:BOOL=OFF
+  DEPENDS grpc-repo-new
+)
+
+#
+# Build googletest project from grpc-repo
+#
+ExternalProject_Add(googletest
+  PREFIX protobuf
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/googletest"
+  DOWNLOAD_COMMAND ""
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/googletest
+  DEPENDS grpc-repo
+)
+
 # Location where protobuf-config.cmake will be installed varies by
 # platform
 if (WIN32)
@@ -123,7 +187,7 @@ else()
 endif()
 
 #
-# Build c-area project from grpc-repo
+# Build c-ares project from grpc-repo
 #
 ExternalProject_Add(c-ares
   PREFIX c-ares
@@ -163,4 +227,192 @@ ExternalProject_Add(grpc
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc
   DEPENDS grpc-repo c-ares protobuf
+)
+
+#
+# Build libevent
+#
+ExternalProject_Add(libevent
+  PREFIX libevent
+  GIT_REPOSITORY "https://github.com/libevent/libevent.git"
+  GIT_TAG "release-2.1.8-stable"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/libevent/src/libevent"
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/libevent
+)
+
+#
+# Build patched libevhtp
+#
+if (WIN32)
+# FIXME evhtp can't be built successfully in native Windows environment
+# CMAKE_PREFIX_PATH is needed to find libevent
+ExternalProject_Add(libevhtp
+  PREFIX libevhtp
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libevhtp/libevhtp"
+  DOWNLOAD_COMMAND ""
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DEVHTP_DISABLE_REGEX:BOOL=ON
+    -DEVHTP_DISABLE_SSL:BOOL=ON
+    -DEVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS:BOOL=ON
+    -DEVHTP_TRITON_ENABLE_TRACING:BOOL=${TRITON_ENABLE_TRACING}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_PREFIX_PATH:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/libevent
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/libevhtp
+  DEPENDS libevent
+)
+else()
+ExternalProject_Add(libevhtp
+  PREFIX libevhtp
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libevhtp/libevhtp"
+  DOWNLOAD_COMMAND ""
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DEVHTP_DISABLE_REGEX:BOOL=ON
+    -DEVHTP_DISABLE_SSL:BOOL=ON
+    -DEVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS:BOOL=ON
+    -DEVHTP_TRITON_ENABLE_TRACING:BOOL=${TRITON_ENABLE_TRACING}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DLibevent_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/libevent/lib/cmake/libevent
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/libevhtp
+  DEPENDS libevent
+)
+endif()
+
+#
+# Build Prometheus C++ library
+#
+ExternalProject_Add(prometheus-cpp
+  PREFIX prometheus-cpp
+  URL "https://github.com/jupp0r/prometheus-cpp/archive/v0.7.0.tar.gz"
+  URL_HASH SHA256=93907d937fa7eab9605cba786123d3eba4e87e3dca8ecec93ff9eae4eef8de5a
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/prometheus-cpp/src/prometheus-cpp"
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DENABLE_PUSH:BOOL=OFF
+    -DENABLE_PULL:BOOL=OFF
+    -DENABLE_TESTING:BOOL=OFF
+    -DUSE_THIRDPARTY_LIBRARIES:BOOL=OFF
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/prometheus-cpp
+)
+
+#
+# Build crc32c
+#
+ExternalProject_Add(crc32c
+  PREFIX crc32c
+  GIT_REPOSITORY "https://github.com/google/crc32c.git"
+  GIT_TAG "1.1.1"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/crc32c/src/crc32c"
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DCRC32C_BUILD_TESTS:BOOL=OFF
+    -DBUILD_SHARED_LIBS:STRING=no
+    -DCRC32C_BUILD_BENCHMARKS:BOOL=OFF
+    -DCRC32C_USE_GLOG:BOOL=OFF
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c
+)
+
+# This is necessary because google-cloud-cpp
+# does not pass protobuf_DIR and gRPC_DIR etc to its
+# external projects but expects them in CMAKE_PREFIX_PATH.
+#
+# absl must preceed grpc to ensure that the absl from the newer grpc
+# repo is used and not the absl from the older grpc.
+set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/lib/cmake/c-ares
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/lib/cmake/absl
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/lib/cmake/Crc32c
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc/lib/cmake/grpc
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/lib/cmake/nlohmann_json
+   ${_FINDPACKAGE_PROTOBUF_CONFIG_DIR})
+
+#
+# Build google-cloud-cpp
+#
+ExternalProject_Add(google-cloud-cpp
+  PREFIX google-cloud-cpp
+  GIT_REPOSITORY "https://github.com/googleapis/google-cloud-cpp.git"
+  GIT_TAG "v1.22.0"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/google-cloud-cpp/src/google-cloud-cpp"
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DGOOGLE_CLOUD_CPP_DEPENDENCY_PROVIDER:STRING=package
+    -DBUILD_TESTING:BOOL=OFF
+    -DCMAKE_PREFIX_PATH:PATH=${GCS_CMAKE_PREFIX_PATH}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/google-cloud-cpp
+    -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/lib/cmake/nlohmann_json
+    -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
+    -DCrc32c_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/lib/cmake/Crc32c
+  DEPENDS grpc c-ares protobuf crc32c absl nlohmann-json
+)
+
+#
+# Build azure-storage-cpplite
+#
+ExternalProject_Add(azure-storage-cpplite
+  PREFIX azure-storage-cpplite
+  GIT_REPOSITORY "https://github.com/Azure/azure-storage-cpplite.git"
+  GIT_TAG "v0.3.0"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-storage-cpplite/src/azure-storage-cpplite"
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DBUILD_SHARED_LIBS:BOOL=OFF
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCURL_INCLUDE_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/include
+    -DCURL_LIBRARY:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/lib
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-storage-cpplite
+  DEPENDS curl
+)
+
+#
+# Build CNMeM (CUDA memeory management library)
+#
+ExternalProject_Add(cnmem
+  PREFIX cnmem
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cnmem/cnmem"
+  DOWNLOAD_COMMAND ""
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/cnmem
+)
+
+#
+# Build AWS sdk for S3 support
+#
+ExternalProject_Add(aws-sdk-cpp
+  PREFIX aws-sdk-cpp
+  GIT_REPOSITORY "https://github.com/aws/aws-sdk-cpp.git"
+  GIT_TAG "1.7.129"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/aws-sdk-cpp/src/aws-sdk-cpp"
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DBUILD_ONLY:STRING=s3
+    -DBUILD_SHARED_LIBS:BOOL=OFF
+    -DMINIMIZE_SIZE:BOOL=ON
+    -DENABLE_TESTING:BOOL=OFF
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/aws-sdk-cpp
 )
