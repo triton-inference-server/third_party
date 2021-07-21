@@ -385,7 +385,7 @@ ExternalProject_Add(azure-storage-cpplite
 )
 
 #
-# Build CNMeM (CUDA memeory management library)
+# Build CNMeM (CUDA memory management library)
 #
 ExternalProject_Add(cnmem
   PREFIX cnmem
@@ -399,7 +399,7 @@ ExternalProject_Add(cnmem
 )
 
 #
-# Build AWS sdk for S3 support
+# Build aws-sdk-cpp
 #
 ExternalProject_Add(aws-sdk-cpp
   PREFIX aws-sdk-cpp
