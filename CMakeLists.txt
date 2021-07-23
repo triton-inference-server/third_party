@@ -1,4 +1,4 @@
-# Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
+# Copyright 2021, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -404,7 +404,7 @@ ExternalProject_Add(cnmem
 ExternalProject_Add(aws-sdk-cpp
   PREFIX aws-sdk-cpp
   GIT_REPOSITORY "https://github.com/aws/aws-sdk-cpp.git"
-  GIT_TAG "1.7.129"
+  GIT_TAG "1.8.186"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/aws-sdk-cpp/src/aws-sdk-cpp"
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
