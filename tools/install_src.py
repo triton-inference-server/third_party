@@ -28,8 +28,9 @@
 import argparse
 import os
 import platform
+import shutil
+import stat
 import sys
-from distutils import dir_util
 
 FLAGS = None
 
@@ -52,6 +53,10 @@ def target_platform():
     if FLAGS.target_platform is not None:
         return FLAGS.target_platform
     return platform.system().lower()
+
+def del_rw(action, name, exc):
+    os.chmod(name, stat.S_IWRITE)
+    os.remove(name)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -92,6 +97,16 @@ if __name__ == '__main__':
     log('install_src: installing src: {} -> {}'.format(FLAGS.src, dest_dir))
 
     if os.path.isdir(dest_dir):
-        dir_util.remove_tree(dest_dir)
+        shutil.rmtree(dest_dir, onerror=del_rw)
 
-    dir_util.copy_tree(FLAGS.src, dest_dir, preserve_symlinks=True)
+    shutil.copytree(FLAGS.src, dest_dir, symlinks=True)
+
+    # Remove .git and .github hidden directories from the copied
+    # source directories
+    for root, dirs, files in os.walk(dest_dir):
+        for rmdir in ('.git', '.github'):
+            if rmdir in dirs:
+                rmfp = os.path.join(root, rmdir)
+                log('install_src: removing {}'.format(rmfp))
+                shutil.rmtree(rmfp, onerror=del_rw)
+                dirs.remove(rmdir)
