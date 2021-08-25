@@ -47,6 +47,19 @@ extern "C" {
 #cmakedefine EVHTP_TRITON_ENABLE_TRACING
 #cmakedefine EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS
 
+#ifndef HAVE_ssize_t
+typedef int ssize_t;
+#endif
+
+#ifdef _MSC_VER
+#   ifndef HAVE_STRCASECMP
+#       define strcasecmp _stricmp
+#   endif
+#   ifndef HAVE_STRNCASECMP
+#       define strncasecmp _strnicmp
+#   endif
+#endif
+
 #ifndef EVHTP_DISABLE_REGEX
 #include <onigposix.h>
 #endif

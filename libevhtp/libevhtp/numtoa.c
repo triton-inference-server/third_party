@@ -59,7 +59,7 @@ evhtp_modp_u32toa(uint32_t value, char * str) {
     return (size_t)(wstr - str);
 }
 
-inline size_t
+size_t
 evhtp_modp_sizetoa(size_t value, char * str) {
 #if EVHTP_SYS_ARCH == 64
     return evhtp_modp_u64toa(value, str);

@@ -10,7 +10,7 @@ find_library  (LIBEVENT_LIBRARY     NAMES event)
 find_library  (LIBEVENT_CORE        NAMES event_core)
 find_library  (LIBEVENT_EXTRA       NAMES event_extra)
 
-if (NOT EVHTP_DISABLE_EVTHR)
+if ((NOT EVHTP_DISABLE_EVTHR) AND (NOT WIN32))
     find_library (LIBEVENT_THREAD   NAMES event_pthreads)
 endif()
 

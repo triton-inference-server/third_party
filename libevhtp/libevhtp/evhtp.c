@@ -9,10 +9,16 @@
 #include <stdint.h>
 #include <errno.h>
 #include <signal.h>
+
+#ifdef HAVE_STRINGS_H
 #include <strings.h>
+#else
+#include <string.h>
+#endif
+
 #include <inttypes.h>
 #include <stdbool.h>
-#ifndef WIN32
+#ifndef _WIN32
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -277,6 +283,12 @@ htp__strdup_(const char * str)
 
     return strdup(str);
 }
+
+#ifdef NO_STRNDUP
+// forward declaration
+char *
+strndup(const char * s, size_t n);
+#endif // NO_STRNDUP
 
 /**
  * @brief implementation of strndup function.
@@ -2035,9 +2047,11 @@ htp__request_parse_fini_(htparser * p)
         * callback when selecting the thread to handle future requests. Detail:
         * https://github.com/criticalstack/libevhtp/issues/146#issuecomment-696339470
         */
+       #ifndef EVHTP_DISABLE_EVTHR
        evthr_set_busy(c->thread, 1);
         (c->request->cb)(c->request, c->request->cbarg);
        evthr_set_busy(c->thread, 0);
+       #endif
     }
 
     if (c->flags & EVHTP_CONN_FLAG_PAUSED) {

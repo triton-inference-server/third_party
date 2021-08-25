@@ -3,12 +3,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <limits.h>
-#ifndef WIN32
+#ifndef _WIN32
 #include <sys/queue.h>
-#endif
-
 #include <sys/ioctl.h>
 #include <unistd.h>
+#else
+#include "sys/queue.h"
+#endif
+
 #include <pthread.h>
 
 #include <event2/event.h>
@@ -17,29 +19,25 @@
 #include "internal.h"
 #include "evhtp/thread.h"
 
-typedef struct evthr_cmd        evthr_cmd_t;
-typedef struct evthr_pool_slist evthr_pool_slist_t;
-
+#ifdef _WIN32
+__pragma(pack(push, 1))
+#endif
 struct evthr_cmd {
     uint8_t  stop;
     void   * args;
     evthr_cb cb;
-} __attribute__((packed));
-
-TAILQ_HEAD(evthr_pool_slist, evthr);
-
-struct evthr_pool {
-#ifdef EVTHR_SHARED_PIPE
-    int rdr;
-    int wdr;
+}
+#ifdef _WIN32
+;
+__pragma(pack(pop))
+#pragma pop
+#else
+__attribute__((packed));
 #endif
-    int                nthreads;
-    evthr_pool_slist_t threads;
-};
 
 struct evthr {
-    int             rdr;
-    int             wdr;
+    evutil_socket_t rdr;
+    evutil_socket_t wdr;
     char            err;
     ev_t          * event;
     evbase_t      * evbase;
@@ -56,6 +54,20 @@ struct evthr {
     struct event * shared_pool_ev;
 #endif
     TAILQ_ENTRY(evthr) next;
+};
+
+TAILQ_HEAD(evthr_pool_slist, evthr);
+
+typedef struct evthr_cmd        evthr_cmd_t;
+typedef struct evthr_pool_slist evthr_pool_slist_t;
+
+struct evthr_pool {
+#ifdef EVTHR_SHARED_PIPE
+    int rdr;
+    int wdr;
+#endif
+    int                nthreads;
+    evthr_pool_slist_t threads;
 };
 
 #define _evthr_read(thr, cmd, sock) \
@@ -229,7 +241,7 @@ static evthr_t *
 _evthr_new(evthr_init_cb init_cb, evthr_exit_cb exit_cb, void * args)
 {
     evthr_t * thread;
-    int       fds[2];
+    evutil_socket_t       fds[2];
 
     if (evutil_socketpair(AF_UNIX, SOCK_STREAM, 0, fds) == -1) {
         return NULL;
@@ -365,8 +377,13 @@ get_backlog_(evthr_t * thread)
         return INT_MAX;
     }
     int backlog = 0;
+    int bytes_returned = 0;
 
+#ifdef _WIN32
+    WSAIoctl(thread->rdr, FIONREAD, NULL, 0, &backlog, 4, &bytes_returned, NULL, NULL);
+#else
     ioctl(thread->rdr, FIONREAD, &backlog);
+#endif
 
     return (int)(backlog / sizeof(evthr_cmd_t));
 }
@@ -499,7 +516,11 @@ evthr_pool_start(evthr_pool_t * pool)
             return -1;
         }
 
+#ifdef _WIN32
+        Sleep(5);
+#else
         usleep(5000);
+#endif
     }
 
     return 0;
