@@ -81,8 +81,10 @@ endif()
 
 if(NOT EVHTP_DISABLE_EVTHR)
     if (WIN32)
-        find_path(PTHREADS_INC NAMES pthread.h PATHS "C:/vcpkg/packages/pthreads_x64-windows/include/" REQUIRED)
-        find_library(PTHREADS_LIBS NAMES pthread pthreadVC3 PATHS "C:/vcpkg/packages/pthreads_x64-windows/lib/" REQUIRED)
+        # pthreads for windows vcpkg seems not to have proper cmake integration
+        set(VCPKG_INSTALL_DIR "C:/vcpkg/installed/x64-windows/")
+        find_path(PTHREADS_INC NAMES pthread.h PATHS "${VCPKG_INSTALL_DIR}/include/" REQUIRED)
+        find_library(PTHREADS_LIBS NAMES pthreadVC3 PATHS "${VCPKG_INSTALL_DIR}/lib/" REQUIRED)
             list(APPEND LIBEVHTP_SOURCE_FILES  thread.c)
             list(APPEND LIBEVHTP_EXTERNAL_LIBS ${PTHREADS_LIBS})
             list(APPEND LIBEVHTP_EXTERNAL_INCLUDES ${PTHREADS_INC})
