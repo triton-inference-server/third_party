@@ -2047,11 +2047,11 @@ htp__request_parse_fini_(htparser * p)
         * callback when selecting the thread to handle future requests. Detail:
         * https://github.com/criticalstack/libevhtp/issues/146#issuecomment-696339470
         */
-       #ifndef EVHTP_DISABLE_EVTHR
+#ifndef EVHTP_DISABLE_EVTHR
        evthr_set_busy(c->thread, 1);
         (c->request->cb)(c->request, c->request->cbarg);
        evthr_set_busy(c->thread, 0);
-       #endif
+#endif
     }
 
     if (c->flags & EVHTP_CONN_FLAG_PAUSED) {
