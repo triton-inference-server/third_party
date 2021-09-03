@@ -43,7 +43,7 @@ check_include_files(compat/sys/queue.h.in HAVE_LOCAL_SYS_QUEUE)
 check_type_size("int" SIZEOF_INT)
 check_type_size("long" SIZEOF_LONG)
 check_type_size("short" SIZEOF_SHORT)
-check_type_size("ssize_t" SIZEOF_INT)
+check_type_size("ssize_t" SIZEOF_SSIZET)
 
 test_big_endian(HOST_BIG_ENDIAN)
 
