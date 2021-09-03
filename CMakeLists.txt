@@ -153,6 +153,9 @@ ExternalProject_Add(nlohmann-json
 # Use -DCMAKE_BUILD_TYPE:STRING=RELEASE to workaround the protobuf build issue
 # described in https://stackoverflow.com/a/60218066/2091555
 #
+# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
+# described in https://stackoverflow.com/q/68974636
+#
 ExternalProject_Add(protobuf
   PREFIX protobuf
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/cmake"
@@ -328,6 +331,9 @@ endif()
 
 #
 # Build Prometheus C++ library
+#
+# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
+# described in https://stackoverflow.com/q/68974636
 #
 ExternalProject_Add(prometheus-cpp
   PREFIX prometheus-cpp
