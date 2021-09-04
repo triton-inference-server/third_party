@@ -52,7 +52,7 @@ extern "C" {
 #cmakedefine EVHTP_TRITON_ENABLE_TRACING
 #cmakedefine EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS
 
-#ifndef HAVE_SIZEOF_SSIZET
+#ifdef _WIN32
 typedef int ssize_t;
 #endif
 
