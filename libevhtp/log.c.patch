@@ -1,0 +1,46 @@
+diff --git a/libevhtp/log.c b/third_party/libevhtp//libevhtp/log.c
+index 0455283..712c7c9 100644
+--- a/libevhtp/log.c
++++ b/third_party/libevhtp//libevhtp/log.c
+@@ -4,9 +4,23 @@
+ #include <stdint.h>
+ #include <errno.h>
+ #include <assert.h>
++
++#ifdef HAVE_SYS_TIME_H
+ #include <sys/time.h>
++#endif
++
++#ifdef HAVE_ARPA_INET_H
+ #include <arpa/inet.h>
++#endif
++
++
++// either system or compat header
++#ifdef HAVE_SYS_QUEUE
+ #include <sys/queue.h>
++#else
++#include "sys/queue.h"
++#endif
++
+ 
+ #include "evhtp/evhtp.h"
+ #include "evhtp/log.h"
+@@ -278,7 +292,7 @@ evhtp_log_request_f(void * format_p, evhtp_request_t * request, FILE * fp)
+                 continue;
+             case HTP_LOG_OP_HOST:
+                 logstr =
+-                    request->htp->server_name ? : evhtp_header_find(request->headers_in, "host");
++                    request->htp->server_name ? request->htp->server_name : evhtp_header_find(request->headers_in, "host");
+ 
+                 break;
+             case HTP_LOG_OP_PROTO:
+@@ -293,7 +307,7 @@ evhtp_log_request_f(void * format_p, evhtp_request_t * request, FILE * fp)
+                 break;
+         } /* switch */
+ 
+-        fputs(logstr ? : "-", fp);
++        fputs(logstr ? logstr : "-", fp);
+     }
+ 
+     fputc('\n', fp);
