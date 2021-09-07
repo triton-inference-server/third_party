@@ -153,6 +153,9 @@ ExternalProject_Add(nlohmann-json
 # Use -DCMAKE_BUILD_TYPE:STRING=RELEASE to workaround the protobuf build issue
 # described in https://stackoverflow.com/a/60218066/2091555
 #
+# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
+# described in https://stackoverflow.com/q/68974636
+#
 ExternalProject_Add(protobuf
   PREFIX protobuf
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/cmake"
@@ -166,6 +169,7 @@ ExternalProject_Add(protobuf
     -Dprotobuf_MSVC_STATIC_RUNTIME:BOOL=OFF
     -DCMAKE_BUILD_TYPE:STRING=RELEASE
     -DBUILD_SHARED_LIBS:STRING=no
+    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf
   DEPENDS grpc-repo
 )
@@ -328,6 +332,9 @@ endif()
 #
 # Build Prometheus C++ library
 #
+# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
+# described in https://stackoverflow.com/q/68974636
+#
 ExternalProject_Add(prometheus-cpp
   PREFIX prometheus-cpp
   URL "https://github.com/jupp0r/prometheus-cpp/archive/v0.7.0.tar.gz"
@@ -342,6 +349,7 @@ ExternalProject_Add(prometheus-cpp
     -DUSE_THIRDPARTY_LIBRARIES:BOOL=OFF
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/prometheus-cpp
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
