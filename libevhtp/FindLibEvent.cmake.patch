@@ -1,0 +1,13 @@
+diff --git a/libevhtp/cmake/FindLibEvent.cmake b/third_party/libevhtp//libevhtp/cmake/FindLibEvent.cmake
+index 0dc4b33..c7690bb 100644
+--- a/libevhtp/cmake/FindLibEvent.cmake
++++ b/third_party/libevhtp//libevhtp/cmake/FindLibEvent.cmake
+@@ -10,7 +10,7 @@ find_library  (LIBEVENT_LIBRARY     NAMES event)
+ find_library  (LIBEVENT_CORE        NAMES event_core)
+ find_library  (LIBEVENT_EXTRA       NAMES event_extra)
+ 
+-if (NOT EVHTP_DISABLE_EVTHR)
++if ((NOT EVHTP_DISABLE_EVTHR) AND (NOT WIN32))
+     find_library (LIBEVENT_THREAD   NAMES event_pthreads)
+ endif()
+ 

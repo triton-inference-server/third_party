@@ -35,8 +35,10 @@ typedef void (* evthr_cb)(evthr_t * thr, void * cmd_arg, void * shared);
 typedef void (* evthr_init_cb)(evthr_t * thr, void * shared);
 typedef void (* evthr_exit_cb)(evthr_t * thr, void * shared);
 
-EVHTP_EXPORT evthr_t * evthr_new(evthr_init_cb, void *)
-    DEPRECATED("will take on the syntax of evthr_wexit_new");
+EVHTP_EXPORT
+WINDEPRECATED("will take on the syntax of evthr_wexit_new")
+evthr_t * evthr_new(evthr_init_cb, void *)
+DEPRECATED("will take on the syntax of evthr_wexit_new");
 
 EVHTP_EXPORT evbase_t     * evthr_get_base(evthr_t * thr);
 EVHTP_EXPORT void           evthr_set_aux(evthr_t * thr, void * aux);
@@ -49,8 +51,10 @@ EVHTP_EXPORT void           evthr_free(evthr_t * evthr);
 /* Detail: https://github.com/criticalstack/libevhtp/issues/146#issuecomment-696339470 */
 EVHTP_EXPORT void           evthr_set_busy(evthr_t * thr, int busy);
 
-EVHTP_EXPORT evthr_pool_t * evthr_pool_new(int nthreads, evthr_init_cb, void *)
-    DEPRECATED("will take on the syntax of evthr_pool_wexit_new");
+EVHTP_EXPORT
+WINDEPRECATED("will take on the syntax of evthr_pool_wexit_new")
+evthr_pool_t * evthr_pool_new(int nthreads, evthr_init_cb, void *)
+DEPRECATED("will take on the syntax of evthr_pool_wexit_new");
 
 EVHTP_EXPORT int            evthr_pool_start(evthr_pool_t * pool);
 EVHTP_EXPORT evthr_res      evthr_pool_stop(evthr_pool_t * pool);

@@ -1,11 +1,26 @@
-diff --git a/include/evhtp/evhtp.h b/include/evhtp/evhtp.h
-index 9bcee44..e6cf17f 100644
---- a/include/evhtp/evhtp.h
-+++ b/include/evhtp/evhtp.h
-@@ -416,5 +416,12 @@ struct evhtp_request {
+diff --git a/libevhtp/include/evhtp/evhtp.h b/third_party/libevhtp//libevhtp/include/evhtp/evhtp.h
+index 9bcee44..357176f 100644
+--- a/libevhtp/include/evhtp/evhtp.h
++++ b/third_party/libevhtp//libevhtp/include/evhtp/evhtp.h
+@@ -18,7 +18,14 @@
+ #include <onigposix.h>
+ #endif
+ 
++// either system or compat header
++#ifdef HAVE_SYS_QUEUE
+ #include <sys/queue.h>
++#else
++#include "sys/queue.h"
++#endif
++
++
+ #include <event2/event.h>
+ #include <event2/listener.h>
+ #include <event2/buffer.h>
+@@ -416,6 +423,13 @@ struct evhtp_request {
      #define EVHTP_REQ_FLAG_ERROR     (1 << 4)
      uint16_t flags;
-
+ 
 +#ifdef EVHTP_TRITON_ENABLE_TRACING
 +    struct timespec recv_start_ts;
 +    struct timespec recv_end_ts;
@@ -15,3 +30,26 @@ index 9bcee44..e6cf17f 100644
 +
      evhtp_callback_cb cb;               /**< the function to call when fully processed */
      void            * cbarg;            /**< argument which is passed to the cb function */
+ 
+@@ -607,7 +621,9 @@ EVHTP_EXPORT int evhtp_ssl_init(evhtp_t * htp, evhtp_ssl_cfg_t * ssl_cfg);
+  *
+  * @param htp
+  */
+-EVHTP_EXPORT void evhtp_disable_100_continue(evhtp_t * htp)
++EVHTP_EXPORT
++WINDEPRECATED("evhtp_disable_100 will soon be deprecated, use htp->flags instead")
++void evhtp_disable_100_continue(evhtp_t * htp)
+ DEPRECATED("evhtp_disable_100 will soon be deprecated, use htp->flags instead");
+ 
+ /**
+@@ -858,7 +874,9 @@ EVHTP_EXPORT int evhtp_bind_sockaddr(evhtp_t * htp, struct sockaddr *,
+  *
+  * @return
+  */
+-EVHTP_EXPORT int evhtp_use_threads(evhtp_t *, evhtp_thread_init_cb, int nthreads, void *)
++EVHTP_EXPORT
++WINDEPRECATED("will take on the syntax of evhtp_use_threads_wexit")
++int evhtp_use_threads(evhtp_t *, evhtp_thread_init_cb, int nthreads, void *)
+ DEPRECATED("will take on the syntax of evhtp_use_threads_wexit");
+ 
+ /**

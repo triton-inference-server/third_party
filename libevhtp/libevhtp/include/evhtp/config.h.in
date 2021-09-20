@@ -15,17 +15,22 @@ extern "C" {
 
 
 #if defined(_MSC_VER) && _MSC_VER >= 1500 /* MSVC 2008 */
-#  define DEPRECATED(message)   __declspec(deprecated(message))
+#  define WINDEPRECATED(message)  __declspec(deprecated(message))
+#  define DEPRECATED(message)
 #elif defined(__clang__) && defined(__has_feature)
 #  if __has_feature(attribute_deprecated_with_message)
+#    define WINDEPRECATED(message)
 #    define DEPRECATED(message) __attribute__ ((deprecated(message)))
 #  endif
 #  elif defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5))
+#    define WINDEPRECATED(message)
 #    define DEPRECATED(message) __attribute__ ((deprecated(message)))
 #  elif defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
+#    define WINDEPRECATED(message)
 #    define DEPRECATED(message) __attribute__((__deprecated__))
 #  else
-#   define DEPRECATED(message)
+#    define WINDEPRECATED(message)
+#    define DEPRECATED(message)
 #endif
 
 #undef EVHTP_DISABLE_EVTHR
@@ -46,6 +51,19 @@ extern "C" {
 
 #cmakedefine EVHTP_TRITON_ENABLE_TRACING
 #cmakedefine EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS
+
+#ifdef _WIN32
+typedef int ssize_t;
+#endif
+
+#ifdef _MSC_VER
+#   ifndef HAVE_STRCASECMP
+#       define strcasecmp _stricmp
+#   endif
+#   ifndef HAVE_STRNCASECMP
+#       define strncasecmp _strnicmp
+#   endif
+#endif
 
 #ifndef EVHTP_DISABLE_REGEX
 #include <onigposix.h>

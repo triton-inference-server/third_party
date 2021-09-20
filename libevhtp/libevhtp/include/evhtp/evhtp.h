@@ -18,7 +18,14 @@
 #include <onigposix.h>
 #endif
 
+// either system or compat header
+#ifdef HAVE_SYS_QUEUE
 #include <sys/queue.h>
+#else
+#include "sys/queue.h"
+#endif
+
+
 #include <event2/event.h>
 #include <event2/listener.h>
 #include <event2/buffer.h>
@@ -614,7 +621,9 @@ EVHTP_EXPORT int evhtp_ssl_init(evhtp_t * htp, evhtp_ssl_cfg_t * ssl_cfg);
  *
  * @param htp
  */
-EVHTP_EXPORT void evhtp_disable_100_continue(evhtp_t * htp)
+EVHTP_EXPORT
+WINDEPRECATED("evhtp_disable_100 will soon be deprecated, use htp->flags instead")
+void evhtp_disable_100_continue(evhtp_t * htp)
 DEPRECATED("evhtp_disable_100 will soon be deprecated, use htp->flags instead");
 
 /**
@@ -865,7 +874,9 @@ EVHTP_EXPORT int evhtp_bind_sockaddr(evhtp_t * htp, struct sockaddr *,
  *
  * @return
  */
-EVHTP_EXPORT int evhtp_use_threads(evhtp_t *, evhtp_thread_init_cb, int nthreads, void *)
+EVHTP_EXPORT
+WINDEPRECATED("will take on the syntax of evhtp_use_threads_wexit")
+int evhtp_use_threads(evhtp_t *, evhtp_thread_init_cb, int nthreads, void *)
 DEPRECATED("will take on the syntax of evhtp_use_threads_wexit");
 
 /**
