@@ -357,10 +357,13 @@ ExternalProject_Add(prometheus-cpp
 #
 # Build crc32c
 #
+# Use a specific hash to get ARM64 fix not included in latest release
+# (https://github.com/google/crc32c/pull/52).
+#
 ExternalProject_Add(crc32c
   PREFIX crc32c
   GIT_REPOSITORY "https://github.com/google/crc32c.git"
-  GIT_TAG "1.1.1"
+  GIT_TAG "b9d6e825a1e6783195a6051639179152dac70b3b"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/crc32c/src/crc32c"
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
