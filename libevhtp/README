@@ -1,8 +1,0 @@
-This directory contains the patched libevhtp source at commit e200bfa85bf253e9cfe1c1a9e705fccb176b9171, the patched source will be used exactly as it is in building Triton components.
-The detail of the patch is specified with "*.patch" suffix, patches in cnmem are:
-CMakeLists.txt.patch
-config.h.in.patch
-evhtp.c.patch
-evhtp.h.patch
-thread.c.patch
-thread.h.patch
