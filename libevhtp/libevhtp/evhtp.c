@@ -40,6 +40,10 @@
 #include "numtoa.h"
 #include "evhtp/evhtp.h"
 
+#ifdef EVHTP_TRITON_ENABLE_TRACING
+#include "triton_timestamp.h"
+#endif  // EVHTP_TRITON_ENABLE_TRACING
+
 /**
  * @brief structure containing a single callback and configuration
  *
@@ -1348,7 +1352,7 @@ htp__request_parse_start_(htparser * p)
     }
 
 #ifdef EVHTP_TRITON_ENABLE_TRACING
-    clock_gettime(CLOCK_MONOTONIC, &(c->request->recv_start_ts));
+    c->request->recv_start_ns = triton_timestamp();
 #endif  // EVHTP_TRITON_ENABLE_TRACING
 
     return 0;
@@ -2060,7 +2064,7 @@ htp__request_parse_fini_(htparser * p)
 
 #ifdef EVHTP_TRITON_ENABLE_TRACING
     if (c->request) {
-      clock_gettime(CLOCK_MONOTONIC, &(c->request->recv_end_ts));
+      c->request->recv_end_ns = triton_timestamp();
     }
 #endif  // EVHTP_TRITON_ENABLE_TRACING
 
@@ -3843,7 +3847,7 @@ evhtp_send_reply(evhtp_request_t * request, evhtp_res code)
     struct bufferevent * bev;
 
 #ifdef EVHTP_TRITON_ENABLE_TRACING
-    clock_gettime(CLOCK_MONOTONIC, &(request->send_start_ts));
+    request->send_start_ns = triton_timestamp();
 #endif  // EVHTP_TRITON_ENABLE_TRACING
 
     c = request->conn;
@@ -3865,7 +3869,7 @@ evhtp_send_reply(evhtp_request_t * request, evhtp_res code)
     evbuffer_drain(reply_buf, -1);
 
 #ifdef EVHTP_TRITON_ENABLE_TRACING
-    clock_gettime(CLOCK_MONOTONIC, &(request->send_end_ts));
+    request->send_end_ns = triton_timestamp();
 #endif  // EVHTP_TRITON_ENABLE_TRACING
 }
 

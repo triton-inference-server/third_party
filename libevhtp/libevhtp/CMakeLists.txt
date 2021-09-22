@@ -56,7 +56,8 @@ set(LIBEVHTP_SOURCE_FILES
     evhtp.c
     numtoa.c
     parser.c
-    log.c)
+    log.c
+    triton_timestamp.cc)
 
 find_package(Libevent REQUIRED)
 list(APPEND LIBEVHTP_EXTERNAL_LIBS ${LIBEVENT_LIBRARIES})
