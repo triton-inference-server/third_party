@@ -76,7 +76,7 @@ endif()
 #
 ExternalProject_Add(curl
   PREFIX curl
-  GIT_REPOSITORY "https://github.com/curl/curl.git"
+  GIT_REPOSITORY "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-master.nvidia.com/oss/curl.git"
   GIT_TAG "curl-7_66_0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/curl/src/curl"
   CMAKE_CACHE_ARGS
@@ -100,7 +100,7 @@ ExternalProject_Add(curl
 #
 ExternalProject_Add(grpc-repo
   PREFIX grpc-repo
-  GIT_REPOSITORY "https://github.com/grpc/grpc.git"
+  GIT_REPOSITORY "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-master.nvidia.com/oss/grpc.git"
   GIT_TAG "v1.25.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
   CONFIGURE_COMMAND ""
@@ -116,7 +116,7 @@ ExternalProject_Add(grpc-repo
 #
 ExternalProject_Add(grpc-repo-new
   PREFIX grpc-repo-new
-  GIT_REPOSITORY "https://github.com/grpc/grpc.git"
+  GIT_REPOSITORY "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-master.nvidia.com/oss/grpc.git"
   GIT_TAG "v1.29.1"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo-new/src/grpc"
   CONFIGURE_COMMAND ""
@@ -131,7 +131,7 @@ ExternalProject_Add(grpc-repo-new
 #
 ExternalProject_Add(nlohmann-json
   PREFIX nlohmann-json
-  GIT_REPOSITORY "https://github.com/nlohmann/json.git"
+  GIT_REPOSITORY "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-master.nvidia.com/oss/json.git"
   GIT_TAG "v3.9.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/json"
   CMAKE_CACHE_ARGS
@@ -268,7 +268,7 @@ ExternalProject_Add(grpc
 #
 ExternalProject_Add(libevent
   PREFIX libevent
-  GIT_REPOSITORY "https://github.com/libevent/libevent.git"
+  GIT_REPOSITORY "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-master.nvidia.com/oss/libevent.git"
   GIT_TAG "release-2.1.8-stable"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/libevent/src/libevent"
   CMAKE_CACHE_ARGS
@@ -330,8 +330,8 @@ endif()
 #
 ExternalProject_Add(prometheus-cpp
   PREFIX prometheus-cpp
-  URL "https://github.com/jupp0r/prometheus-cpp/archive/v0.7.0.tar.gz"
-  URL_HASH SHA256=93907d937fa7eab9605cba786123d3eba4e87e3dca8ecec93ff9eae4eef8de5a
+  GIT_REPOSITORY "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-master.nvidia.com/oss/prometheus-cpp.git"
+  GIT_TAG "1.1.1"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/prometheus-cpp/src/prometheus-cpp"
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
@@ -351,7 +351,7 @@ ExternalProject_Add(prometheus-cpp
 #
 ExternalProject_Add(crc32c
   PREFIX crc32c
-  GIT_REPOSITORY "https://github.com/google/crc32c.git"
+  GIT_REPOSITORY "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-master.nvidia.com/oss/crc32c.git"
   GIT_TAG "1.1.1"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/crc32c/src/crc32c"
   CMAKE_CACHE_ARGS
@@ -386,7 +386,7 @@ set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
 #
 ExternalProject_Add(google-cloud-cpp
   PREFIX google-cloud-cpp
-  GIT_REPOSITORY "https://github.com/googleapis/google-cloud-cpp.git"
+  GIT_REPOSITORY "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-master.nvidia.com/oss/google-cloud-cpp.git"
   GIT_TAG "v1.23.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/google-cloud-cpp/src/google-cloud-cpp"
   CMAKE_CACHE_ARGS
@@ -409,7 +409,7 @@ ExternalProject_Add(google-cloud-cpp
 #
 ExternalProject_Add(azure-storage-cpplite
   PREFIX azure-storage-cpplite
-  GIT_REPOSITORY "https://github.com/Azure/azure-storage-cpplite.git"
+  GIT_REPOSITORY "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-master.nvidia.com/oss/azure-storage-cpplite.git"
   GIT_TAG "v0.3.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-storage-cpplite/src/azure-storage-cpplite"
   CMAKE_CACHE_ARGS
@@ -445,7 +445,7 @@ ExternalProject_Add(cnmem
 #
 ExternalProject_Add(aws-sdk-cpp
   PREFIX aws-sdk-cpp
-  GIT_REPOSITORY "https://github.com/aws/aws-sdk-cpp.git"
+  GIT_REPOSITORY "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-master.nvidia.com/oss/aws-sdk-cpp.git"
   GIT_TAG "1.8.186"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/aws-sdk-cpp/src/aws-sdk-cpp"
   CMAKE_CACHE_ARGS
