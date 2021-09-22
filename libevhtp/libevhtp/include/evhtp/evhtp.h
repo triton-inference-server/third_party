@@ -424,10 +424,10 @@ struct evhtp_request {
     uint16_t flags;
 
 #ifdef EVHTP_TRITON_ENABLE_TRACING
-    struct timespec recv_start_ts;
-    struct timespec recv_end_ts;
-    struct timespec send_start_ts;
-    struct timespec send_end_ts;
+    uint64_t recv_start_ns;
+    uint64_t recv_end_ns;
+    uint64_t send_start_ns;
+    uint64_t send_end_ns;
 #endif  /* EVHTP_TRITON_ENABLE_TRACING */
 
     evhtp_callback_cb cb;               /**< the function to call when fully processed */
