@@ -76,9 +76,8 @@ endif()
 #
 ExternalProject_Add(curl
   PREFIX curl
-  GIT_REPOSITORY "https://github.com/curl/curl.git"
-  GIT_TAG "curl-7_66_0"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/curl/src/curl"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/curl"
+  DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
@@ -100,9 +99,8 @@ ExternalProject_Add(curl
 #
 ExternalProject_Add(grpc-repo
   PREFIX grpc-repo
-  GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.25.0"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/grpc"
+  DOWNLOAD_COMMAND ""
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
@@ -116,9 +114,8 @@ ExternalProject_Add(grpc-repo
 #
 ExternalProject_Add(grpc-repo-new
   PREFIX grpc-repo-new
-  GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.29.1"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo-new/src/grpc"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/grpc-new"
+  DOWNLOAD_COMMAND ""
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
@@ -131,9 +128,8 @@ ExternalProject_Add(grpc-repo-new
 #
 ExternalProject_Add(nlohmann-json
   PREFIX nlohmann-json
-  GIT_REPOSITORY "https://github.com/nlohmann/json.git"
-  GIT_TAG "v3.9.0"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/json"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/json"
+  DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json
@@ -155,7 +151,7 @@ ExternalProject_Add(nlohmann-json
 #
 ExternalProject_Add(protobuf
   PREFIX protobuf
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/cmake"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/grpc/third_party/protobuf/cmake"
   DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
@@ -178,7 +174,7 @@ ExternalProject_Add(protobuf
 #
 ExternalProject_Add(absl
   PREFIX absl
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo-new/src/grpc/third_party/abseil-cpp"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/grpc-new/third_party/abseil-cpp"
   DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
@@ -196,7 +192,7 @@ ExternalProject_Add(absl
 #
 ExternalProject_Add(googletest
   PREFIX protobuf
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/googletest"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/grpc/third_party/googletest"
   DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
@@ -222,7 +218,7 @@ endif()
 #
 ExternalProject_Add(c-ares
   PREFIX c-ares
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/cares/cares"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/grpc/third_party/cares/cares"
   DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
@@ -243,7 +239,7 @@ ExternalProject_Add(c-ares
 #
 ExternalProject_Add(grpc
   PREFIX grpc
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/grpc"
   DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     -DgRPC_INSTALL:BOOL=ON
@@ -268,9 +264,8 @@ ExternalProject_Add(grpc
 #
 ExternalProject_Add(libevent
   PREFIX libevent
-  GIT_REPOSITORY "https://github.com/libevent/libevent.git"
-  GIT_TAG "release-2.1.8-stable"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/libevent/src/libevent"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/libevent"
+  DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
@@ -330,9 +325,8 @@ endif()
 #
 ExternalProject_Add(prometheus-cpp
   PREFIX prometheus-cpp
-  URL "https://github.com/jupp0r/prometheus-cpp/archive/v0.7.0.tar.gz"
-  URL_HASH SHA256=93907d937fa7eab9605cba786123d3eba4e87e3dca8ecec93ff9eae4eef8de5a
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/prometheus-cpp/src/prometheus-cpp"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/prometheus-cpp"
+  DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
@@ -351,9 +345,8 @@ ExternalProject_Add(prometheus-cpp
 #
 ExternalProject_Add(crc32c
   PREFIX crc32c
-  GIT_REPOSITORY "https://github.com/google/crc32c.git"
-  GIT_TAG "1.1.1"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/crc32c/src/crc32c"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/crc32c"
+  DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
@@ -386,9 +379,8 @@ set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
 #
 ExternalProject_Add(google-cloud-cpp
   PREFIX google-cloud-cpp
-  GIT_REPOSITORY "https://github.com/googleapis/google-cloud-cpp.git"
-  GIT_TAG "v1.23.0"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/google-cloud-cpp/src/google-cloud-cpp"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/google-cloud-cpp"
+  DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
@@ -409,9 +401,8 @@ ExternalProject_Add(google-cloud-cpp
 #
 ExternalProject_Add(azure-storage-cpplite
   PREFIX azure-storage-cpplite
-  GIT_REPOSITORY "https://github.com/Azure/azure-storage-cpplite.git"
-  GIT_TAG "v0.3.0"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-storage-cpplite/src/azure-storage-cpplite"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/azure-storage-cpplite"
+  DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
@@ -445,9 +436,8 @@ ExternalProject_Add(cnmem
 #
 ExternalProject_Add(aws-sdk-cpp
   PREFIX aws-sdk-cpp
-  GIT_REPOSITORY "https://github.com/aws/aws-sdk-cpp.git"
-  GIT_TAG "1.8.186"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/aws-sdk-cpp/src/aws-sdk-cpp"
+  SOURCE_DIR "${TRITON_REPOS_DIRECTORY}/aws-sdk-cpp"
+  DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
