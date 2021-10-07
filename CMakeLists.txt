@@ -101,7 +101,7 @@ ExternalProject_Add(curl
 ExternalProject_Add(grpc-repo
   PREFIX grpc-repo
   GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.38.0"
+  GIT_TAG "v1.41.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
@@ -117,7 +117,7 @@ ExternalProject_Add(grpc-repo
 ExternalProject_Add(grpc-repo-new
   PREFIX grpc-repo-new
   GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.29.1"
+  GIT_TAG "v1.41.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo-new/src/grpc"
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
