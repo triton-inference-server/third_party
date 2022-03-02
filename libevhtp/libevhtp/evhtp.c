@@ -2046,6 +2046,11 @@ htp__request_parse_fini_(htparser * p)
      *
      */
     if (c->request && c->request->cb) {
+#ifdef EVHTP_TRITON_ENABLE_TRACING
+       // The recv end timestamp should be captured before the request callback
+       // is called (transferring the control to the user code)
+       c->request->recv_end_ns = triton_timestamp();
+#endif  // EVHTP_TRITON_ENABLE_TRACING
        /*
         * Set flag to lower the weight of thread that is processing the
         * callback when selecting the thread to handle future requests. Detail:
@@ -2062,11 +2067,6 @@ htp__request_parse_fini_(htparser * p)
         return -1;
     }
 
-#ifdef EVHTP_TRITON_ENABLE_TRACING
-    if (c->request) {
-      c->request->recv_end_ns = triton_timestamp();
-    }
-#endif  // EVHTP_TRITON_ENABLE_TRACING
 
     return 0;
 } /* htp__request_parse_fini_ */
