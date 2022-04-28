@@ -1808,6 +1808,7 @@ htp__request_parse_path_(htparser * p, const char * data, size_t len)
 static int
 htp__request_parse_headers_(htparser * p)
 {
+    printf("[libevhtp::evhtp.c] inside htp__request_parse_headers\n");
     evhtp_connection_t * c;
 
     if ((c = htparser_get_userdata(p)) == NULL) {
@@ -1842,12 +1843,14 @@ htp__request_parse_headers_(htparser * p)
             evhtp_modp_uchartoa(htparser_get_minor(p)));
     }
 
+    printf("[libevhtp::evhtp.c] leaving htp__request_parse_headers\n");
     return 0;
 }
 
 static int
 htp__request_parse_body_(htparser * p, const char * data, size_t len)
 {
+    printf("[libevhtp::evhtp.c] inside htp__request_parse_body\n");
     evhtp_connection_t * c   = htparser_get_userdata(p);
     struct evbuffer    * buf;
     int                  res = 0;
@@ -1859,6 +1862,7 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
         return -1;
     }
 
+    printf("[libevhtp::evhtp.c] START EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
     // NVIDIA: Don't use a scratch evbuffer, just copy the data
     // directly into the request's buffer_in. This allows the body to
     // be contiguous in buffer_in. We don't use the htp__hook_body_
@@ -1897,9 +1901,11 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
 
     evbuffer_drain(buf, -1);
 #endif /* EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS */
+    printf("[libevhtp::evhtp.c] END EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
 
     c->body_bytes_read += len;
 
+    printf("[libevhtp::evhtp.c] leaving htp__request_parse_body\n");
     return res;
 }
 
