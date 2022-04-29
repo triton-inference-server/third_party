@@ -4456,50 +4456,62 @@ htp__set_hook_(evhtp_hooks_t ** hooks, evhtp_hook_type type, evhtp_hook cb, void
 
     switch (type) {
         case evhtp_hook_on_headers_start:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_start\n");
             (*hooks)->on_headers_start     = (evhtp_hook_headers_start_cb)cb;
             (*hooks)->on_headers_start_arg = arg;
             break;
         case evhtp_hook_on_header:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_header\n");
             (*hooks)->on_header               = (evhtp_hook_header_cb)cb;
             (*hooks)->on_header_arg           = arg;
             break;
         case evhtp_hook_on_headers:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_headers\n");
             (*hooks)->on_headers              = (evhtp_hook_headers_cb)cb;
             (*hooks)->on_headers_arg          = arg;
             break;
         case evhtp_hook_on_path:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_path\n");
             (*hooks)->on_path                 = (evhtp_hook_path_cb)cb;
             (*hooks)->on_path_arg             = arg;
             break;
         case evhtp_hook_on_read:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_read\n");
             (*hooks)->on_read                 = (evhtp_hook_read_cb)cb;
             (*hooks)->on_read_arg             = arg;
             break;
         case evhtp_hook_on_request_fini:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_request_fini\n");
             (*hooks)->on_request_fini         = (evhtp_hook_request_fini_cb)cb;
             (*hooks)->on_request_fini_arg     = arg;
             break;
         case evhtp_hook_on_connection_fini:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_connection_fini\n");
             (*hooks)->on_connection_fini      = (evhtp_hook_connection_fini_cb)cb;
             (*hooks)->on_connection_fini_arg  = arg;
             break;
         case evhtp_hook_on_conn_error:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_conn_error\n");
             (*hooks)->on_connection_error     = (evhtp_hook_conn_err_cb)cb;
             (*hooks)->on_connection_error_arg = arg;
             break;
         case evhtp_hook_on_error:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_error\n");
             (*hooks)->on_error                = (evhtp_hook_err_cb)cb;
             (*hooks)->on_error_arg            = arg;
             break;
         case evhtp_hook_on_new_chunk:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_new_chunk\n");
             (*hooks)->on_new_chunk            = (evhtp_hook_chunk_new_cb)cb;
             (*hooks)->on_new_chunk_arg        = arg;
             break;
         case evhtp_hook_on_chunk_complete:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_chunk_complete\n");
             (*hooks)->on_chunk_fini           = (evhtp_hook_chunk_fini_cb)cb;
             (*hooks)->on_chunk_fini_arg       = arg;
             break;
         case evhtp_hook_on_chunks_complete:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_chunks_complete\n");
             (*hooks)->on_chunks_fini          = (evhtp_hook_chunks_fini_cb)cb;
             (*hooks)->on_chunks_fini_arg      = arg;
             break;
@@ -4508,10 +4520,12 @@ htp__set_hook_(evhtp_hooks_t ** hooks, evhtp_hook_type type, evhtp_hook cb, void
             (*hooks)->on_hostname_arg         = arg;
             break;
         case evhtp_hook_on_write:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_write\n");
             (*hooks)->on_write                = (evhtp_hook_write_cb)cb;
             (*hooks)->on_write_arg            = arg;
             break;
         case evhtp_hook_on_event:
+            printf("[libevhtp::evhtp.c] inside case evhtp_hook_on_event\n");
             (*hooks)->on_event                = (evhtp_hook_event_cb)cb;
             (*hooks)->on_event_arg            = arg;
             break;
