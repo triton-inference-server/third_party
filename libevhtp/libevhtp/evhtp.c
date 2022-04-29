@@ -1877,18 +1877,22 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
 #ifdef EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS
     printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
     if (len > 0) {
+        printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS len > 0\n");
         // The first time we get some body content, reserve enough
         // space in buffer_in to hold the entire body.
         if (evbuffer_get_length(c->request->buffer_in) == 0) {
+            printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS get_length buffer_in == 0\n");
             const char* content_length =
                 evhtp_kv_find(c->request->headers_in, "Content-Length");
             log_debug("reserving buffer_in for content_length: %s", content_length);
 
             struct evbuffer_iovec output_iovec;
+            printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ev_buffer_reserve_space\n");
             evbuffer_reserve_space(
                 c->request->buffer_in, atol(content_length), &output_iovec, 1);
         }
 
+        printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ev_buffer_add\n");
         evbuffer_add(c->request->buffer_in, data, len);
     }
 #else
