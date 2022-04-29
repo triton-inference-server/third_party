@@ -2458,6 +2458,7 @@ htp__connection_writecb_(struct bufferevent * bev, void * arg)
     } while (0);
 
     if (evhtp_unlikely(errstr != NULL)) {
+        printf("[libevhtp::evhtp.c] shutting down connection\n");
         log_error("shutting down connection: %s", errstr);
 
         evhtp_safe_free(conn, evhtp_connection_free);
@@ -2549,6 +2550,7 @@ htp__connection_writecb_(struct bufferevent * bev, void * arg)
                 type = htp_type_request;
                 break;
             default:
+                printf("[libevhtp::evhtp.c] unknown connection type\n");
                 log_error("Unknown connection type");
 
                 evhtp_safe_free(conn, evhtp_connection_free);
@@ -2560,6 +2562,7 @@ htp__connection_writecb_(struct bufferevent * bev, void * arg)
 
         return;
     } else {
+        printf("[libevhtp::evhtp.c] goodbye connection\n");
         log_debug("goodbye connection");
         evhtp_safe_free(conn, evhtp_connection_free);
 
