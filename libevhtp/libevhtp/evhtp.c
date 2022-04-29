@@ -665,12 +665,16 @@ htp__hook_body_(struct evhtp_request * request, struct evbuffer * buf)
 static inline evhtp_res
 htp__hook_request_fini_(struct evhtp_request * request)
 {
+    printf("[libevhtp::evhtp.c] inside htp__hook_request_fini_\n");
+    
     if (request == NULL) {
+        printf("[libevhtp::evhtp.c] inside htp__hook_request_fini_ request==NULL\n");
         return EVHTP_RES_500;
     }
 
     HOOK_REQUEST_RUN_NARGS(request, on_request_fini);
 
+    printf("[libevhtp::evhtp.c] leaving htp__hook_request_fini_\n");
     return EVHTP_RES_OK;
 }
 
@@ -684,7 +688,9 @@ htp__hook_request_fini_(struct evhtp_request * request)
 static inline evhtp_res
 htp__hook_chunk_new_(struct evhtp_request * request, uint64_t len)
 {
+    printf("[libevhtp::evhtp.c] inside htp__hook_chunk_new_\n");
     HOOK_REQUEST_RUN(request, on_new_chunk, len);
+    printf("[libevhtp::evhtp.c] leaving htp__hook_chunk_new_\n");
 
     return EVHTP_RES_OK;
 }
@@ -698,7 +704,9 @@ htp__hook_chunk_new_(struct evhtp_request * request, uint64_t len)
 static inline evhtp_res
 htp__hook_chunk_fini_(struct evhtp_request * request)
 {
+    printf("[libevhtp::evhtp.c] inside htp__hook_chunk_fini_\n");
     HOOK_REQUEST_RUN_NARGS(request, on_chunk_fini);
+    printf("[libevhtp::evhtp.c] leaving htp__hook_chunk_fini_\n");
 
     return EVHTP_RES_OK;
 }
@@ -712,7 +720,9 @@ htp__hook_chunk_fini_(struct evhtp_request * request)
 static inline evhtp_res
 htp__hook_chunks_fini_(struct evhtp_request * request)
 {
+    printf("[libevhtp::evhtp.c] inside htp__hook_chunks_fini_\n");
     HOOK_REQUEST_RUN_NARGS(request, on_chunks_fini);
+    printf("[libevhtp::evhtp.c] leaving htp__hook_chunks_fini_\n");
 
     return EVHTP_RES_OK;
 }
@@ -726,7 +736,9 @@ htp__hook_chunks_fini_(struct evhtp_request * request)
 static inline evhtp_res
 htp__hook_headers_start_(struct evhtp_request * request)
 {
+    printf("[libevhtp::evhtp.c] inside htp__hook_headers_start\n");
     HOOK_REQUEST_RUN_NARGS(request, on_headers_start);
+    printf("[libevhtp::evhtp.c] leaving htp__hook_headers_start\n");
 
     return EVHTP_RES_OK;
 }
@@ -742,14 +754,18 @@ htp__hook_headers_start_(struct evhtp_request * request)
 static inline evhtp_res
 htp__hook_connection_fini_(struct evhtp_connection * connection)
 {
+    printf("[libevhtp::evhtp.c] inside htp__hook_connection_fini\n");
     if (evhtp_unlikely(connection == NULL)) {
+        printf("[libevhtp::evhtp.c] evhtp_unlikely return 500\n");
         return 500;
     }
 
     if (connection->hooks != NULL && connection->ch_fini != NULL) {
+        printf("[libevhtp::evhtp.c] hooks non-null and ch_fini non-null, return ch_fini\n");
         return (connection->ch_fini)(connection, connection->ch_fini_arg);
     }
 
+    printf("[libevhtp::evhtp.c] leaving htp__hook_connection_fini\n");
     return EVHTP_RES_OK;
 }
 
@@ -762,9 +778,12 @@ htp__hook_connection_fini_(struct evhtp_connection * connection)
 static inline void
 htp__hook_error_(struct evhtp_request * request, evhtp_error_flags errtype)
 {
+    printf("[libevhtp::evhtp.c] inside htp__hook_error\n");
     if (request && request->hooks && request->rh_err) {
+        printf("[libevhtp::evhtp.c] htp__hook_error setting error on request\n");
         (*request->rh_err)(request, errtype, request->rh_err_arg);
     }
+    printf("[libevhtp::evhtp.c] leaving htp__hook_error\n");
 }
 
 /**
@@ -776,6 +795,7 @@ htp__hook_error_(struct evhtp_request * request, evhtp_error_flags errtype)
 static inline evhtp_res
 htp__hook_connection_error_(struct evhtp_connection * connection, evhtp_error_flags errtype)
 {
+    printf("[libevhtp::evhtp.c] inside htp__hook_connection_error\n");
     if (connection == NULL) {
         return EVHTP_RES_FATAL;
     }
@@ -784,6 +804,7 @@ htp__hook_connection_error_(struct evhtp_connection * connection, evhtp_error_fl
         htp__hook_error_(connection->request, errtype);
     }
 
+    printf("[libevhtp::evhtp.c] leaving htp__hook_connection_error\n");
     return EVHTP_RES_OK;
 }
 
@@ -1843,6 +1864,7 @@ htp__request_parse_headers_(htparser * p)
             return 0;
         }
 
+        printf("[libevhtp::evhtp.c] evbuffer_add_printf bufferevent_get_output\n");
         evbuffer_add_printf(bufferevent_get_output(c->bev),
             "HTTP/%c.%c 100 Continue\r\n\r\n",
             evhtp_modp_uchartoa(htparser_get_major(p)),
