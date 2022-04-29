@@ -1934,7 +1934,10 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
             } else {
                 printf("content_length is NULL, header not found\n");
                 evbuffer_reserve_space(
-                    c->request->buffer_in, 0, &output_iovec, 1);
+                    //c->request->buffer_in, 0, &output_iovec, 1);
+                    // For chunked transfer-encoding, content-length header is
+                    // omitted, so reserve "len" space instead
+                    c->request->buffer_in, len, &output_iovec, 1);
             }
         }
 
