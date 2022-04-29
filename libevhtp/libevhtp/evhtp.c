@@ -1889,10 +1889,16 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
             struct evbuffer_iovec output_iovec;
             printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ev_buffer_reserve_space\n");
             printf("c->request->buffer_in: %p\n", c->request->buffer_in);
-            printf("content_length: %d\n", atol(content_length));
             printf("&output_iovec: %p\n", &output_iovec);
-            evbuffer_reserve_space(
-                c->request->buffer_in, atol(content_length), &output_iovec, 1);
+            if (content_length != NULL) {
+                printf("content_length: %d\n", atol(content_length));
+                evbuffer_reserve_space(
+                    c->request->buffer_in, atol(content_length), &output_iovec, 1);
+            } else {
+                printf("content_length is NULL, header not found");
+                evbuffer_reserve_space(
+                    c->request->buffer_in, 0, &output_iovec, 1);
+            }
         }
 
         printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ev_buffer_add\n");
