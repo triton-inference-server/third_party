@@ -1812,12 +1812,14 @@ htp__request_parse_headers_(htparser * p)
     evhtp_connection_t * c;
 
     if ((c = htparser_get_userdata(p)) == NULL) {
+        printf("[libevhtp::evhtp.c] htparser_get_userdata(p) == NULL\n");
         return -1;
     }
 
     /* XXX proto should be set with htparsers on_hdrs_begin hook */
 
     if (htparser_should_keep_alive(p) == 1) {
+        printf("[libevhtp::evhtp.c] htparser_should_keep_alive(p) == 1\n");
         HTP_FLAG_ON(c->request, EVHTP_REQ_FLAG_KEEPALIVE);
     }
 
@@ -1825,6 +1827,7 @@ htp__request_parse_headers_(htparser * p)
     c->cr_status = htp__hook_headers_(c->request, c->request->headers_in);
 
     if (c->cr_status != EVHTP_RES_OK) {
+        printf("[libevhtp::evhtp.c] c->cr_status != EVHTP_RES_OK\n");
         return -1;
     }
 
@@ -1834,6 +1837,7 @@ htp__request_parse_headers_(htparser * p)
          * evhtp_disable_100_continue.
          */
         if (!evhtp_header_find(c->request->headers_in, "Expect")) {
+            printf("[libevhtp::evhtp.c] !evhtp_header_find(c->request->headers_in, 'Expect')\n");
             return 0;
         }
 
@@ -1862,13 +1866,14 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
         return -1;
     }
 
-    printf("[libevhtp::evhtp.c] START EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
+    printf("[libevhtp::evhtp.c] BEFORE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
     // NVIDIA: Don't use a scratch evbuffer, just copy the data
     // directly into the request's buffer_in. This allows the body to
     // be contiguous in buffer_in. We don't use the htp__hook_body_
     // callback so there is no need to stage the body data through
     // 'buf'.
 #ifdef EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS
+    printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
     if (len > 0) {
         // The first time we get some body content, reserve enough
         // space in buffer_in to hold the entire body.
@@ -1901,7 +1906,7 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
 
     evbuffer_drain(buf, -1);
 #endif /* EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS */
-    printf("[libevhtp::evhtp.c] END EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
+    printf("[libevhtp::evhtp.c] AFTER EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
 
     c->body_bytes_read += len;
 
@@ -3815,6 +3820,7 @@ evhtp_parse_query(const char * query, size_t len)
 void
 evhtp_send_reply_start(evhtp_request_t * request, evhtp_res code)
 {
+    printf("[libevhtp::evhtp.c] inside evhtp_send_reply_start\n");
     evhtp_connection_t * c;
     struct evbuffer    * reply_buf;
 
@@ -3832,6 +3838,7 @@ evhtp_send_reply_start(evhtp_request_t * request, evhtp_res code)
 void
 evhtp_send_reply_body(evhtp_request_t * request, struct evbuffer * buf)
 {
+    printf("[libevhtp::evhtp.c] inside evhtp_send_reply_body\n");
     evhtp_connection_t * c;
 
     c = request->conn;
@@ -3842,12 +3849,14 @@ evhtp_send_reply_body(evhtp_request_t * request, struct evbuffer * buf)
 void
 evhtp_send_reply_end(evhtp_request_t * request)
 {
+    printf("[libevhtp::evhtp.c] inside evhtp_send_reply_end\n");
     HTP_FLAG_ON(request, EVHTP_REQ_FLAG_FINISHED);
 }
 
 void
 evhtp_send_reply(evhtp_request_t * request, evhtp_res code)
 {
+    printf("[libevhtp::evhtp.c] inside evhtp_send_reply\n");
     evhtp_connection_t * c;
     struct evbuffer    * reply_buf;
     struct bufferevent * bev;
@@ -3882,6 +3891,7 @@ evhtp_send_reply(evhtp_request_t * request, evhtp_res code)
 int
 evhtp_response_needs_body(const evhtp_res code, const htp_method method)
 {
+    printf("[libevhtp::evhtp.c] inside evhtp_response_needs_body\n");
     return code != EVHTP_RES_NOCONTENT &&
            code != EVHTP_RES_NOTMOD &&
            (code < 100 || code >= 200) &&
@@ -3891,6 +3901,7 @@ evhtp_response_needs_body(const evhtp_res code, const htp_method method)
 void
 evhtp_send_reply_chunk_start(evhtp_request_t * request, evhtp_res code)
 {
+    printf("[libevhtp::evhtp.c] inside evhtp_send_reply_chunk_start\n");
     evhtp_header_t * content_len;
 
     if (evhtp_response_needs_body(code, request->method)) {
@@ -3907,6 +3918,7 @@ evhtp_send_reply_chunk_start(evhtp_request_t * request, evhtp_res code)
 
                 evhtp_kv_rm_and_free(request->headers_out, content_len);
 
+                printf("[libevhtp::evhtp.c] enabling http1.1 chunked flag\n");
                 HTP_FLAG_ON(request, EVHTP_REQ_FLAG_CHUNKED);
                 break;
             case EVHTP_PROTO_10:
@@ -3916,17 +3928,21 @@ evhtp_send_reply_chunk_start(evhtp_request_t * request, evhtp_res code)
                  */
                 evhtp_kv_rm_and_free(request->headers_out, content_len);
 
+                printf("[libevhtp::evhtp.c] enabling http1.0 chunked flag\n");
                 HTP_FLAG_ON(request, EVHTP_REQ_FLAG_CHUNKED);
                 break;
             default:
+                printf("[libevhtp::evhtp.c] DISABLING (default case) chunked flag\n");
                 HTP_FLAG_OFF(request, EVHTP_REQ_FLAG_CHUNKED);
                 break;
         }     /* switch */
     } else {
+        printf("[libevhtp::evhtp.c] DISABLING (else block) chunked flag\n");
         HTP_FLAG_OFF(request, EVHTP_REQ_FLAG_CHUNKED);
     }
 
     if (request->flags & EVHTP_REQ_FLAG_CHUNKED) {
+        printf("[libevhtp::evhtp.c] Adding evhtp_header_new chunked header\n");
         evhtp_headers_add_header(request->headers_out,
             evhtp_header_new("Transfer-Encoding", "chunked", 0, 0));
 
@@ -3959,6 +3975,7 @@ end:
 void
 evhtp_send_reply_chunk(evhtp_request_t * request, struct evbuffer * buf)
 {
+    printf("[libevhtp::evhtp.c] inside evhtp_send_reply_chunk\n");
     struct evbuffer * output;
 
     if (evbuffer_get_length(buf) == 0) {
@@ -3984,6 +4001,7 @@ evhtp_send_reply_chunk(evhtp_request_t * request, struct evbuffer * buf)
 void
 evhtp_send_reply_chunk_end(evhtp_request_t * request)
 {
+    printf("[libevhtp::evhtp.c] inside evhtp_send_reply_chunk_end\n");
     if (request->flags & EVHTP_REQ_FLAG_CHUNKED) {
         evbuffer_add(bufferevent_get_output(evhtp_request_get_bev(request)),
             "0\r\n\r\n", 5);
@@ -3995,6 +4013,7 @@ evhtp_send_reply_chunk_end(evhtp_request_t * request)
 void
 evhtp_unbind_socket(evhtp_t * htp)
 {
+    printf("[libevhtp::evhtp.c] inside evhtp_unbind_socket\n");
     if (htp == NULL || htp->server == NULL) {
         return;
     }
@@ -4005,6 +4024,7 @@ evhtp_unbind_socket(evhtp_t * htp)
 static int
 htp__serv_setsockopts_(evhtp_t * htp, evutil_socket_t sock)
 {
+    printf("[libevhtp::evhtp.c] inside htp__serv_setsockopts_\n");
     int on = 1;
 
     if (htp == NULL || sock == -1) {
@@ -4068,6 +4088,7 @@ htp__serv_setsockopts_(evhtp_t * htp, evutil_socket_t sock)
 int
 evhtp_accept_socket(evhtp_t * htp, evutil_socket_t sock, int backlog)
 {
+    printf("[libevhtp::evhtp.c] inside evhtp_accept_socket\n");
     int err = 1;
 
     if (htp == NULL || sock == -1) {
