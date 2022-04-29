@@ -1253,14 +1253,18 @@ htp__uri_new_(evhtp_uri_t ** out)
 static void
 htp__request_free_(evhtp_request_t * request)
 {
+    printf("[libevhtp::evhtp.c] inside htp__request_free\n");
     if (request == NULL) {
         return;
     }
 
     htp__hook_request_fini_(request);
 
+    printf("[libevhtp::evhtp.c] in htp__request_free safe_free uri\n");
     evhtp_safe_free(request->uri, htp__uri_free_);
+    printf("[libevhtp::evhtp.c] in htp__request_free safe_free headers_in\n");
     evhtp_safe_free(request->headers_in, evhtp_kvs_free);
+    printf("[libevhtp::evhtp.c] in htp__request_free safe_free headers_out\n");
     evhtp_safe_free(request->headers_out, evhtp_kvs_free);
 
     if (request->conn && request->conn->request == request) {
@@ -1268,15 +1272,20 @@ htp__request_free_(evhtp_request_t * request)
     }
 
     if (request->buffer_in != NULL) {
+        printf("[libevhtp::evhtp.c] in htp__request_free safe_free buffer_in\n");
         evhtp_safe_free(request->buffer_in, evbuffer_free);
     }
 
     if (request->buffer_out != NULL) {
+        printf("[libevhtp::evhtp.c] in htp__request_free safe_free buffer_out\n");
         evhtp_safe_free(request->buffer_out, evbuffer_free);
     }
 
+    printf("[libevhtp::evhtp.c] in htp__request_free safe_free hooks \n");
     evhtp_safe_free(request->hooks, htp__free_);
+    printf("[libevhtp::evhtp.c] in htp__request_free safe_free request \n");
     evhtp_safe_free(request, htp__free_);
+    printf("[libevhtp::evhtp.c] leaving htp__request_free\n");
 }
 
 /**
