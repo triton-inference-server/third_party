@@ -1932,7 +1932,7 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
                 evbuffer_reserve_space(
                     c->request->buffer_in, atol(content_length), &output_iovec, 1);
             } else {
-                printf("content_length is NULL, header not found");
+                printf("content_length is NULL, header not found\n");
                 evbuffer_reserve_space(
                     c->request->buffer_in, 0, &output_iovec, 1);
             }
@@ -3974,6 +3974,7 @@ evhtp_send_reply_chunk_start(evhtp_request_t * request, evhtp_res code)
                  * and it's not necessary then anyway.
                  */
 
+                printf("[libevhtp::evhtp.c] @@@@@@@@ removing content-length flag\n");
                 evhtp_kv_rm_and_free(request->headers_out, content_len);
 
                 printf("[libevhtp::evhtp.c] enabling http1.1 chunked flag\n");
@@ -3984,6 +3985,7 @@ evhtp_send_reply_chunk_start(evhtp_request_t * request, evhtp_res code)
                  * HTTP/1.0 can be chunked as long as the Content-Length header
                  * is set to 0
                  */
+                printf("[libevhtp::evhtp.c] @@@@@@@@ removing content-length flag\n");
                 evhtp_kv_rm_and_free(request->headers_out, content_len);
 
                 printf("[libevhtp::evhtp.c] enabling http1.0 chunked flag\n");
