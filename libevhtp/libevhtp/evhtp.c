@@ -1439,9 +1439,11 @@ htp__request_parse_args_(htparser * p, const char * data, size_t len)
 static int
 htp__request_parse_headers_start_(htparser * p)
 {
+    printf("[libevhtp::evhtp.c] inside htp__request_parse_headers_start_\n");
     evhtp_connection_t * c = htparser_get_userdata(p);
 
     if ((c->cr_status = htp__hook_headers_start_(c->request)) != EVHTP_RES_OK) {
+        printf("[libevhtp::evhtp.c] (c->cr_status = htp__hook_headers_start_(c->request)) != EVHTP_RES_OK\n");
         return -1;
     }
 
@@ -2694,10 +2696,12 @@ htp__run_pre_accept_(evhtp_t * htp, evhtp_connection_t * conn)
 static int
 htp__connection_accept_(struct event_base * evbase, evhtp_connection_t * connection)
 {
+    printf("[libevhtp::evhtp.c] inside htp__connection_accept_\n");
     struct timeval * c_recv_timeo;
     struct timeval * c_send_timeo;
 
     if (htp__run_pre_accept_(connection->htp, connection) < 0) {
+        printf("[libevhtp::evhtp.c] [htp__connection_accept_] Calling evutil_closesocket\n");
         evutil_closesocket(connection->sock);
 
         return -1;
@@ -2908,6 +2912,7 @@ htp__accept_cb_(struct evconnlistener * serv, int fd, struct sockaddr * s, int s
     if (htp->thr_pool != NULL) {
         if (evthr_pool_defer(htp->thr_pool,
                 htp__run_in_thread_, connection) != EVTHR_RES_OK) {
+            printf("[libevhtp::evhtp.c] [htp__accept_cb_] Calling evutil_closesocket\n");
             evutil_closesocket(connection->sock);
             evhtp_safe_free(connection, evhtp_connection_free);
 
@@ -4185,6 +4190,7 @@ evhtp_bind_sockaddr(evhtp_t         * htp,
 
     if (error == 1) {
         if (fd != -1) {
+            printf("[libevhtp::evhtp.c] [evhtp_bind_sockaddr ERROR] Calling evutil_closesocket\n");
             evutil_closesocket(fd);
         }
 
@@ -4195,6 +4201,7 @@ evhtp_bind_sockaddr(evhtp_t         * htp,
         /* accept_socket() does not close the descriptor
          * on error, but this function does.
          */
+        printf("[libevhtp::evhtp.c] [evhtp_bind_sockaddr FAIL TO ACCEPT SOCKET] Calling evutil_closesocket\n");
         evutil_closesocket(fd);
 
         return -1;
