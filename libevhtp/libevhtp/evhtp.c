@@ -5215,6 +5215,7 @@ evhtp_request_set_max_body_size(evhtp_request_t * req, uint64_t len)
 void
 evhtp_connection_free(evhtp_connection_t * connection)
 {
+    printf("[libevhtp::evhtp.c] inside evhtp_connection_free\n");
     if (evhtp_unlikely(connection == NULL)) {
         return;
     }
@@ -5247,16 +5248,19 @@ evhtp_connection_free(evhtp_connection_t * connection)
     }
 
     evhtp_safe_free(connection, htp__free_);
+    printf("[libevhtp::evhtp.c] leaving evhtp_connection_free\n");
 }         /* evhtp_connection_free */
 
 void
 evhtp_request_free(evhtp_request_t * request)
 {
+    printf("[libevhtp::evhtp.c] inside evhtp_request_free\n");
     if (request == NULL) {
         return;
     }
 
     evhtp_safe_free(request, htp__request_free_);
+    printf("[libevhtp::evhtp.c] leaving evhtp_request_free\n");
 }
 
 void
