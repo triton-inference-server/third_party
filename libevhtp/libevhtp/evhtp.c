@@ -1860,7 +1860,7 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
     }
 
     bool reserve_contiguous_buffer = false;
-    char* content_length = NULL;
+    const char* content_length = NULL;
 
 #ifdef EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS
     content_length =
