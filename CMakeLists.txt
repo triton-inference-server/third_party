@@ -205,7 +205,9 @@ ExternalProject_Add(absl
 # source for this target.
 #
 # Use -DCMAKE_BUILD_TYPE:STRING=RELEASE to workaround the issue similar to
-# protobuf build, so CMake's FindPackage can find installed googletest
+# protobuf build, so CMake's FindPackage can find installed googletest.
+# Note that the issue may be fixed in newer verion, should verify once we
+# advance the library version https://github.com/google/googletest/pull/3732
 #
 ExternalProject_Add(googletest
   PREFIX protobuf
