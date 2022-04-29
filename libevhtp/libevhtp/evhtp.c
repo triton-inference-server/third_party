@@ -1298,6 +1298,7 @@ htp__request_free_(evhtp_request_t * request)
 static evhtp_request_t *
 htp__request_new_(evhtp_connection_t * c)
 {
+    printf("[libevhtp::evhtp.c] inside htp__request_new\n");
     struct evhtp_request * req;
     uint8_t                error;
 
@@ -1339,6 +1340,7 @@ htp__request_new_(evhtp_connection_t * c)
 
     evhtp_safe_free(req, htp__request_free_);
 
+    printf("[libevhtp::evhtp.c] leaving htp__request_new\n");
     return req;
 } /* htp__request_new_ */
 
@@ -1351,6 +1353,7 @@ htp__request_new_(evhtp_connection_t * c)
 static int
 htp__request_parse_start_(htparser * p)
 {
+    printf("[libevhtp::evhtp.c] inside htp__request_parse_start\n");
     evhtp_connection_t * c;
 
     if (p == NULL) {
@@ -1385,6 +1388,7 @@ htp__request_parse_start_(htparser * p)
     c->request->recv_start_ns = triton_timestamp();
 #endif  // EVHTP_TRITON_ENABLE_TRACING
 
+    printf("[libevhtp::evhtp.c] leaving htp__request_parse_start\n");
     return 0;
 }
 
@@ -1401,6 +1405,7 @@ htp__request_parse_start_(htparser * p)
 static int
 htp__request_parse_args_(htparser * p, const char * data, size_t len)
 {
+    printf("[libevhtp::evhtp.c] inside htp__request_parse_args\n");
     evhtp_connection_t * c   = htparser_get_userdata(p);
     evhtp_uri_t        * uri = c->request->uri;
     const char         * fragment;
@@ -1463,6 +1468,7 @@ htp__request_parse_args_(htparser * p, const char * data, size_t len)
     memcpy(uri->query_raw, data, len);
     uri->query_raw[len] = '\0';
 
+    printf("[libevhtp::evhtp.c] leaving htp__request_parse_args\n");
     return 0;
 } /* htp__request_parse_args_ */
 
