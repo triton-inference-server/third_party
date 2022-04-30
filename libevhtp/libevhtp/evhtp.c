@@ -1905,63 +1905,55 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
         return -1;
     }
 
-    printf("[libevhtp::evhtp.c] BEFORE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
+printf("[libevhtp::evhtp.c] BEFORE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
+#ifdef EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS
+    printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
+    content_length =
+        evhtp_kv_find(c->request->headers_in, "Content-Length");
+    if (content_length != NULL) {
+      reserve_contiguous_buffer = true;
+    }
+#endif /* EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS */
+
     // NVIDIA: Don't use a scratch evbuffer, just copy the data
     // directly into the request's buffer_in. This allows the body to
     // be contiguous in buffer_in. We don't use the htp__hook_body_
     // callback so there is no need to stage the body data through
-    // 'buf'.
-#ifdef EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS
-    printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
-    if (len > 0) {
-        printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS len > 0\n");
-        // The first time we get some body content, reserve enough
-        // space in buffer_in to hold the entire body.
-        if (evbuffer_get_length(c->request->buffer_in) == 0) {
-            printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS get_length buffer_in == 0\n");
-            const char* content_length =
-                evhtp_kv_find(c->request->headers_in, "Content-Length");
-            log_debug("reserving buffer_in for content_length: %s", content_length);
+    // 'buf'. In some cases, such as when sending the
+    // "Transfer-Encoding: chunked" header, the "Content-Length" header
+    // will be omitted so we can not reserve the full space upfront.
+    if (reserve_contiguous_buffer) {
+        if (len > 0) {
+            printf("[libevhtp::evhtp.c] INSIDE reserve_contiguous_buffer & len > 0\n");
+            // The first time we get some body content, reserve enough
+            // space in buffer_in to hold the entire body.
+            if (evbuffer_get_length(c->request->buffer_in) == 0) {
+                log_debug("reserving buffer_in for content_length: %s", content_length);
 
-            struct evbuffer_iovec output_iovec;
-            printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ev_buffer_reserve_space\n");
-            printf("c->request->buffer_in: %p\n", c->request->buffer_in);
-            printf("&output_iovec: %p\n", &output_iovec);
-            if (content_length != NULL) {
-                printf("content_length: %d\n", atol(content_length));
+                struct evbuffer_iovec output_iovec;
                 evbuffer_reserve_space(
                     c->request->buffer_in, atol(content_length), &output_iovec, 1);
-            } else {
-                printf("content_length is NULL, header not found\n");
-                evbuffer_reserve_space(
-                    //c->request->buffer_in, 0, &output_iovec, 1);
-                    // For chunked transfer-encoding, content-length header is
-                    // omitted, so reserve "len" space instead
-                    c->request->buffer_in, len, &output_iovec, 1);
             }
+
+            evbuffer_add(c->request->buffer_in, data, len);
+        }
+    } else {
+        if ((buf = c->scratch_buf) == NULL) {
+            return -1;
         }
 
-        printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ev_buffer_add\n");
-        evbuffer_add(c->request->buffer_in, data, len);
-    }
-#else
-    if ((buf = c->scratch_buf) == NULL) {
-        return -1;
-    }
+        evbuffer_add(buf, data, len);
 
-    evbuffer_add(buf, data, len);
+        if ((c->cr_status = htp__hook_body_(c->request, buf)) != EVHTP_RES_OK) {
+            res = -1;
+        }
 
-    if ((c->cr_status = htp__hook_body_(c->request, buf)) != EVHTP_RES_OK) {
-        res = -1;
+        if (evbuffer_get_length(buf)) {
+            evbuffer_add_buffer(c->request->buffer_in, buf);
+        }
+
+        evbuffer_drain(buf, -1);
     }
-
-    if (evbuffer_get_length(buf)) {
-        evbuffer_add_buffer(c->request->buffer_in, buf);
-    }
-
-    evbuffer_drain(buf, -1);
-#endif /* EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS */
-    printf("[libevhtp::evhtp.c] AFTER EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
 
     c->body_bytes_read += len;
 
