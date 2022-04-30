@@ -1931,7 +1931,7 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
             // The first time we get some body content, reserve enough
             // space in buffer_in to hold the entire body.
             if (evbuffer_get_length(c->request->buffer_in) == 0) {
-                printf("[libevhtp::evhtp.c] reserving buffer_in for content_length: %s", content_length);
+                printf("[libevhtp::evhtp.c] reserving buffer_in for content_length: %s\n", content_length);
                 log_debug("reserving buffer_in for content_length: %s", content_length);
 
                 struct evbuffer_iovec output_iovec;
@@ -1975,6 +1975,7 @@ htp__request_parse_chunk_new_(htparser * p)
         return -1;
     }
 
+    printf("[libevhtp::evhtp.c] htp__request_parse_chunk_new_ content_length: %d \n", htparser_get_content_length(p));
     if ((c->cr_status =
              htp__hook_chunk_new_(c->request, htparser_get_content_length(p))) != EVHTP_RES_OK) {
         return -1;
