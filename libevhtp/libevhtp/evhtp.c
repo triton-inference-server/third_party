@@ -1960,6 +1960,7 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
     }
 
     c->body_bytes_read += len;
+    printf("[libevhtp::evhtp.c] this len: %d, c->body_bytes_read: %d \n", len, c->body_bytes_read);
 
     printf("[libevhtp::evhtp.c] leaving htp__request_parse_body\n");
     return res;
