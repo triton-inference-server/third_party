@@ -1905,7 +1905,10 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
         return -1;
     }
 
-printf("[libevhtp::evhtp.c] BEFORE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
+    bool reserve_contiguous_buffer = false;
+    const char* content_length = NULL;
+
+    printf("[libevhtp::evhtp.c] BEFORE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
 #ifdef EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS
     printf("[libevhtp::evhtp.c] INSIDE EVHTP_TRITON_ENABLE_HTTP_CONTIGUOUS ifdef block\n");
     content_length =
