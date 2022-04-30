@@ -1931,6 +1931,7 @@ htp__request_parse_body_(htparser * p, const char * data, size_t len)
             // The first time we get some body content, reserve enough
             // space in buffer_in to hold the entire body.
             if (evbuffer_get_length(c->request->buffer_in) == 0) {
+                printf("[libevhtp::evhtp.c] reserving buffer_in for content_length: %s", content_length);
                 log_debug("reserving buffer_in for content_length: %s", content_length);
 
                 struct evbuffer_iovec output_iovec;
