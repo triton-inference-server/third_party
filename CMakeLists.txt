@@ -257,7 +257,7 @@ ExternalProject_Add(grpc
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc
-  DEPENDS grpc-repo c-ares protobuf
+  DEPENDS grpc-repo c-ares protobuf absl
 )
 
 #
