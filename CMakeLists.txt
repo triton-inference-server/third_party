@@ -114,23 +114,6 @@ ExternalProject_Add(grpc-repo
 )
 
 #
-# The GCS build requires a abseil newer than the one found in grpc
-# v1.25.0 so grab a newer grpc just for abseil.
-#
-ExternalProject_Add(grpc-repo-new
-  PREFIX grpc-repo-new
-  GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.29.1"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo-new/src/grpc"
-  EXCLUDE_FROM_ALL ON
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
-  TEST_COMMAND ""
-  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.29.1
-)
-
-#
 # Build nlohmann/json
 #
 ExternalProject_Add(nlohmann-json
@@ -181,14 +164,14 @@ ExternalProject_Add(protobuf
 )
 
 #
-# Build absl (abseil) project from grpc-repo-new (see comment above).
+# Build absl (abseil) project from grpc-repo
 #
-# Source is from grpc-repo-new so don't need PATCH_COMMAND to install
+# Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
 #
 ExternalProject_Add(absl
   PREFIX absl
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo-new/src/grpc/third_party/abseil-cpp"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/abseil-cpp"
   EXCLUDE_FROM_ALL ON
   DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
@@ -196,7 +179,7 @@ ExternalProject_Add(absl
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DBUILD_TESTING:BOOL=OFF
-  DEPENDS grpc-repo-new
+  DEPENDS grpc-repo
 )
 
 #
