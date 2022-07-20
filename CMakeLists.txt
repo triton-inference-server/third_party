@@ -188,11 +188,6 @@ ExternalProject_Add(absl
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
 #
-# Use -DCMAKE_BUILD_TYPE:STRING=RELEASE to workaround the issue similar to
-# protobuf build, so CMake's FindPackage can find installed googletest.
-# Note that the issue may be fixed in newer verion, should verify once we
-# advance the library version https://github.com/google/googletest/pull/3732
-#
 ExternalProject_Add(googletest
   PREFIX protobuf
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/googletest"
@@ -201,7 +196,7 @@ ExternalProject_Add(googletest
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
-    -DCMAKE_BUILD_TYPE:STRING=RELEASE
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/googletest
   DEPENDS grpc-repo
 )
