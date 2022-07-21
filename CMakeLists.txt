@@ -146,9 +146,10 @@ ExternalProject_Add(nlohmann-json
 #
 ExternalProject_Add(protobuf
   PREFIX protobuf
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/cmake"
+  GIT_REPOSITORY "https://github.com/protocolbuffers/protobuf.git"
+  GIT_TAG "v3.20.0"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/protobuf"
   EXCLUDE_FROM_ALL ON
-  DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
@@ -160,7 +161,7 @@ ExternalProject_Add(protobuf
     -DBUILD_SHARED_LIBS:STRING=no
     -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf
-  DEPENDS grpc-repo
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=protobuf
 )
 
 #
