@@ -148,7 +148,7 @@ ExternalProject_Add(protobuf
   PREFIX protobuf
   GIT_REPOSITORY "https://github.com/protocolbuffers/protobuf.git"
   GIT_TAG "v3.20.0"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/protobuf/src/protobuf"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/protobuf/src/protobuf/cmake"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
