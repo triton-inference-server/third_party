@@ -132,9 +132,11 @@ ExternalProject_Add(nlohmann-json
 )
 
 #
-# Build protobuf project from different version than the one in grpc-repo,
-# there is a linking issue on Windows and the patch is available in 3.20.0,
-# whereas the version in grpc-repo is 3.19.4
+# Build protobuf project from grpc-repo, but apply a patch that is available
+# in 3.20.0, to resolve a linking issue on Windows
+#
+# Source is from grpc-repo so don't need PATCH_COMMAND to install
+# source for this target.
 #
 # Use -DCMAKE_BUILD_TYPE:STRING=RELEASE to workaround the protobuf build issue
 # described in https://stackoverflow.com/a/60218066/2091555
@@ -144,11 +146,9 @@ ExternalProject_Add(nlohmann-json
 #
 ExternalProject_Add(protobuf
   PREFIX protobuf
-  GIT_REPOSITORY "https://github.com/protocolbuffers/protobuf.git"
-  GIT_TAG "v3.20.0"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/protobuf/src/protobuf"
-  SOURCE_SUBDIR "cmake"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/cmake"
   EXCLUDE_FROM_ALL ON
+  DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
@@ -160,7 +160,8 @@ ExternalProject_Add(protobuf
     -DBUILD_SHARED_LIBS:STRING=no
     -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf
-  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
+  PATCH_COMMAND git cherry-pick -n f180289c4670ca1afde5865bb8a7f2b61a3efcc5
+  DEPENDS grpc-repo
 )
 
 #
