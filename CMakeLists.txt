@@ -94,7 +94,6 @@ ExternalProject_Add(curl
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
 
-# [WIP] attempt to upgrade GRPC and related libraries version
 #
 # Get the protobuf and grpc source used for the GRPC endpoint. We must
 # use v1.25.0 because later GRPC has significant performance
@@ -133,10 +132,9 @@ ExternalProject_Add(nlohmann-json
 )
 
 #
-# Build protobuf project from grpc-repo
-#
-# Source is from grpc-repo so don't need PATCH_COMMAND to install
-# source for this target.
+# Build protobuf project from different version than the one in grpc-repo,
+# there is a linking issue on Windows and the patch is available in 3.20.0,
+# whereas the version in grpc-repo is 3.19.4
 #
 # Use -DCMAKE_BUILD_TYPE:STRING=RELEASE to workaround the protobuf build issue
 # described in https://stackoverflow.com/a/60218066/2091555
