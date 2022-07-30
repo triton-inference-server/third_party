@@ -102,31 +102,14 @@ ExternalProject_Add(curl
 ExternalProject_Add(grpc-repo
   PREFIX grpc-repo
   GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.25.0"
+  GIT_TAG "v1.48.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
   EXCLUDE_FROM_ALL ON
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
   TEST_COMMAND ""
-  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.25.0
-)
-
-#
-# The GCS build requires a abseil newer than the one found in grpc
-# v1.25.0 so grab a newer grpc just for abseil.
-#
-ExternalProject_Add(grpc-repo-new
-  PREFIX grpc-repo-new
-  GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.29.1"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo-new/src/grpc"
-  EXCLUDE_FROM_ALL ON
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
-  TEST_COMMAND ""
-  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.29.1
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.48.0
 )
 
 #
@@ -149,7 +132,8 @@ ExternalProject_Add(nlohmann-json
 )
 
 #
-# Build protobuf project from grpc-repo
+# Build protobuf project from grpc-repo, but apply a patch that is available
+# in 3.20.0, to resolve a linking issue on Windows
 #
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
@@ -176,18 +160,19 @@ ExternalProject_Add(protobuf
     -DBUILD_SHARED_LIBS:STRING=no
     -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf
+  PATCH_COMMAND git cherry-pick -n f180289c4670ca1afde5865bb8a7f2b61a3efcc5
   DEPENDS grpc-repo
 )
 
 #
-# Build absl (abseil) project from grpc-repo-new (see comment above).
+# Build absl (abseil) project from grpc-repo
 #
-# Source is from grpc-repo-new so don't need PATCH_COMMAND to install
+# Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
 #
 ExternalProject_Add(absl
   PREFIX absl
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo-new/src/grpc/third_party/abseil-cpp"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/abseil-cpp"
   EXCLUDE_FROM_ALL ON
   DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
@@ -195,7 +180,7 @@ ExternalProject_Add(absl
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DBUILD_TESTING:BOOL=OFF
-  DEPENDS grpc-repo-new
+  DEPENDS grpc-repo
 )
 
 #
@@ -203,11 +188,6 @@ ExternalProject_Add(absl
 #
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
-#
-# Use -DCMAKE_BUILD_TYPE:STRING=RELEASE to workaround the issue similar to
-# protobuf build, so CMake's FindPackage can find installed googletest.
-# Note that the issue may be fixed in newer verion, should verify once we
-# advance the library version https://github.com/google/googletest/pull/3732
 #
 ExternalProject_Add(googletest
   PREFIX protobuf
@@ -217,7 +197,7 @@ ExternalProject_Add(googletest
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
-    -DCMAKE_BUILD_TYPE:STRING=RELEASE
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/googletest
   DEPENDS grpc-repo
 )
@@ -278,7 +258,7 @@ ExternalProject_Add(grpc
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc
-  DEPENDS grpc-repo c-ares protobuf
+  DEPENDS grpc-repo c-ares protobuf absl
 )
 
 #
@@ -417,7 +397,7 @@ set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
 ExternalProject_Add(google-cloud-cpp
   PREFIX google-cloud-cpp
   GIT_REPOSITORY "https://github.com/googleapis/google-cloud-cpp.git"
-  GIT_TAG "v1.23.0"
+  GIT_TAG "v1.42.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/google-cloud-cpp/src/google-cloud-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
