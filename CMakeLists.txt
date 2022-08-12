@@ -491,5 +491,6 @@ ExternalProject_Add(modern-cpp-kafka
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/modern-cpp-kafka
+    -Dmodern_cpp_kafka_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/modern-cpp-kafka/lib/cmake/modern-cpp-kafka
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
