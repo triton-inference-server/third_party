@@ -41,10 +41,8 @@ if (NOT BUILD_OPTION_DOC_ONLY)
     #---------------------------
     if (DEFINED ENV{LIBRDKAFKA_ROOT})
         set(LIBRDKAFKA_INCLUDE_DIR $ENV{LIBRDKAFKA_ROOT}/include)
-        set(LIBRDKAFKA_LIBRARY_DIR $ENV{LIBRDKAFKA_ROOT}/lib)
     else ()
-        set(LIBRDKAFKA_INCLUDE_DIR /usr/local/include)
-        set(LIBRDKAFKA_LIBRARY_DIR /usr/local/lib)
+        set(LIBRDKAFKA_INCLUDE_DIR /usr/include)
     endif ()
 
     if (EXISTS "${LIBRDKAFKA_INCLUDE_DIR}/librdkafka/rdkafka.h")
