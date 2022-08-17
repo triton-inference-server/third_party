@@ -16,8 +16,6 @@ if (NOT parent_directory)
     endif ()
 endif ()
 
-option(CPPKAFKA_ENABLE_TESTS "Generate the test targets" ${cppkafka_master_project})
-
 include(CheckCXXCompilerFlag)
 include(CMakePushCheckState)
 
@@ -41,14 +39,22 @@ if (NOT BUILD_OPTION_DOC_ONLY)
     #---------------------------
     if (DEFINED ENV{LIBRDKAFKA_ROOT})
         set(LIBRDKAFKA_INCLUDE_DIR $ENV{LIBRDKAFKA_ROOT}/include)
+        set(LIBRDKAFKA_LIBRARY_DIR $ENV{LIBRDKAFKA_ROOT}/lib)
     else ()
-        set(LIBRDKAFKA_INCLUDE_DIR /usr/include)
+        set(LIBRDKAFKA_INCLUDE_DIR /usr/local/include)
+        set(LIBRDKAFKA_LIBRARY_DIR /usr/local/lib)
     endif ()
 
     if (EXISTS "${LIBRDKAFKA_INCLUDE_DIR}/librdkafka/rdkafka.h")
         message(STATUS "librdkafka include directory: ${LIBRDKAFKA_INCLUDE_DIR}")
     else ()
         message(FATAL_ERROR "Could not find headers: librdkafka!")
+    endif ()
+
+    if (EXISTS "${LIBRDKAFKA_LIBRARY_DIR}/librdkafka.a" OR EXISTS "${LIBRDKAFKA_LIBRARY_DIR}/librdkafka.so" OR EXISTS "${LIBRDKAFKA_LIBRARY_DIR}/rdkafka.lib" )
+        message(STATUS "librdkafka library directory: ${LIBRDKAFKA_LIBRARY_DIR}")
+    else ()
+        message(FATAL_ERROR "Could not find library: librdkafka!")
     endif ()
 
 
@@ -263,11 +269,6 @@ else ()
     endif ()
 
     add_subdirectory("include")
-
-    if (CPPKAFKA_ENABLE_TESTS)
-        include(CTest)
-        add_subdirectory("tests")
-    endif()
 
     if (cppkafka_master_project)
         add_subdirectory("tools")
