@@ -501,6 +501,7 @@ ExternalProject_Add(modern-cpp-kafka
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/modern-cpp-kafka"
   EXCLUDE_FROM_ALL ON
   DEPENDS librdkafka
+  INSTALL_COMMAND "make install"
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
