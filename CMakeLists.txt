@@ -482,7 +482,8 @@ ExternalProject_Add(librdkafka
   GIT_REPOSITORY "https://github.com/edenhill/librdkafka.git"
   GIT_TAG "v1.9.2" 
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/librdkafka"
-  BINARY_DIR "/workspace/builddir/third-party-src/librdkafka"
+  #BINARY_DIR "/workspace/builddir/third-party-src/librdkafka"
+  BUILD_IN_SOURCE ON
   CONFIGURE_COMMAND "./configure"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
