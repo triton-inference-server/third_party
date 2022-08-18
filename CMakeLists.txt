@@ -498,7 +498,7 @@ ExternalProject_Add(librdkafka
 #
 ExternalProject_Add(modern-cpp-kafka
   PREFIX modern-cpp-kafka
-  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/modern-cpp-kafka/src/modern-cpp-kafka"
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/modern-cpp-kafka"
   EXCLUDE_FROM_ALL ON
   DEPENDS librdkafka
   CMAKE_CACHE_ARGS
