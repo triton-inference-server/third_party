@@ -480,13 +480,17 @@ ExternalProject_Add(aws-sdk-cpp
 ExternalProject_Add(librdkafka
   PREFIX librdkafka
   GIT_REPOSITORY "https://github.com/edenhill/librdkafka.git"
-  GIT_TAG "v1.9.2"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/librdkafka"
+  GIT_TAG "v1.9.2" 
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/librdkafka"
+  BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/build/librdkafka/src/librdkafka/"
+  CONFIGURE_COMMAND "./configure"
   EXCLUDE_FROM_ALL ON
-  CONFIGURE_COMMAND "${CMAKE_CURRENT_BINARY_DIR}/librdkafka/configure"
-  BUILD_COMMAND "make"
-  INSTALL_COMMAND "make install"
-  #PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/librdkafka
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
 
 #
