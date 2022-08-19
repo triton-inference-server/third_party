@@ -507,6 +507,6 @@ ExternalProject_Add(modern-cpp-kafka
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/kafka
-  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${CMAKE_INSTALL_PREFIX}
 )
 
