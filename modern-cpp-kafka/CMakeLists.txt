@@ -68,8 +68,3 @@ endif ()
 # Build Sub-directories
 #---------------------------
 add_subdirectory("include")
-
-if (cppkafka_master_project)
-    add_subdirectory("tools")
-    add_subdirectory("examples")
-endif()
