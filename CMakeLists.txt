@@ -74,6 +74,10 @@ endif()
 #
 # Build libcurl
 #
+set(LIBCURL_EXTRA_BUILD_ARGS "")
+if (WIN32)
+  set(LIBCURL_EXTRA_BUILD_ARGS "-DCURL_USE_SCHANNEL=ON")
+endif()
 ExternalProject_Add(curl
   PREFIX curl
   GIT_REPOSITORY "https://github.com/curl/curl.git"
@@ -91,6 +95,7 @@ ExternalProject_Add(curl
     -DHTTP_ONLY:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl
+    ${LIBCURL_EXTRA_BUILD_ARGS}
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
 
