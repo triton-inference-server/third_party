@@ -76,7 +76,7 @@ endif()
 #
 set(LIBCURL_EXTRA_BUILD_ARGS "")
 if (WIN32)
-  set(LIBCURL_EXTRA_BUILD_ARGS "-DCURL_USE_SCHANNEL=ON")
+  set(LIBCURL_EXTRA_BUILD_ARGS "-DCURL_USE_SCHANNEL:BOOL=ON")
 endif()
 ExternalProject_Add(curl
   PREFIX curl
