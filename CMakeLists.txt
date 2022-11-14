@@ -76,12 +76,12 @@ endif()
 #
 set(LIBCURL_EXTRA_BUILD_ARGS "")
 if (WIN32)
-  set(LIBCURL_EXTRA_BUILD_ARGS "-DCURL_USE_SCHANNEL:BOOL=ON")
+  set(LIBCURL_EXTRA_BUILD_ARGS "-DCMAKE_USE_WINSSL:BOOL=ON")
 endif()
 ExternalProject_Add(curl
   PREFIX curl
   GIT_REPOSITORY "https://github.com/curl/curl.git"
-  GIT_TAG "curl-7_81_0"
+  GIT_TAG "curl-7_66_0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/curl/src/curl"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
