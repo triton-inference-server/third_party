@@ -340,7 +340,7 @@ endif()
 ExternalProject_Add(prometheus-cpp
   PREFIX prometheus-cpp
   GIT_REPOSITORY "https://github.com/jupp0r/prometheus-cpp.git"
-  GIT_TAG "76470b3ec024c8214e1f4253fb1f4c0b28d3df94"
+  GIT_TAG "v1.0.1"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/prometheus-cpp/src/prometheus-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
