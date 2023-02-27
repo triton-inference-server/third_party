@@ -99,11 +99,6 @@ ExternalProject_Add(curl
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
 
-#
-# Get the protobuf and grpc source used for the GRPC endpoint. We must
-# use v1.25.0 because later GRPC has significant performance
-# regressions (e.g. resnet50 bs128).
-#
 ExternalProject_Add(grpc-repo
   PREFIX grpc-repo
   GIT_REPOSITORY "https://github.com/grpc/grpc.git"
