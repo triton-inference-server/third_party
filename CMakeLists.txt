@@ -26,6 +26,7 @@
 
 cmake_minimum_required(VERSION 3.17)
 project(tritonthirdparty LANGUAGES C CXX)
+message(STATUS "============ third_party repo using CXX: ${CMAKE_CXX_STANDARD}")
 
 #
 # ExternalProject Dependencies
