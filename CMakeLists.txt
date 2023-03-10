@@ -473,3 +473,39 @@ ExternalProject_Add(aws-sdk-cpp
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/aws-sdk-cpp
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
+
+#
+# Build librdkafka
+#
+ExternalProject_Add(librdkafka
+  PREFIX librdkafka
+  GIT_REPOSITORY "https://github.com/edenhill/librdkafka.git"
+  GIT_TAG "v1.9.2" 
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/librdkafka"
+  BUILD_IN_SOURCE ON
+  CONFIGURE_COMMAND "./configure"
+  EXCLUDE_FROM_ALL ON
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/librdkafka
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
+)
+
+#
+# Build modern-cpp-kafka
+#
+ExternalProject_Add(modern-cpp-kafka
+  PREFIX modern-cpp-kafka
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/modern-cpp-kafka"
+  EXCLUDE_FROM_ALL ON
+  BUILD_IN_SOURCE ON
+  DEPENDS librdkafka
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
+)
+
