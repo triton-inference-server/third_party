@@ -327,6 +327,29 @@ ExternalProject_Add(libevhtp
 endif()
 
 #
+# Build OpenTelemetry C++ library
+#
+ExternalProject_Add(opentelemetry-cpp
+  PREFIX opentelemetry-cpp
+  GIT_REPOSITORY "https://github.com/open-telemetry/opentelemetry-cpp.git"
+  GIT_TAG "v1.8.3"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/opentelemetry-cpp/src/opentelemetry-cpp"
+  EXCLUDE_FROM_ALL ON
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DENABLE_PUSH:BOOL=OFF
+    -DENABLE_PULL:BOOL=OFF
+    -DENABLE_TESTING:BOOL=OFF
+    -DUSE_THIRDPARTY_LIBRARIES:BOOL=OFF
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_LIBDIR:STRING=lib
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/opentelemetry-cpp
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
+)
+
+#
 # Build Prometheus C++ library
 #
 # Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
