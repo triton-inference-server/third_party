@@ -476,6 +476,7 @@ ExternalProject_Add(aws-sdk-cpp
 
 #
 # Build OpenTelemetry C++ library
+# [FIXME] DProtobuf_LIBRARIES
 #
 ExternalProject_Add(opentelemetry-cpp
   PREFIX opentelemetry-cpp
