@@ -476,36 +476,40 @@ ExternalProject_Add(aws-sdk-cpp
 
 #
 # Build OpenTelemetry C++ library
-# [FIXME] DProtobuf_LIBRARIES
+# [FIXME] Remove WIN flag when windos build works
+#         and add WIN location of Protobuf
 #
-ExternalProject_Add(opentelemetry-cpp
-  PREFIX opentelemetry-cpp
-  GIT_REPOSITORY "https://github.com/open-telemetry/opentelemetry-cpp.git"
-  GIT_TAG "v1.8.3"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/opentelemetry-cpp/src/opentelemetry-cpp"
-  EXCLUDE_FROM_ALL ON
-  CMAKE_CACHE_ARGS
-    -DProtobuf_LIBRARIES:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/lib/libprotobuf.a
-    -DProtobuf_INCLUDE_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/include
-    -DProtobuf_PROTOC_EXECUTABLE:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/bin/protoc
-    -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/lib/cmake/absl
-    -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/lib/cmake/nlohmann_json
-    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
-    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
-    -DBUILD_TESTING:BOOL=OFF
-    -DWITH_EXAMPLES:BOOL=OFF 
-    -DWITH_BENCHMARK:BOOL=OFF
-    -DWITH_ABSEIL:BOOL=ON
-    -DWITH_OTLP:BOOL=ON
-    -DWITH_OTLP_GRPC:BOOL=OFF
-    -DWITH_OTLP_HTTP:BOOL=ON
-    -DOPENTELEMETRY_INSTALL:BOOL=ON
-    -DCURL_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/lib/cmake/CURL
-    -DgRPC_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc/lib/cmake/grpc
-    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
-    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DCMAKE_INSTALL_LIBDIR:STRING=lib
-    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/opentelemetry-cpp
-  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
-  DEPENDS grpc absl nlohmann-json curl protobuf
-)
+if (NOT WIN32)
+  set(PROTO_LIB_PATH "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/lib/libprotobuf.a")
+  ExternalProject_Add(opentelemetry-cpp
+    PREFIX opentelemetry-cpp
+    GIT_REPOSITORY "https://github.com/open-telemetry/opentelemetry-cpp.git"
+    GIT_TAG "v1.8.3"
+    SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/opentelemetry-cpp/src/opentelemetry-cpp"
+    EXCLUDE_FROM_ALL ON
+    CMAKE_CACHE_ARGS
+      -DProtobuf_LIBRARIES:STRING=${PROTO_LIB_PATH}
+      -DProtobuf_INCLUDE_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/include
+      -DProtobuf_PROTOC_EXECUTABLE:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/bin/protoc
+      -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/lib/cmake/absl
+      -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/lib/cmake/nlohmann_json
+      ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+      ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+      -DBUILD_TESTING:BOOL=OFF
+      -DWITH_EXAMPLES:BOOL=OFF 
+      -DWITH_BENCHMARK:BOOL=OFF
+      -DWITH_ABSEIL:BOOL=ON
+      -DWITH_OTLP:BOOL=ON
+      -DWITH_OTLP_GRPC:BOOL=OFF
+      -DWITH_OTLP_HTTP:BOOL=ON
+      -DOPENTELEMETRY_INSTALL:BOOL=ON
+      -DCURL_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/lib/cmake/CURL
+      -DgRPC_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc/lib/cmake/grpc
+      -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+      -DCMAKE_INSTALL_LIBDIR:STRING=lib
+      -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/opentelemetry-cpp
+    PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
+    DEPENDS grpc absl nlohmann-json curl protobuf
+  )
+endif()
