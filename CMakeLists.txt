@@ -476,7 +476,8 @@ ExternalProject_Add(aws-sdk-cpp
 
 #
 # Build OpenTelemetry C++ library
-# [FIXME] Remove WIN flag when windows build works
+# [FIXME] Remove WIN flag when windows build works on Triton
+#         JIRA DLIS-4786
 #         and add WIN location of Protobuf
 #
 if (NOT WIN32)
