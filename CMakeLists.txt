@@ -476,9 +476,11 @@ ExternalProject_Add(aws-sdk-cpp
 
 #
 # Build OpenTelemetry C++ library
-# [FIXME] Remove WIN flag when windows build works on Triton
-#         JIRA DLIS-4786
-#         and add WIN location of Protobuf
+# [FIXME] Remove `NOT WIN32` condition when Windows build works on Triton (JIRA DLIS-4786)
+# OpenTelemetry requires a location of protobuf to be passed in cmake.
+# PROTO_LIB_PATH is set for where protobuf library ('libprotobuf.a') is located on Ubuntu.
+# Windows may have another extention for libprotobuf and different location of installation.
+# `PROTO_LIB_PATH` should be properly set for Windows
 #
 if (NOT WIN32)
   set(PROTO_LIB_PATH "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/lib/libprotobuf.a")
