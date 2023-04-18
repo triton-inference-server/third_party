@@ -482,7 +482,7 @@ ExternalProject_Add(aws-sdk-cpp
 # Windows may have another extention for libprotobuf and different location of installation.
 # `PROTO_LIB_PATH` should be properly set for Windows
 #
-if (NOT WIN32)
+if (NOT WIN32 AND ${TRITON_ENABLE_TRACING})
   set(PROTO_LIB_PATH "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/lib/libprotobuf.a")
   ExternalProject_Add(opentelemetry-cpp
     PREFIX opentelemetry-cpp
