@@ -170,6 +170,9 @@ ExternalProject_Add(protobuf
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
 #
+# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
+# described in https://stackoverflow.com/q/68974636
+#
 ExternalProject_Add(absl
   PREFIX absl
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/abseil-cpp"
@@ -177,6 +180,7 @@ ExternalProject_Add(absl
   DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
+    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DBUILD_TESTING:BOOL=OFF
@@ -216,6 +220,9 @@ endif()
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
 #
+# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
+# described in https://stackoverflow.com/q/68974636
+#
 ExternalProject_Add(c-ares
   PREFIX c-ares
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/cares/cares"
@@ -228,6 +235,7 @@ ExternalProject_Add(c-ares
     -DCARES_STATIC:BOOL=ON
     -DCARES_STATIC_PIC:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares
   DEPENDS grpc-repo
 )
