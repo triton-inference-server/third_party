@@ -74,6 +74,9 @@ endif()
 #
 # Build libcurl
 #
+# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
+# described in https://stackoverflow.com/q/68974636
+#
 set(LIBCURL_EXTRA_BUILD_ARGS "")
 if (WIN32)
   set(LIBCURL_EXTRA_BUILD_ARGS "-DCURL_USE_SCHANNEL:BOOL=ON")
@@ -94,6 +97,7 @@ ExternalProject_Add(curl
     -DCURL_STATICLIB:BOOL=ON
     -DHTTP_ONLY:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl
     ${LIBCURL_EXTRA_BUILD_ARGS}
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
@@ -115,6 +119,9 @@ ExternalProject_Add(grpc-repo
 #
 # Build nlohmann/json
 #
+# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
+# described in https://stackoverflow.com/q/68974636
+#
 ExternalProject_Add(nlohmann-json
   PREFIX nlohmann-json
   GIT_REPOSITORY "https://github.com/nlohmann/json.git"
@@ -125,6 +132,7 @@ ExternalProject_Add(nlohmann-json
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DBUILD_SHARED_LIBS:STRING=yes
     -DBUILD_TESTING:BOOL=OFF
     -H. -Bcmake-out
@@ -193,6 +201,9 @@ ExternalProject_Add(absl
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
 #
+# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
+# described in https://stackoverflow.com/q/68974636
+#
 ExternalProject_Add(googletest
   PREFIX protobuf
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/googletest"
@@ -202,6 +213,7 @@ ExternalProject_Add(googletest
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/googletest
   DEPENDS grpc-repo
 )
@@ -220,7 +232,7 @@ endif()
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
 #
-# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
+# Use cd to workaround a build issue on centos/rhel where it defaults to lib64
 # described in https://stackoverflow.com/q/68974636
 #
 ExternalProject_Add(c-ares
