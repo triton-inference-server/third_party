@@ -232,7 +232,7 @@ endif()
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
 #
-# Use cd to workaround a build issue on centos/rhel where it defaults to lib64
+# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
 # described in https://stackoverflow.com/q/68974636
 #
 ExternalProject_Add(c-ares
