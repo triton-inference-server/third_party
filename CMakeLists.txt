@@ -23,10 +23,8 @@
 # OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 cmake_minimum_required(VERSION 3.17)
 project(tritonthirdparty LANGUAGES C CXX)
-
 #
 # ExternalProject Dependencies
 #
@@ -38,39 +36,33 @@ project(tritonthirdparty LANGUAGES C CXX)
 # allows a good point to perform the source install.
 #
 include(ExternalProject)
-
 if(NOT TRITON_THIRD_PARTY_INSTALL_PREFIX)
   message(FATAL_ERROR "TRITON_THIRD_PARTY_INSTALL_PREFIX must be set")
 endif() # TRITON_THIRD_PARTY_INSTALL_PREFIX
-
 if(NOT TRITON_THIRD_PARTY_SRC_INSTALL_PREFIX)
   message(STATUS "TRITON_THIRD_PARTY_SRC_INSTALL_PREFIX not set")
   set(INSTALL_SRC_DEST_ARG "")
 else()
   set(INSTALL_SRC_DEST_ARG --dest ${TRITON_THIRD_PARTY_SRC_INSTALL_PREFIX})
 endif() # TRITON_THIRD_PARTY_INSTALL_PREFIX
-
 # If CMAKE_TOOLCHAIN_FILE is set, propagate that hint path to the external
 # projects.
 set(_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE "")
 if (CMAKE_TOOLCHAIN_FILE)
   set(_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE "-DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}")
 endif()
-
 # If VCPKG_TARGET_TRIPLET is set, propagate that hint path to the external
 # projects.
 set(_CMAKE_ARGS_VCPKG_TARGET_TRIPLET "")
 if (VCPKG_TARGET_TRIPLET)
   set(_CMAKE_ARGS_VCPKG_TARGET_TRIPLET "-DVCPKG_TARGET_TRIPLET:STRING=${VCPKG_TARGET_TRIPLET}")
 endif()
-
 # If OPENSSL_ROOT_DIR is set, propagate that hint path to the external
 # projects with OpenSSL dependency.
 set(_CMAKE_ARGS_OPENSSL_ROOT_DIR "")
 if (OPENSSL_ROOT_DIR)
   set(_CMAKE_ARGS_OPENSSL_ROOT_DIR "-DOPENSSL_ROOT_DIR:PATH=${OPENSSL_ROOT_DIR}")
 endif()
-
 #
 # Build libcurl
 #
@@ -98,7 +90,6 @@ ExternalProject_Add(curl
     ${LIBCURL_EXTRA_BUILD_ARGS}
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
-
 ExternalProject_Add(grpc-repo
   PREFIX grpc-repo
   GIT_REPOSITORY "https://github.com/grpc/grpc.git"
@@ -111,14 +102,13 @@ ExternalProject_Add(grpc-repo
   TEST_COMMAND ""
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.48.0
 )
-
 #
 # Build nlohmann/json
 #
 ExternalProject_Add(nlohmann-json
   PREFIX nlohmann-json
   GIT_REPOSITORY "https://github.com/nlohmann/json.git"
-  GIT_TAG "v3.11.2"
+  GIT_TAG "v3.10.5"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/json"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -130,7 +120,6 @@ ExternalProject_Add(nlohmann-json
     -H. -Bcmake-out
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=nlohmann-json
 )
-
 #
 # Build protobuf project from grpc-repo, but apply a patch that is available
 # in 3.20.0, to resolve a linking issue on Windows
@@ -163,7 +152,6 @@ ExternalProject_Add(protobuf
   PATCH_COMMAND git cherry-pick -n f180289c4670ca1afde5865bb8a7f2b61a3efcc5
   DEPENDS grpc-repo
 )
-
 #
 # Build absl (abseil) project from grpc-repo
 #
@@ -182,7 +170,6 @@ ExternalProject_Add(absl
     -DBUILD_TESTING:BOOL=OFF
   DEPENDS grpc-repo
 )
-
 #
 # Build googletest project from grpc-repo
 #
@@ -201,7 +188,6 @@ ExternalProject_Add(googletest
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/googletest
   DEPENDS grpc-repo
 )
-
 # Location where protobuf-config.cmake will be installed varies by
 # platform
 if (WIN32)
@@ -209,7 +195,6 @@ if (WIN32)
 else()
   set(_FINDPACKAGE_PROTOBUF_CONFIG_DIR "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/lib/cmake/protobuf")
 endif()
-
 #
 # Build c-ares project from grpc-repo
 #
@@ -231,7 +216,6 @@ ExternalProject_Add(c-ares
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares
   DEPENDS grpc-repo
 )
-
 #
 # Build GRPC
 #
@@ -244,6 +228,7 @@ ExternalProject_Add(grpc
   EXCLUDE_FROM_ALL ON
   DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
+    -DCMAKE_CXX_STANDARD:STRING=17
     -DgRPC_INSTALL:BOOL=ON
     -DgRPC_BUILD_TESTS:BOOL=OFF
     -DgRPC_PROTOBUF_PROVIDER:STRING=package
@@ -260,7 +245,6 @@ ExternalProject_Add(grpc
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc
   DEPENDS grpc-repo c-ares protobuf absl
 )
-
 #
 # Build libevent
 #
@@ -278,7 +262,6 @@ ExternalProject_Add(libevent
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/libevent
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
-
 #
 # Build patched libevhtp
 #
@@ -325,7 +308,6 @@ ExternalProject_Add(libevhtp
   DEPENDS libevent
 )
 endif()
-
 #
 # Build Prometheus C++ library
 #
@@ -351,7 +333,6 @@ ExternalProject_Add(prometheus-cpp
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/prometheus-cpp
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
-
 #
 # Build crc32c
 #
@@ -376,7 +357,6 @@ ExternalProject_Add(crc32c
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
-
 # This is necessary because google-cloud-cpp
 # does not pass protobuf_DIR and gRPC_DIR etc to its
 # external projects but expects them in CMAKE_PREFIX_PATH.
@@ -390,7 +370,6 @@ set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc/lib/cmake/grpc
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/lib/cmake/nlohmann_json
    ${_FINDPACKAGE_PROTOBUF_CONFIG_DIR})
-
 #
 # Build google-cloud-cpp
 #
@@ -414,7 +393,6 @@ ExternalProject_Add(google-cloud-cpp
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
   DEPENDS grpc c-ares protobuf crc32c absl nlohmann-json
 )
-
 #
 # Build azure-storage-cpplite
 #
@@ -436,7 +414,6 @@ ExternalProject_Add(azure-storage-cpplite
   PATCH_COMMAND git cherry-pick --no-commit a3a9c21de3fa9932dcfceb2b6617757a511c75c3 && git apply ${CMAKE_CURRENT_SOURCE_DIR}/tools/azure_no_deprecated.patch && python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
   DEPENDS curl
 )
-
 #
 # Build CNMeM (CUDA memory management library)
 #
@@ -452,7 +429,6 @@ ExternalProject_Add(cnmem
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/cnmem
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
-
 #
 # Build aws-sdk-cpp
 #
@@ -473,7 +449,6 @@ ExternalProject_Add(aws-sdk-cpp
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/aws-sdk-cpp
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
-
 #
 # Build OpenTelemetry C++ library
 # [FIXME] Remove `NOT WIN32` condition when Windows build works on Triton (JIRA DLIS-4786)
@@ -491,6 +466,7 @@ if (NOT WIN32)
     SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/opentelemetry-cpp/src/opentelemetry-cpp"
     EXCLUDE_FROM_ALL ON
     CMAKE_CACHE_ARGS
+      -DCMAKE_CXX_STANDARD:STRING=17
       -DProtobuf_LIBRARIES:STRING=${PROTO_LIB_PATH}
       -DProtobuf_INCLUDE_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/include
       -DProtobuf_PROTOC_EXECUTABLE:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/bin/protoc
