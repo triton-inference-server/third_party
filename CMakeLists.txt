@@ -71,11 +71,21 @@ if (OPENSSL_ROOT_DIR)
   set(_CMAKE_ARGS_OPENSSL_ROOT_DIR "-DOPENSSL_ROOT_DIR:PATH=${OPENSSL_ROOT_DIR}")
 endif()
 
+# Some libs are installed to ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/{LIB}/lib64 instead
+# of ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/{LIB}/lib on Centos
+set (LIB_DIR "lib")
+# /etc/os-release does not exist on Windows
+if(EXISTS "/etc/os-release")
+  file(STRINGS /etc/os-release DISTRO REGEX "^NAME=")
+  string(REGEX REPLACE "NAME=\"(.*)\"" "\\1" DISTRO "${DISTRO}")
+  message(STATUS "Distro Name: ${DISTRO}")
+  if(DISTRO MATCHES "CentOS.*")
+    set (LIB_DIR "lib64")
+  endif()
+endif()
+
 #
 # Build libcurl
-#
-# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
-# described in https://stackoverflow.com/q/68974636
 #
 set(LIBCURL_EXTRA_BUILD_ARGS "")
 if (WIN32)
@@ -97,7 +107,6 @@ ExternalProject_Add(curl
     -DCURL_STATICLIB:BOOL=ON
     -DHTTP_ONLY:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl
     ${LIBCURL_EXTRA_BUILD_ARGS}
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
@@ -119,9 +128,6 @@ ExternalProject_Add(grpc-repo
 #
 # Build nlohmann/json
 #
-# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
-# described in https://stackoverflow.com/q/68974636
-#
 ExternalProject_Add(nlohmann-json
   PREFIX nlohmann-json
   GIT_REPOSITORY "https://github.com/nlohmann/json.git"
@@ -132,7 +138,6 @@ ExternalProject_Add(nlohmann-json
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DBUILD_SHARED_LIBS:STRING=yes
     -DBUILD_TESTING:BOOL=OFF
     -H. -Bcmake-out
@@ -149,9 +154,6 @@ ExternalProject_Add(nlohmann-json
 # Use -DCMAKE_BUILD_TYPE:STRING=RELEASE to workaround the protobuf build issue
 # described in https://stackoverflow.com/a/60218066/2091555
 #
-# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
-# described in https://stackoverflow.com/q/68974636
-#
 ExternalProject_Add(protobuf
   PREFIX protobuf
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/cmake"
@@ -166,7 +168,6 @@ ExternalProject_Add(protobuf
     -Dprotobuf_MSVC_STATIC_RUNTIME:BOOL=OFF
     -DCMAKE_BUILD_TYPE:STRING=RELEASE
     -DBUILD_SHARED_LIBS:STRING=no
-    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf
   PATCH_COMMAND git cherry-pick -n f180289c4670ca1afde5865bb8a7f2b61a3efcc5
   DEPENDS grpc-repo
@@ -178,9 +179,6 @@ ExternalProject_Add(protobuf
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
 #
-# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
-# described in https://stackoverflow.com/q/68974636
-#
 ExternalProject_Add(absl
   PREFIX absl
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/abseil-cpp"
@@ -188,7 +186,6 @@ ExternalProject_Add(absl
   DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
-    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DBUILD_TESTING:BOOL=OFF
@@ -201,9 +198,6 @@ ExternalProject_Add(absl
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
 #
-# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
-# described in https://stackoverflow.com/q/68974636
-#
 ExternalProject_Add(googletest
   PREFIX protobuf
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/googletest"
@@ -213,7 +207,6 @@ ExternalProject_Add(googletest
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/googletest
   DEPENDS grpc-repo
 )
@@ -223,7 +216,7 @@ ExternalProject_Add(googletest
 if (WIN32)
   set(_FINDPACKAGE_PROTOBUF_CONFIG_DIR "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/cmake")
 else()
-  set(_FINDPACKAGE_PROTOBUF_CONFIG_DIR "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/lib/cmake/protobuf")
+  set(_FINDPACKAGE_PROTOBUF_CONFIG_DIR "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/${LIB_DIR}/cmake/protobuf")
 endif()
 
 #
@@ -231,9 +224,6 @@ endif()
 #
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
-#
-# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
-# described in https://stackoverflow.com/q/68974636
 #
 ExternalProject_Add(c-ares
   PREFIX c-ares
@@ -247,7 +237,6 @@ ExternalProject_Add(c-ares
     -DCARES_STATIC:BOOL=ON
     -DCARES_STATIC_PIC:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares
   DEPENDS grpc-repo
 )
@@ -271,7 +260,7 @@ ExternalProject_Add(grpc
     -DgRPC_ZLIB_PROVIDER:STRING=package
     -DgRPC_CARES_PROVIDER:STRING=package
     -DgRPC_SSL_PROVIDER:STRING=package
-    -Dc-ares_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/lib/cmake/c-ares
+    -Dc-ares_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/${LIB_DIR}/cmake/c-ares
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
     ${_CMAKE_ARGS_OPENSSL_ROOT_DIR}
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
@@ -349,9 +338,6 @@ endif()
 #
 # Build Prometheus C++ library
 #
-# Use -DCMAKE_INSTALL_LIBDIR:STRING=lib to workaround a build issue on centos/rhel where it defaults to lib64
-# described in https://stackoverflow.com/q/68974636
-#
 ExternalProject_Add(prometheus-cpp
   PREFIX prometheus-cpp
   GIT_REPOSITORY "https://github.com/jupp0r/prometheus-cpp.git"
@@ -367,7 +353,6 @@ ExternalProject_Add(prometheus-cpp
     -DUSE_THIRDPARTY_LIBRARIES:BOOL=OFF
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DCMAKE_INSTALL_LIBDIR:STRING=lib
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/prometheus-cpp
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
@@ -404,11 +389,11 @@ ExternalProject_Add(crc32c
 # absl must preceed grpc to ensure that the absl from the newer grpc
 # repo is used and not the absl from the older grpc.
 set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
-   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/lib/cmake/c-ares
-   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/lib/cmake/absl
-   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/lib/cmake/Crc32c
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/${LIB_DIR}/cmake/c-ares
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/${LIB_DIR}/cmake/Crc32c
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc/lib/cmake/grpc
-   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/lib/cmake/nlohmann_json
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/${LIB_DIR}/cmake/nlohmann_json
    ${_FINDPACKAGE_PROTOBUF_CONFIG_DIR})
 
 #
@@ -428,9 +413,9 @@ ExternalProject_Add(google-cloud-cpp
     -DCMAKE_PREFIX_PATH:PATH=${GCS_CMAKE_PREFIX_PATH}
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/google-cloud-cpp
-    -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/lib/cmake/nlohmann_json
+    -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/${LIB_DIR}/cmake/nlohmann_json
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
-    -DCrc32c_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/lib/cmake/Crc32c
+    -DCrc32c_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/${LIB_DIR}/cmake/Crc32c
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
   DEPENDS grpc c-ares protobuf crc32c absl nlohmann-json
 )
@@ -451,7 +436,7 @@ ExternalProject_Add(azure-storage-cpplite
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCURL_INCLUDE_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/include
-    -DCURL_LIBRARY:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/lib
+    -DCURL_LIBRARY:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/${LIB_DIR}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-storage-cpplite
   PATCH_COMMAND git cherry-pick --no-commit a3a9c21de3fa9932dcfceb2b6617757a511c75c3 && python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
   DEPENDS curl
@@ -503,7 +488,7 @@ ExternalProject_Add(aws-sdk-cpp
 # `PROTO_LIB_PATH` should be properly set for Windows
 #
 if (NOT WIN32)
-  set(PROTO_LIB_PATH "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/lib/libprotobuf.a")
+  set(PROTO_LIB_PATH "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/${LIB_DIR}/libprotobuf.a")
   ExternalProject_Add(opentelemetry-cpp
     PREFIX opentelemetry-cpp
     GIT_REPOSITORY "https://github.com/open-telemetry/opentelemetry-cpp.git"
@@ -514,8 +499,8 @@ if (NOT WIN32)
       -DProtobuf_LIBRARIES:STRING=${PROTO_LIB_PATH}
       -DProtobuf_INCLUDE_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/include
       -DProtobuf_PROTOC_EXECUTABLE:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/bin/protoc
-      -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/lib/cmake/absl
-      -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/lib/cmake/nlohmann_json
+      -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
+      -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/${LIB_DIR}/cmake/nlohmann_json
       ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
       ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
       -DBUILD_TESTING:BOOL=OFF
@@ -526,7 +511,7 @@ if (NOT WIN32)
       -DWITH_OTLP_GRPC:BOOL=OFF
       -DWITH_OTLP_HTTP:BOOL=ON
       -DOPENTELEMETRY_INSTALL:BOOL=ON
-      -DCURL_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/lib/cmake/CURL
+      -DCURL_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/${LIB_DIR}/cmake/CURL
       -DgRPC_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc/lib/cmake/grpc
       -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
