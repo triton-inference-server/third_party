@@ -426,7 +426,7 @@ ExternalProject_Add(azure-storage-blobs
     -DCURL_LIBRARY:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/${LIB_DIR}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-storage-blobs
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
-  BUILD_COMMAND cmake --build <SOURCE_DIR> --target azure-storage-blobs
+  #BUILD_COMMAND cmake --build <SOURCE_DIR> --target azure-storage-blobs
   DEPENDS curl
 )
 #
