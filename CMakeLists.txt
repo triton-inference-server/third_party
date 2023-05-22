@@ -408,13 +408,13 @@ ExternalProject_Add(google-cloud-cpp
   DEPENDS grpc c-ares protobuf crc32c absl nlohmann-json
 )
 #
-# Build azure-storage-cpplite
+# Build azure-storage-blobs (one of the Azure SDK libraries)
 #
-ExternalProject_Add(azure-storage-cpplite
-  PREFIX azure-storage-cpplite
-  GIT_REPOSITORY "https://github.com/Azure/azure-storage-cpplite.git"
-  GIT_TAG "v0.3.0"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-storage-cpplite/src/azure-storage-cpplite"
+ExternalProject_Add(azure-storage-blobs
+  PREFIX azure-storage-blobs
+  GIT_REPOSITORY "https://github.com/Azure/azure-sdk-for-cpp.git"
+  GIT_TAG "azure-storage-blobs_12.7.0"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-storage-blobs/src/azure-sdk-for-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
@@ -424,8 +424,9 @@ ExternalProject_Add(azure-storage-cpplite
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCURL_INCLUDE_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/include
     -DCURL_LIBRARY:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/${LIB_DIR}
-    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-storage-cpplite
-  PATCH_COMMAND git cherry-pick --no-commit a3a9c21de3fa9932dcfceb2b6617757a511c75c3 && git apply ${CMAKE_CURRENT_SOURCE_DIR}/tools/azure_no_deprecated.patch && python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-storage-blobs
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
+  BUILD_COMMAND cmake --build <SOURCE_DIR> --target azure-storage-blobs
   DEPENDS curl
 )
 #
