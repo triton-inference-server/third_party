@@ -408,14 +408,15 @@ ExternalProject_Add(google-cloud-cpp
   DEPENDS grpc c-ares protobuf crc32c absl nlohmann-json
 )
 #
-# Build azure-storage-blobs (one of the Azure SDK libraries)
+# Build azure-sdk (need azure-storage-blobs)
 #
-ExternalProject_Add(azure-storage-blobs
-  PREFIX azure-storage-blobs
+ExternalProject_Add(azure-sdk
+  PREFIX azure-sdk
   GIT_REPOSITORY "https://github.com/Azure/azure-sdk-for-cpp.git"
   GIT_TAG "azure-storage-blobs_12.7.0"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-storage-blobs/src/azure-sdk-for-cpp"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-sdk/src/azure-sdk-for-cpp"
   EXCLUDE_FROM_ALL ON
+
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
@@ -424,7 +425,7 @@ ExternalProject_Add(azure-storage-blobs
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCURL_INCLUDE_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/include
     -DCURL_LIBRARY:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/${LIB_DIR}
-    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-storage-blobs
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-sdk
     -DDISABLE_AZURE_CORE_OPENTELEMETRY:BOOL=ON
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
   DEPENDS curl
