@@ -416,7 +416,6 @@ ExternalProject_Add(azure-sdk
   GIT_TAG "azure-storage-blobs_12.7.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-sdk/src/azure-sdk-for-cpp"
   EXCLUDE_FROM_ALL ON
-
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
