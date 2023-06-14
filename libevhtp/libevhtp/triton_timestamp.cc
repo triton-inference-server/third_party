@@ -28,10 +28,8 @@
 
 #include <chrono>
 
-uint64_t
-triton_timestamp()
-{
+uint64_t triton_timestamp() {
   return std::chrono::duration_cast<std::chrono::nanoseconds>(
-                  std::chrono::steady_clock::now().time_since_epoch())
-                  .count();
+             std::chrono::steady_clock::now().time_since_epoch())
+      .count();
 }

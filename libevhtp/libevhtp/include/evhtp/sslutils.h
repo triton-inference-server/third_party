@@ -16,15 +16,15 @@ extern "C" {
  */
 
 /**
- * @brief converts the client certificate DNAME information (CN=<cert>, OU=.....)
+ * @brief converts the client certificate DNAME information (CN=<cert>,
+ * OU=.....)
  * @ingroup htp_sslutils
  *
  * @param ssl the client SSL context
  *
  * @return heap allocated str representation, NULL on error.
  */
-EVHTP_EXPORT unsigned char * htp_sslutil_subject_tostr(evhtp_ssl_t * ssl);
-
+EVHTP_EXPORT unsigned char *htp_sslutil_subject_tostr(evhtp_ssl_t *ssl);
 
 /**
  * @brief converts the DN (issuer of cert from the client)
@@ -34,8 +34,7 @@ EVHTP_EXPORT unsigned char * htp_sslutil_subject_tostr(evhtp_ssl_t * ssl);
  *
  * @return heap allocated str representation, NULL on error
  */
-EVHTP_EXPORT unsigned char * htp_sslutil_issuer_tostr(evhtp_ssl_t * ssl);
-
+EVHTP_EXPORT unsigned char *htp_sslutil_issuer_tostr(evhtp_ssl_t *ssl);
 
 /**
  * @brief converts the `notbefore` date of the cert from the client
@@ -45,8 +44,7 @@ EVHTP_EXPORT unsigned char * htp_sslutil_issuer_tostr(evhtp_ssl_t * ssl);
  *
  * @return heap allocated str (YYMMDDhhmmss) of the notbefore, NULL on error.
  */
-EVHTP_EXPORT unsigned char * htp_sslutil_notbefore_tostr(evhtp_ssl_t * ssl);
-
+EVHTP_EXPORT unsigned char *htp_sslutil_notbefore_tostr(evhtp_ssl_t *ssl);
 
 /**
  * @brief converts the `notafter` date of the cert from the client
@@ -56,8 +54,7 @@ EVHTP_EXPORT unsigned char * htp_sslutil_notbefore_tostr(evhtp_ssl_t * ssl);
  *
  * @return heap allocated str (YYMMDDhhmmss) of notafter, NULL on error.
  */
-EVHTP_EXPORT unsigned char * htp_sslutil_notafter_tostr(evhtp_ssl_t * ssl);
-
+EVHTP_EXPORT unsigned char *htp_sslutil_notafter_tostr(evhtp_ssl_t *ssl);
 
 /**
  * @brief converts the SHA1 digest in str from the client
@@ -67,7 +64,7 @@ EVHTP_EXPORT unsigned char * htp_sslutil_notafter_tostr(evhtp_ssl_t * ssl);
  *
  * @return NULL on error
  */
-EVHTP_EXPORT unsigned char * htp_sslutil_sha1_tostr(evhtp_ssl_t * ssl);
+EVHTP_EXPORT unsigned char *htp_sslutil_sha1_tostr(evhtp_ssl_t *ssl);
 
 /**
  * @brief convert serial number to string
@@ -77,7 +74,7 @@ EVHTP_EXPORT unsigned char * htp_sslutil_sha1_tostr(evhtp_ssl_t * ssl);
  *
  * @return NULL on error
  */
-EVHTP_EXPORT unsigned char * htp_sslutil_serial_tostr(evhtp_ssl_t * ssl);
+EVHTP_EXPORT unsigned char *htp_sslutil_serial_tostr(evhtp_ssl_t *ssl);
 
 /**
  * @brief convert the used for this SSL context
@@ -87,7 +84,7 @@ EVHTP_EXPORT unsigned char * htp_sslutil_serial_tostr(evhtp_ssl_t * ssl);
  *
  * @return heap allocated cipher str, NULL on error
  */
-EVHTP_EXPORT unsigned char * htp_sslutil_cipher_tostr(evhtp_ssl_t * ssl);
+EVHTP_EXPORT unsigned char *htp_sslutil_cipher_tostr(evhtp_ssl_t *ssl);
 
 /**
  * @brief convert the client cert into a multiline string
@@ -97,8 +94,7 @@ EVHTP_EXPORT unsigned char * htp_sslutil_cipher_tostr(evhtp_ssl_t * ssl);
  *
  * @return heap allocated string, NULL on error
  */
-EVHTP_EXPORT unsigned char * htp_sslutil_cert_tostr(evhtp_ssl_t * ssl);
-
+EVHTP_EXPORT unsigned char *htp_sslutil_cert_tostr(evhtp_ssl_t *ssl);
 
 /**
  * @brief convert X509 extentions to string
@@ -109,8 +105,8 @@ EVHTP_EXPORT unsigned char * htp_sslutil_cert_tostr(evhtp_ssl_t * ssl);
  *
  * @return
  */
-EVHTP_EXPORT unsigned char * htp_sslutil_x509_ext_tostr(evhtp_ssl_t * ssl, const char * oid);
-
+EVHTP_EXPORT unsigned char *htp_sslutil_x509_ext_tostr(evhtp_ssl_t *ssl,
+                                                       const char *oid);
 
 /**
  * @brief convert a string to the proper verify opts
@@ -120,13 +116,14 @@ EVHTP_EXPORT unsigned char * htp_sslutil_x509_ext_tostr(evhtp_ssl_t * ssl, const
  *        where:
  *         "on"       : client must present a valid cert (otherwise rejected)
  *         "off"      : no client cert required at all
- *         "optional" : client MAY present a valid certificate (but not rejected)
+ *         "optional" : client MAY present a valid certificate (but not
+ * rejected)
  *
  * @note if `opts_str` is NULL, defaults to "off"
  *
  * @return OR'd mask SSL_VERIFY_* flags, -1 on error
  */
-EVHTP_EXPORT int htp_sslutil_verify2opts(const char * opts_str);
+EVHTP_EXPORT int htp_sslutil_verify2opts(const char *opts_str);
 
 /*
  * @ingroup htp_sslutils
@@ -140,15 +137,11 @@ EVHTP_EXPORT int htp_sslutil_verify2opts(const char * opts_str);
 #define HTP_SSLUTILS_XHDR_SHA1 (1 << 5)
 #define HTP_SSLUTILS_XHDR_CERT (1 << 6)
 #define HTP_SSLUTILS_XHDR_CIPH (1 << 7)
-#define HTP_SSLUTILS_XHDR_ALL \
-    HTP_SSLUTILS_XHDR_SUBJ    \
-    | HTP_SSLUTILS_XHDR_ISSR  \
-    | HTP_SSLUTILS_XHDR_NBFR  \
-    | HTP_SSLUTILS_XHDR_NAFR  \
-    | HTP_SSLUTILS_XHDR_SERL  \
-    | HTP_SSLUTILS_XHDR_SHA1  \
-    | HTP_SSLUTILS_XHDR_CERT  \
-    | HTP_SSLUTILS_XHDR_CIPH
+#define HTP_SSLUTILS_XHDR_ALL                                                  \
+  HTP_SSLUTILS_XHDR_SUBJ                                                       \
+  | HTP_SSLUTILS_XHDR_ISSR | HTP_SSLUTILS_XHDR_NBFR | HTP_SSLUTILS_XHDR_NAFR | \
+      HTP_SSLUTILS_XHDR_SERL | HTP_SSLUTILS_XHDR_SHA1 |                        \
+      HTP_SSLUTILS_XHDR_CERT | HTP_SSLUTILS_XHDR_CIPH
 /** @} */
 
 /**
@@ -170,11 +163,11 @@ EVHTP_EXPORT int htp_sslutil_verify2opts(const char * opts_str);
  *
  * @return 0 on success, -1 on error
  */
-EVHTP_EXPORT int htp_sslutil_add_xheaders(evhtp_headers_t * hdrs, evhtp_ssl_t * ssl, short flags);
+EVHTP_EXPORT int htp_sslutil_add_xheaders(evhtp_headers_t *hdrs,
+                                          evhtp_ssl_t *ssl, short flags);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-

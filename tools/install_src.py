@@ -34,11 +34,13 @@ import sys
 
 FLAGS = None
 
+
 def log(msg):
     try:
         print(msg, file=sys.stderr)
     except Exception:
         print('<failed to log>', file=sys.stderr)
+
 
 def fail(msg):
     fail_if(True, msg)
@@ -49,14 +51,17 @@ def fail_if(p, msg):
         print('error: {}'.format(msg), file=sys.stderr)
         sys.exit(1)
 
+
 def target_platform():
     if FLAGS.target_platform is not None:
         return FLAGS.target_platform
     return platform.system().lower()
 
+
 def del_rw(action, name, exc):
     os.chmod(name, stat.S_IWRITE)
     os.remove(name)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -69,10 +74,13 @@ if __name__ == '__main__':
                         type=str,
                         required=False,
                         help='Install directory. Will be created if necessary.')
-    parser.add_argument('--dest-basename',
-                        type=str,
-                        required=False,
-                        help='Name for the last segment of the destination directory. If not specified uses the basename of src path.')
+    parser.add_argument(
+        '--dest-basename',
+        type=str,
+        required=False,
+        help=
+        'Name for the last segment of the destination directory. If not specified uses the basename of src path.'
+    )
     parser.add_argument(
         '--target-platform',
         required=False,
