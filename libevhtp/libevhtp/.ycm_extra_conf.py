@@ -32,14 +32,13 @@ HEADER_EXTENSIONS = [
     '.h',
 ]
 
-HEADER_DIRECTORIES = [
-    'include',
-    'include/evhtp'
-]
+HEADER_DIRECTORIES = ['include', 'include/evhtp']
+
 
 def IsHeaderFile(filename):
     extension = os.path.splitext(filename)[1]
     return extension in HEADER_EXTENSIONS
+
 
 def GetCompilationInfoForFile(database, filename):
     if IsHeaderFile(filename):
@@ -48,7 +47,8 @@ def GetCompilationInfoForFile(database, filename):
             # Get info from the source files by replacing the extension.
             replacement_file = basename + extension
             if os.path.exists(replacement_file):
-                compilation_info = database.GetCompilationInfoForFile(replacement_file)
+                compilation_info = database.GetCompilationInfoForFile(
+                    replacement_file)
                 if compilation_info.compiler_flags_:
                     return compilation_info
             # If that wasn't successful, try replacing possible header directory with possible source directories.
@@ -56,36 +56,40 @@ def GetCompilationInfoForFile(database, filename):
                 for source_dir in SOURCE_DIRECTORIES:
                     src_file = replacement_file.replace(header_dir, source_dir)
                     if os.path.exists(src_file):
-                        compilation_info = database.GetCompilationInfoForFile(src_file)
+                        compilation_info = database.GetCompilationInfoForFile(
+                            src_file)
                         if compilation_info.compiler_flags_:
                             return compilation_info
         return None
     return database.GetCompilationInfoForFile(filename)
 
+
 def FindNearest(path, target, build_folder):
     candidate = os.path.join(path, target)
-    if(os.path.isfile(candidate) or os.path.isdir(candidate)):
+    if (os.path.isfile(candidate) or os.path.isdir(candidate)):
         logging.info("Found nearest " + target + " at " + candidate)
-        return candidate;
+        return candidate
 
-    parent = os.path.dirname(os.path.abspath(path));
-    if(parent == path):
-        raise RuntimeError("Could not find " + target);
+    parent = os.path.dirname(os.path.abspath(path))
+    if (parent == path):
+        raise RuntimeError("Could not find " + target)
 
-    if(build_folder):
+    if (build_folder):
         candidate = os.path.join(parent, build_folder, target)
-        if(os.path.isfile(candidate) or os.path.isdir(candidate)):
-            logging.info("Found nearest " + target + " in build folder at " + candidate)
-            return candidate;
+        if (os.path.isfile(candidate) or os.path.isdir(candidate)):
+            logging.info("Found nearest " + target + " in build folder at " +
+                         candidate)
+            return candidate
 
     return FindNearest(parent, target, build_folder)
+
 
 def MakeRelativePathsInFlagsAbsolute(flags, working_directory):
     if not working_directory:
         return list(flags)
     new_flags = []
     make_next_absolute = False
-    path_flags = [ '-isystem', '-I', '-iquote', '--sysroot=' ]
+    path_flags = ['-isystem', '-I', '-iquote', '--sysroot=']
     for flag in flags:
         new_flag = flag
 
@@ -100,7 +104,7 @@ def MakeRelativePathsInFlagsAbsolute(flags, working_directory):
                 break
 
             if flag.startswith(path_flag):
-                path = flag[ len(path_flag): ]
+                path = flag[len(path_flag):]
                 new_flag = path_flag + os.path.join(working_directory, path)
                 break
 
@@ -112,10 +116,12 @@ def MakeRelativePathsInFlagsAbsolute(flags, working_directory):
 def FlagsForClangComplete(root):
     try:
         clang_complete_path = FindNearest(root, '.clang_complete')
-        clang_complete_flags = open(clang_complete_path, 'r').read().splitlines()
+        clang_complete_flags = open(clang_complete_path,
+                                    'r').read().splitlines()
         return clang_complete_flags
     except:
         return None
+
 
 def FlagsForInclude(root):
     try:
@@ -129,29 +135,34 @@ def FlagsForInclude(root):
     except:
         return None
 
+
 def FlagsForCompilationDatabase(root, filename):
     try:
         # Last argument of next function is the name of the build folder for
         # out of source projects
-        compilation_db_path = FindNearest(root, 'compile_commands.json', 'build')
+        compilation_db_path = FindNearest(root, 'compile_commands.json',
+                                          'build')
         compilation_db_dir = os.path.dirname(compilation_db_path)
-        logging.info("Set compilation database directory to " + compilation_db_dir)
-        compilation_db =  ycm_core.CompilationDatabase(compilation_db_dir)
+        logging.info("Set compilation database directory to " +
+                     compilation_db_dir)
+        compilation_db = ycm_core.CompilationDatabase(compilation_db_dir)
         if not compilation_db:
             logging.info("Compilation database file found but unable to load")
             return None
         compilation_info = GetCompilationInfoForFile(compilation_db, filename)
         if not compilation_info:
-            logging.info("No compilation info for " + filename + " in compilation database")
+            logging.info("No compilation info for " + filename +
+                         " in compilation database")
             return None
         return MakeRelativePathsInFlagsAbsolute(
-                compilation_info.compiler_flags_,
-                compilation_info.compiler_working_dir_)
+            compilation_info.compiler_flags_,
+            compilation_info.compiler_working_dir_)
     except:
         return None
 
+
 def FlagsForFile(filename):
-    root = os.path.realpath(filename);
+    root = os.path.realpath(filename)
     compilation_db_flags = FlagsForCompilationDatabase(root, filename)
     if compilation_db_flags:
         final_flags = compilation_db_flags
@@ -163,7 +174,4 @@ def FlagsForFile(filename):
         include_flags = FlagsForInclude(root)
         if include_flags:
             final_flags = final_flags + include_flags
-    return {
-            'flags': final_flags,
-            'do_cache': True
-            }
+    return {'flags': final_flags, 'do_cache': True}

@@ -1,7 +1,6 @@
 #ifndef __EVHTP_LOG_H__
 #define __EVHTP_LOG_H__
 
-
 /**
  * @brief create a new request-logging context with the format string `format`
  * @note  The following variable definitions are treated as special in the
@@ -19,8 +18,7 @@
  *
  * @param format - format string (see above)
  */
-EVHTP_EXPORT void * evhtp_log_new(const char * format);
-
+EVHTP_EXPORT void *evhtp_log_new(const char *format);
 
 /**
  * @brief log a HTTP request to a FILE using a compiled format.
@@ -29,7 +27,7 @@ EVHTP_EXPORT void * evhtp_log_new(const char * format);
  * @param request
  * @param fp
  */
-EVHTP_EXPORT void   evhtp_log_request_f(void * log, evhtp_request_t * request, FILE * fp);
+EVHTP_EXPORT void evhtp_log_request_f(void *log, evhtp_request_t *request,
+                                      FILE *fp);
 
 #endif
-
