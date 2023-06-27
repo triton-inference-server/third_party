@@ -138,7 +138,6 @@ ExternalProject_Add(nlohmann-json
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DBUILD_SHARED_LIBS:STRING=yes
     -DBUILD_TESTING:BOOL=OFF
-    -H. -Bcmake-out
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=nlohmann-json
 )
 #
