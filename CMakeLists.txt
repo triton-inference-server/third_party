@@ -478,7 +478,7 @@ if (NOT WIN32)
   ExternalProject_Add(opentelemetry-cpp
     PREFIX opentelemetry-cpp
     GIT_REPOSITORY "https://github.com/open-telemetry/opentelemetry-cpp.git"
-    GIT_TAG "v1.8.3"
+    GIT_TAG "v1.11.0"
     SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/opentelemetry-cpp/src/opentelemetry-cpp"
     EXCLUDE_FROM_ALL ON
     CMAKE_CACHE_ARGS
@@ -490,11 +490,11 @@ if (NOT WIN32)
       -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/${LIB_DIR}/cmake/nlohmann_json
       ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
       ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+      -DBUILD_SHARED_LIBS:STRING=OFF
       -DBUILD_TESTING:BOOL=OFF
       -DWITH_EXAMPLES:BOOL=OFF 
       -DWITH_BENCHMARK:BOOL=OFF
       -DWITH_ABSEIL:BOOL=ON
-      -DWITH_OTLP:BOOL=ON
       -DWITH_OTLP_GRPC:BOOL=OFF
       -DWITH_OTLP_HTTP:BOOL=ON
       -DOPENTELEMETRY_INSTALL:BOOL=ON
