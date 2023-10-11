@@ -94,7 +94,9 @@ endif()
 ExternalProject_Add(curl
   PREFIX curl
   GIT_REPOSITORY "https://github.com/curl/curl.git"
-  GIT_TAG "curl-7_86_0"
+  # Heap Overflow CVE in curl (7.69.0 <= version < 8.4.0)
+  # https://curl.se/docs/CVE-2023-38545.html
+  GIT_TAG "curl-8_4_0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/curl/src/curl"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -492,7 +494,7 @@ if (NOT WIN32)
       ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
       -DBUILD_SHARED_LIBS:STRING=OFF
       -DBUILD_TESTING:BOOL=OFF
-      -DWITH_EXAMPLES:BOOL=OFF 
+      -DWITH_EXAMPLES:BOOL=OFF
       -DWITH_BENCHMARK:BOOL=OFF
       -DWITH_ABSEIL:BOOL=ON
       -DWITH_OTLP_GRPC:BOOL=OFF
