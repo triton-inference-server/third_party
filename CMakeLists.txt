@@ -80,7 +80,7 @@ endif()
 # [FIXME] apply the same version to all third party, and pick a Triton default
 if (NOT DEFINED CMAKE_CXX_STANDARD)
 if (WIN32)
-  set(THIRD_PARTY_CMAKE_CXX_STANDARD 11)
+  set(THIRD_PARTY_CMAKE_CXX_STANDARD 14)
 else()
   set(THIRD_PARTY_CMAKE_CXX_STANDARD 17)
 endif()
