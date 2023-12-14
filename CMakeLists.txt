@@ -79,13 +79,9 @@ endif()
 
 # [FIXME] apply the same version to all third party, and pick a Triton default
 if (NOT DEFINED CMAKE_CXX_STANDARD)
-if (WIN32)
-  set(THIRD_PARTY_CMAKE_CXX_STANDARD 14)
-else()
   set(THIRD_PARTY_CMAKE_CXX_STANDARD 17)
-endif()
 else()
-set(THIRD_PARTY_CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD})
+  set(THIRD_PARTY_CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD})
 endif()
 
 #
@@ -118,7 +114,7 @@ ExternalProject_Add(curl
 ExternalProject_Add(grpc-repo
   PREFIX grpc-repo
   GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.48.0"
+  GIT_TAG "v1.58.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
   EXCLUDE_FROM_ALL ON
   CONFIGURE_COMMAND ""
@@ -258,8 +254,8 @@ ExternalProject_Add(grpc
     -DgRPC_CARES_PROVIDER:STRING=package
     -DgRPC_SSL_PROVIDER:STRING=package
     -DgRPC_RE2_PROVIDER:STRING=package
-    -Dc-ares_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/${LIB_DIR}/cmake/c-ares
     -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
+    -Dc-ares_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/${LIB_DIR}/cmake/c-ares
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
     ${_CMAKE_ARGS_OPENSSL_ROOT_DIR}
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
