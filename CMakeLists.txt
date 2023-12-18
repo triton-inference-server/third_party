@@ -114,14 +114,14 @@ ExternalProject_Add(curl
 ExternalProject_Add(grpc-repo
   PREFIX grpc-repo
   GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.48.0"
+  GIT_TAG "v1.58.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
   EXCLUDE_FROM_ALL ON
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
   TEST_COMMAND ""
-  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.48.0
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.58.0
 )
 #
 # Build nlohmann/json
@@ -141,15 +141,7 @@ ExternalProject_Add(nlohmann-json
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=nlohmann-json
 )
 #
-# Build protobuf project from grpc-repo, but apply a patch that is available
-# in 3.20.0, to resolve a linking issue on Windows
-#
-# Source is from grpc-repo so don't need PATCH_COMMAND to install
-# source for this target.
-#
-# Use -DCMAKE_BUILD_TYPE:STRING=RELEASE to workaround the protobuf build issue
-# described in https://stackoverflow.com/a/60218066/2091555
-#
+# Build protobuf project from grpc-repo
 ExternalProject_Add(protobuf
   PREFIX protobuf
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/cmake"
@@ -165,7 +157,6 @@ ExternalProject_Add(protobuf
     -DCMAKE_BUILD_TYPE:STRING=RELEASE
     -DBUILD_SHARED_LIBS:STRING=no
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf
-  PATCH_COMMAND git cherry-pick -n f180289c4670ca1afde5865bb8a7f2b61a3efcc5
   DEPENDS grpc-repo
 )
 #
@@ -187,6 +178,22 @@ ExternalProject_Add(absl
     -DBUILD_TESTING:BOOL=OFF
   DEPENDS grpc-repo
 )
+
+#
+# Build re2 project from grpc-repo
+ExternalProject_Add(re2
+  PREFIX re2
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/re2"
+  EXCLUDE_FROM_ALL ON
+  DOWNLOAD_COMMAND ""
+  CMAKE_CACHE_ARGS
+    -DCMAKE_CXX_STANDARD:STRING=${THIRD_PARTY_CMAKE_CXX_STANDARD}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/are2
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+  DEPENDS grpc-repo
+)
+
 #
 # Build googletest project from grpc-repo
 #
