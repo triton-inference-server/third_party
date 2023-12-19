@@ -36,6 +36,7 @@ project(tritonthirdparty LANGUAGES C CXX)
 # allows a good point to perform the source install.
 #
 include(ExternalProject)
+include(FetchContent)
 if(NOT TRITON_THIRD_PARTY_INSTALL_PREFIX)
   message(FATAL_ERROR "TRITON_THIRD_PARTY_INSTALL_PREFIX must be set")
 endif() # TRITON_THIRD_PARTY_INSTALL_PREFIX
@@ -111,18 +112,15 @@ ExternalProject_Add(curl
     ${LIBCURL_EXTRA_BUILD_ARGS}
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
-ExternalProject_Add(grpc-repo
-  PREFIX grpc-repo
-  GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.58.0"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
-  EXCLUDE_FROM_ALL ON
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
-  TEST_COMMAND ""
-  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.58.0
+
+FetchContent_Declare(
+    gRPC
+    GIT_REPOSITORY https://github.com/grpc/grpc
+    GIT_TAG        v1.58.0
 )
+set(FETCHCONTENT_QUIET OFF)
+FetchContent_MakeAvailable(gRPC)
+
 #
 # Build nlohmann/json
 #
@@ -140,135 +138,7 @@ ExternalProject_Add(nlohmann-json
     -DBUILD_TESTING:BOOL=OFF
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=nlohmann-json
 )
-#
-# Build protobuf project from grpc-repo
-ExternalProject_Add(protobuf
-  PREFIX protobuf
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/cmake"
-  EXCLUDE_FROM_ALL ON
-  DOWNLOAD_COMMAND ""
-  CMAKE_CACHE_ARGS
-    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
-    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
-    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
-    -Dprotobuf_BUILD_TESTS:BOOL=OFF
-    -Dprotobuf_WITH_ZLIB:BOOL=OFF
-    -Dprotobuf_MSVC_STATIC_RUNTIME:BOOL=OFF
-    -DCMAKE_BUILD_TYPE:STRING=RELEASE
-    -DBUILD_SHARED_LIBS:STRING=no
-    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf
-  DEPENDS grpc-repo
-)
-#
-# Build absl (abseil) project from grpc-repo
-#
-# Source is from grpc-repo so don't need PATCH_COMMAND to install
-# source for this target.
-#
-ExternalProject_Add(absl
-  PREFIX absl
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/abseil-cpp"
-  EXCLUDE_FROM_ALL ON
-  DOWNLOAD_COMMAND ""
-  CMAKE_CACHE_ARGS
-    -DCMAKE_CXX_STANDARD:STRING=${THIRD_PARTY_CMAKE_CXX_STANDARD}
-    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
-    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl
-    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DBUILD_TESTING:BOOL=OFF
-  DEPENDS grpc-repo
-)
 
-#
-# Build re2 project from grpc-repo
-ExternalProject_Add(re2
-  PREFIX re2
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/re2"
-  EXCLUDE_FROM_ALL ON
-  DOWNLOAD_COMMAND ""
-  CMAKE_CACHE_ARGS
-    -DCMAKE_CXX_STANDARD:STRING=${THIRD_PARTY_CMAKE_CXX_STANDARD}
-    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
-    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/are2
-    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-  DEPENDS grpc-repo
-)
-
-#
-# Build googletest project from grpc-repo
-#
-# Source is from grpc-repo so don't need PATCH_COMMAND to install
-# source for this target.
-#
-ExternalProject_Add(googletest
-  PREFIX protobuf
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/googletest"
-  EXCLUDE_FROM_ALL ON
-  DOWNLOAD_COMMAND ""
-  CMAKE_CACHE_ARGS
-    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
-    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
-    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/googletest
-  DEPENDS grpc-repo
-)
-# Location where protobuf-config.cmake will be installed varies by
-# platform
-if (WIN32)
-  set(_FINDPACKAGE_PROTOBUF_CONFIG_DIR "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/cmake")
-else()
-  set(_FINDPACKAGE_PROTOBUF_CONFIG_DIR "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/${LIB_DIR}/cmake/protobuf")
-endif()
-#
-# Build c-ares project from grpc-repo
-#
-# Source is from grpc-repo so don't need PATCH_COMMAND to install
-# source for this target.
-#
-ExternalProject_Add(c-ares
-  PREFIX c-ares
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/cares/cares"
-  EXCLUDE_FROM_ALL ON
-  DOWNLOAD_COMMAND ""
-  CMAKE_CACHE_ARGS
-    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
-    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
-    -DCARES_SHARED:BOOL=OFF
-    -DCARES_STATIC:BOOL=ON
-    -DCARES_STATIC_PIC:BOOL=ON
-    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares
-  DEPENDS grpc-repo
-)
-#
-# Build GRPC
-#
-# Source is from grpc-repo so don't need PATCH_COMMAND to install
-# source for this target.
-#
-ExternalProject_Add(grpc
-  PREFIX grpc
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
-  EXCLUDE_FROM_ALL ON
-  DOWNLOAD_COMMAND ""
-  CMAKE_CACHE_ARGS
-    -DCMAKE_CXX_STANDARD:STRING=${THIRD_PARTY_CMAKE_CXX_STANDARD}
-    -DgRPC_INSTALL:BOOL=ON
-    -DgRPC_BUILD_TESTS:BOOL=OFF
-    -DgRPC_PROTOBUF_PROVIDER:STRING=package
-    -DgRPC_PROTOBUF_PACKAGE_TYPE:STRING=CONFIG
-    -DgRPC_ZLIB_PROVIDER:STRING=package
-    -DgRPC_CARES_PROVIDER:STRING=package
-    -DgRPC_SSL_PROVIDER:STRING=package
-    -Dc-ares_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/${LIB_DIR}/cmake/c-ares
-    -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
-    ${_CMAKE_ARGS_OPENSSL_ROOT_DIR}
-    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
-    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
-    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc
-  DEPENDS grpc-repo c-ares protobuf absl
-)
 #
 # Build libevent
 #
