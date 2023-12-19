@@ -443,7 +443,10 @@ ExternalProject_Add(google-cloud-cpp
 )
 #
 # Build azure-sdk (need azure-storage-blobs)
-#
+# [FIXME] azure-sdk sets CMake Standard to 14, without `CACHE`:
+# https://github.com/Azure/azure-sdk-for-cpp/blob/2850c5d32c8a86491b49e801433b8f186fa81745/CMakeLists.txt#L27
+# This `set` does not allow us to override `CMAKE_CXX_STANDARD`, 
+# thus I am not passing flag here.
 ExternalProject_Add(azure-sdk
   PREFIX azure-sdk
   GIT_REPOSITORY "https://github.com/Azure/azure-sdk-for-cpp.git"
@@ -453,7 +456,6 @@ ExternalProject_Add(azure-sdk
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
-    -DCMAKE_CXX_STANDARD:STRING=${THIRD_PARTY_CMAKE_CXX_STANDARD}
     -DBUILD_SHARED_LIBS:BOOL=OFF
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
@@ -483,7 +485,10 @@ ExternalProject_Add(cnmem
 )
 #
 # Build aws-sdk-cpp
-#
+# FIXME] aws-sdk-cpp sets CMake Standard to 11, without `CACHE`:
+# https://github.com/aws/aws-sdk-cpp/blob/6e9ef07d76cb9403a1b8626efa2eeff8a82c53e8/CMakeLists.txt#L353
+# This `set` does not allow us to override `CMAKE_CXX_STANDARD`, 
+# thus I am not passing flag here.
 ExternalProject_Add(aws-sdk-cpp
   PREFIX aws-sdk-cpp
   GIT_REPOSITORY "https://github.com/aws/aws-sdk-cpp.git"
@@ -493,7 +498,6 @@ ExternalProject_Add(aws-sdk-cpp
   CMAKE_CACHE_ARGS
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
-    -DCMAKE_CXX_STANDARD:STRING=${THIRD_PARTY_CMAKE_CXX_STANDARD}
     -DBUILD_ONLY:STRING=s3
     -DBUILD_SHARED_LIBS:BOOL=OFF
     -DMINIMIZE_SIZE:BOOL=ON
