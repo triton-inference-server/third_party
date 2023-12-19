@@ -113,6 +113,7 @@ ExternalProject_Add(curl
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
 
+set(ABSL_ENABLE_INSTALL ON)
 FetchContent_Declare(
     gRPC
     GIT_REPOSITORY https://github.com/grpc/grpc
