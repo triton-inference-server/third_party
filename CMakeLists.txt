@@ -281,7 +281,7 @@ ExternalProject_Add(google-cloud-cpp
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
     -DCrc32c_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/${LIB_DIR}/cmake/Crc32c
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
-  DEPENDS grpc c-ares protobuf crc32c absl nlohmann-json
+  DEPENDS grpc crc32c nlohmann-json
 )
 #
 # Build azure-sdk (need azure-storage-blobs)
@@ -380,6 +380,6 @@ if (NOT WIN32)
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/opentelemetry-cpp
     PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
-    DEPENDS grpc absl nlohmann-json curl protobuf
+    DEPENDS grpc nlohmann-json curl
   )
 endif()
