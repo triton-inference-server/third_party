@@ -225,29 +225,6 @@ ExternalProject_Add(prometheus-cpp
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
 #
-# Build crc32c
-#
-# Use a specific hash to get ARM64 fix not included in latest release
-# (https://github.com/google/crc32c/pull/52).
-#
-ExternalProject_Add(crc32c
-  PREFIX crc32c
-  GIT_REPOSITORY "https://github.com/google/crc32c.git"
-  GIT_TAG "b9d6e825a1e6783195a6051639179152dac70b3b"
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/crc32c/src/crc32c"
-  EXCLUDE_FROM_ALL ON
-  CMAKE_CACHE_ARGS
-    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
-    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
-    -DCRC32C_BUILD_TESTS:BOOL=OFF
-    -DBUILD_SHARED_LIBS:STRING=no
-    -DCRC32C_BUILD_BENCHMARKS:BOOL=OFF
-    -DCRC32C_USE_GLOG:BOOL=OFF
-    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
-    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c
-  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
-)
 # This is necessary because google-cloud-cpp
 # does not pass protobuf_DIR and gRPC_DIR etc to its
 # external projects but expects them in CMAKE_PREFIX_PATH.
@@ -282,7 +259,7 @@ ExternalProject_Add(google-cloud-cpp
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
     -DCrc32c_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/${LIB_DIR}/cmake/Crc32c
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
-  DEPENDS grpc crc32c nlohmann-json
+  DEPENDS grpc nlohmann-json
 )
 #
 # Build azure-sdk (need azure-storage-blobs)
