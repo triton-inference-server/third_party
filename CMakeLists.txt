@@ -188,13 +188,30 @@ ExternalProject_Add(absl
   DEPENDS grpc-repo
 )
 #
+# Build re2 project from grpc-repo
+#
+#
+ExternalProject_Add(re2
+    PREFIX re2
+    SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/re2"
+    EXCLUDE_FROM_ALL ON
+    DOWNLOAD_COMMAND ""
+    CMAKE_CACHE_ARGS
+    -DCMAKE_CXX_STANDARD:STRING=${THIRD_PARTY_CMAKE_CXX_STANDARD}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/re2
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    DEPENDS grpc-repo
+)
+
+#
 # Build googletest project from grpc-repo
 #
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
 # source for this target.
 #
 ExternalProject_Add(googletest
-  PREFIX protobuf
+  PREFIX googletest
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/googletest"
   EXCLUDE_FROM_ALL ON
   DOWNLOAD_COMMAND ""
@@ -240,11 +257,11 @@ ExternalProject_Add(c-ares
 # source for this target.
 #
 ExternalProject_Add(grpc
-  PREFIX grpc
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
-  EXCLUDE_FROM_ALL ON
-  DOWNLOAD_COMMAND ""
-  CMAKE_CACHE_ARGS
+    PREFIX grpc
+    SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
+    EXCLUDE_FROM_ALL ON
+    DOWNLOAD_COMMAND ""
+    CMAKE_CACHE_ARGS
     -DCMAKE_CXX_STANDARD:STRING=${THIRD_PARTY_CMAKE_CXX_STANDARD}
     -DgRPC_INSTALL:BOOL=ON
     -DgRPC_BUILD_TESTS:BOOL=OFF
@@ -253,15 +270,20 @@ ExternalProject_Add(grpc
     -DgRPC_ZLIB_PROVIDER:STRING=package
     -DgRPC_CARES_PROVIDER:STRING=package
     -DgRPC_SSL_PROVIDER:STRING=package
+    -DgRPC_RE2_PROVIDER:STRING=package
+    -DgRPC_ABSL_PROVIDER:STRING=package
+    -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
     -Dc-ares_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/${LIB_DIR}/cmake/c-ares
+    -Dre2_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/re2/${LIB_DIR}/cmake/re2
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
     ${_CMAKE_ARGS_OPENSSL_ROOT_DIR}
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc
-  DEPENDS grpc-repo c-ares protobuf absl
+    DEPENDS grpc-repo c-ares protobuf absl re2
 )
+
 #
 # Build libevent
 #
