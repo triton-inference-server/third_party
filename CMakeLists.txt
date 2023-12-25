@@ -80,8 +80,10 @@ endif()
 # [FIXME] apply the same version to all third party, and pick a Triton default
 if (NOT DEFINED CMAKE_CXX_STANDARD)
   set(THIRD_PARTY_CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD 17)
 else()
-set(THIRD_PARTY_CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD})
+  set(THIRD_PARTY_CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
 #
@@ -154,12 +156,13 @@ ExternalProject_Add(absl
   CMAKE_CACHE_ARGS
     -DCMAKE_CXX_STANDARD:STRING=${THIRD_PARTY_CMAKE_CXX_STANDARD}
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
+    -DABSL_PROPAGATE_CXX_STD:BOOL=TRUE
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DBUILD_TESTING:BOOL=OFF
   DEPENDS grpc-repo
 )
-# Builds absl project from the git submodule.
+# Builds utf8_range project from the git submodule.
 ExternalProject_Add(utf8_range
   PREFIX utf8_range
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/utf8_range"
