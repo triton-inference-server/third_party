@@ -116,14 +116,14 @@ ExternalProject_Add(curl
 ExternalProject_Add(grpc-repo
   PREFIX grpc-repo
   GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.58.0"
+  GIT_TAG "v1.48.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
   EXCLUDE_FROM_ALL ON
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
   TEST_COMMAND ""
-  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.58.0
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.48.0
 )
 #
 # Build nlohmann/json
@@ -162,27 +162,12 @@ ExternalProject_Add(absl
     -DBUILD_TESTING:BOOL=OFF
   DEPENDS grpc-repo
 )
-# Builds utf8_range project from the git submodule.
-ExternalProject_Add(utf8_range
-  PREFIX utf8_range
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/utf8_range"
-  EXCLUDE_FROM_ALL ON
-  DOWNLOAD_COMMAND ""
-  CMAKE_CACHE_ARGS
-        -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
-        -DCMAKE_CXX_STANDARD:STRING=${THIRD_PARTY_CMAKE_CXX_STANDARD}
-        -Dutf8_range_ENABLE_TESTS:BOOL=OFF
-        -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-        -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
-        -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/utf8_range
-  DEPENDS absl grpc-repo
-)
 #
 # Build protobuf project from grpc-repo
 #
 ExternalProject_Add(protobuf
   PREFIX protobuf
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/cmake"
   EXCLUDE_FROM_ALL ON
   DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
@@ -194,11 +179,11 @@ ExternalProject_Add(protobuf
     -Dprotobuf_MSVC_STATIC_RUNTIME:BOOL=OFF
     -Dprotobuf_ABSL_PROVIDER:STRING=package
     -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
-    -Dutf8_range_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/utf8_range/${LIB_DIR}/cmake/utf8_range
     -DCMAKE_BUILD_TYPE:STRING=RELEASE
     -DBUILD_SHARED_LIBS:STRING=no
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf
-  DEPENDS grpc-repo absl utf8_range
+  PATCH_COMMAND git cherry-pick -n f180289c4670ca1afde5865bb8a7f2b61a3efcc5
+  DEPENDS grpc-repo absl
 )
 
 #
@@ -284,7 +269,6 @@ ExternalProject_Add(grpc
     -DgRPC_ZLIB_PROVIDER:STRING=package
     -DgRPC_CARES_PROVIDER:STRING=package
     -DgRPC_BUILD_MSVC_MP_COUNT:STRING=-1
-    -Dutf8_range_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/utf8_range/${LIB_DIR}/cmake/utf8_range
     -DgRPC_SSL_PROVIDER:STRING=package
     -DgRPC_RE2_PROVIDER:STRING=package
     -DgRPC_ABSL_PROVIDER:STRING=package
