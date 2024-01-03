@@ -80,8 +80,10 @@ endif()
 # [FIXME] apply the same version to all third party, and pick a Triton default
 if (NOT DEFINED CMAKE_CXX_STANDARD)
   set(THIRD_PARTY_CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD 17)
 else()
-set(THIRD_PARTY_CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD})
+  set(THIRD_PARTY_CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
 #
@@ -141,34 +143,6 @@ ExternalProject_Add(nlohmann-json
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=nlohmann-json
 )
 #
-# Build protobuf project from grpc-repo, but apply a patch that is available
-# in 3.20.0, to resolve a linking issue on Windows
-#
-# Source is from grpc-repo so don't need PATCH_COMMAND to install
-# source for this target.
-#
-# Use -DCMAKE_BUILD_TYPE:STRING=RELEASE to workaround the protobuf build issue
-# described in https://stackoverflow.com/a/60218066/2091555
-#
-ExternalProject_Add(protobuf
-  PREFIX protobuf
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/cmake"
-  EXCLUDE_FROM_ALL ON
-  DOWNLOAD_COMMAND ""
-  CMAKE_CACHE_ARGS
-    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
-    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
-    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
-    -Dprotobuf_BUILD_TESTS:BOOL=OFF
-    -Dprotobuf_WITH_ZLIB:BOOL=OFF
-    -Dprotobuf_MSVC_STATIC_RUNTIME:BOOL=OFF
-    -DCMAKE_BUILD_TYPE:STRING=RELEASE
-    -DBUILD_SHARED_LIBS:STRING=no
-    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf
-  PATCH_COMMAND git cherry-pick -n f180289c4670ca1afde5865bb8a7f2b61a3efcc5
-  DEPENDS grpc-repo
-)
-#
 # Build absl (abseil) project from grpc-repo
 #
 # Source is from grpc-repo so don't need PATCH_COMMAND to install
@@ -182,11 +156,53 @@ ExternalProject_Add(absl
   CMAKE_CACHE_ARGS
     -DCMAKE_CXX_STANDARD:STRING=${THIRD_PARTY_CMAKE_CXX_STANDARD}
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
+    -DABSL_PROPAGATE_CXX_STD:BOOL=TRUE
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DBUILD_TESTING:BOOL=OFF
   DEPENDS grpc-repo
 )
+#
+# Build protobuf project from grpc-repo
+#
+ExternalProject_Add(protobuf
+  PREFIX protobuf
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/cmake"
+  EXCLUDE_FROM_ALL ON
+  DOWNLOAD_COMMAND ""
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -Dprotobuf_BUILD_TESTS:BOOL=OFF
+    -Dprotobuf_WITH_ZLIB:BOOL=OFF
+    -Dprotobuf_MSVC_STATIC_RUNTIME:BOOL=OFF
+    -Dprotobuf_ABSL_PROVIDER:STRING=package
+    -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
+    -DCMAKE_BUILD_TYPE:STRING=RELEASE
+    -DBUILD_SHARED_LIBS:STRING=no
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf
+  PATCH_COMMAND git cherry-pick -n f180289c4670ca1afde5865bb8a7f2b61a3efcc5
+  DEPENDS grpc-repo absl
+)
+
+#
+# Build re2 project from grpc-repo
+#
+#
+ExternalProject_Add(re2
+    PREFIX re2
+    SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/re2"
+    EXCLUDE_FROM_ALL ON
+    DOWNLOAD_COMMAND ""
+    CMAKE_CACHE_ARGS
+    -DCMAKE_CXX_STANDARD:STRING=${THIRD_PARTY_CMAKE_CXX_STANDARD}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/re2
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    DEPENDS grpc-repo
+)
+
 #
 # Build googletest project from grpc-repo
 #
@@ -194,7 +210,7 @@ ExternalProject_Add(absl
 # source for this target.
 #
 ExternalProject_Add(googletest
-  PREFIX protobuf
+  PREFIX googletest
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/googletest"
   EXCLUDE_FROM_ALL ON
   DOWNLOAD_COMMAND ""
@@ -240,11 +256,11 @@ ExternalProject_Add(c-ares
 # source for this target.
 #
 ExternalProject_Add(grpc
-  PREFIX grpc
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
-  EXCLUDE_FROM_ALL ON
-  DOWNLOAD_COMMAND ""
-  CMAKE_CACHE_ARGS
+    PREFIX grpc
+    SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
+    EXCLUDE_FROM_ALL ON
+    DOWNLOAD_COMMAND ""
+    CMAKE_CACHE_ARGS
     -DCMAKE_CXX_STANDARD:STRING=${THIRD_PARTY_CMAKE_CXX_STANDARD}
     -DgRPC_INSTALL:BOOL=ON
     -DgRPC_BUILD_TESTS:BOOL=OFF
@@ -252,16 +268,22 @@ ExternalProject_Add(grpc
     -DgRPC_PROTOBUF_PACKAGE_TYPE:STRING=CONFIG
     -DgRPC_ZLIB_PROVIDER:STRING=package
     -DgRPC_CARES_PROVIDER:STRING=package
+    -DgRPC_BUILD_MSVC_MP_COUNT:STRING=-1
     -DgRPC_SSL_PROVIDER:STRING=package
+    -DgRPC_RE2_PROVIDER:STRING=package
+    -DgRPC_ABSL_PROVIDER:STRING=package
+    -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
     -Dc-ares_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/${LIB_DIR}/cmake/c-ares
+    -Dre2_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/re2/${LIB_DIR}/cmake/re2
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
     ${_CMAKE_ARGS_OPENSSL_ROOT_DIR}
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc
-  DEPENDS grpc-repo c-ares protobuf absl
+    DEPENDS grpc-repo c-ares protobuf absl re2
 )
+
 #
 # Build libevent
 #
