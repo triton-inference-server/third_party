@@ -185,6 +185,7 @@ ExternalProject_Add(protobuf
   DEPENDS grpc-repo absl
 )
 
+find_package(Threads)
 #
 # Build re2 project from grpc-repo
 #
@@ -284,6 +285,7 @@ ExternalProject_Add(grpc
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc
     DEPENDS grpc-repo c-ares protobuf absl re2
 )
+
 
 #
 # Build libevent
