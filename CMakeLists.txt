@@ -513,7 +513,7 @@ if (NOT WIN32)
   ExternalProject_Add(opentelemetry-cpp
     PREFIX opentelemetry-cpp
     GIT_REPOSITORY "https://github.com/open-telemetry/opentelemetry-cpp.git"
-    GIT_TAG "v1.11.0"
+    GIT_TAG "v1.13.0"
     SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/opentelemetry-cpp/src/opentelemetry-cpp"
     EXCLUDE_FROM_ALL ON
     CMAKE_CACHE_ARGS
@@ -521,7 +521,6 @@ if (NOT WIN32)
       -DProtobuf_LIBRARIES:STRING=${PROTO_LIB_PATH}
       -DProtobuf_INCLUDE_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/include
       -DProtobuf_PROTOC_EXECUTABLE:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/bin/protoc
-      -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
       -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/${LIB_DIR}/cmake/nlohmann_json
       ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
       ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
@@ -529,7 +528,7 @@ if (NOT WIN32)
       -DBUILD_TESTING:BOOL=OFF
       -DWITH_EXAMPLES:BOOL=OFF 
       -DWITH_BENCHMARK:BOOL=OFF
-      -DWITH_ABSEIL:BOOL=ON
+      -DWITH_ABSEIL:BOOL=OFF
       -DWITH_OTLP_GRPC:BOOL=OFF
       -DWITH_OTLP_HTTP:BOOL=ON
       -DOPENTELEMETRY_INSTALL:BOOL=ON
@@ -539,6 +538,6 @@ if (NOT WIN32)
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/opentelemetry-cpp
     PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
-    DEPENDS grpc absl nlohmann-json curl protobuf
+    DEPENDS grpc nlohmann-json curl protobuf
   )
 endif()
