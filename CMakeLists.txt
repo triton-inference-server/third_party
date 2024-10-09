@@ -442,7 +442,7 @@ ExternalProject_Add(google-cloud-cpp
 ExternalProject_Add(azure-sdk
   PREFIX azure-sdk
   GIT_REPOSITORY "https://github.com/Azure/azure-sdk-for-cpp.git"
-  GIT_TAG "azure-storage-blobs_12.9.0"
+  GIT_TAG "azure-storage-blobs_12.12.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-sdk/src/azure-sdk-for-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
