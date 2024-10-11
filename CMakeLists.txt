@@ -439,6 +439,31 @@ ExternalProject_Add(google-cloud-cpp
 # https://github.com/Azure/azure-sdk-for-cpp/blob/2850c5d32c8a86491b49e801433b8f186fa81745/CMakeLists.txt#L27
 # This `set` does not allow us to override `CMAKE_CXX_STANDARD`, 
 # thus I am not passing flag here.
+
+
+ExternalProject_Add(azure-c-shared-utility
+  PREFIX azure-c-shared-utility
+  GIT_REPOSITORY "https://github.com/Azure/azure-c-shared-utility.git"
+  GIT_TAG "LTS_07_2022_Ref02"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-c-shared-utility/src/azure-c-shared-utility"
+  EXCLUDE_FROM_ALL ON
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DCMAKE_CXX_STANDARD:STRING=${TRITON_MIN_CXX_STANDARD}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCURL_INCLUDE_DIRS:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/include
+    -DCURL_LIBRARIES:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/${LIB_DIR}
+    # -Duse_installed_dependencies:bool=ON
+    -Duse_default_uuid:bool=ON
+    # -Dbuild_as_dynamic:bool=ON
+    # -Duse_openssl:bool=ON
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-c-shared-utility
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
+  DEPENDS curl
+)
+
 ExternalProject_Add(azure-sdk
   PREFIX azure-sdk
   GIT_REPOSITORY "https://github.com/Azure/azure-sdk-for-cpp.git"
@@ -454,11 +479,11 @@ ExternalProject_Add(azure-sdk
     -DCURL_INCLUDE_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/include
     -DCURL_LIBRARY:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/${LIB_DIR}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-sdk
-    -DBUILD_WINDOWS_UWP:BOOL=ON
     -DDISABLE_AZURE_CORE_OPENTELEMETRY:BOOL=ON
     -DENV{AZURE_SDK_DISABLE_AUTO_VCPKG}:BOOL=ON
+    -DCMAKE_PREFIX_PATH:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-c-shared-utility
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
-  DEPENDS curl
+  DEPENDS curl azure-c-shared-utility
 )
 #
 # Build CNMeM (CUDA memory management library)
