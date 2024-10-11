@@ -1,0 +1,29 @@
+--- CMakeLists.txt	2024-10-11 14:53:24.305084638 -0700
++++ CMakeLists.txt	2024-10-11 14:53:35.288981516 -0700
+@@ -214,6 +214,7 @@
+       PATTERN "*.h"
+       PATTERN "copts" EXCLUDE
+       PATTERN "testdata" EXCLUDE
++      PATTERN "options.h" EXCLUDE
+     )
+ 
+   file(READ "absl/base/options.h" ABSL_INTERNAL_OPTIONS_H_CONTENTS)
+@@ -230,7 +231,17 @@
+       ABSL_INTERNAL_OPTIONS_H_PINNED
+       "${ABSL_INTERNAL_OPTIONS_H_CONTENTS}")
+   endif()
+-  file(WRITE "${CMAKE_BINARY_DIR}/options-pinned.h" "${ABSL_INTERNAL_OPTIONS_H_PINNED}")
++  set(ABSL_INTERNAL_OPTIONS_H_PINNED_GENERATE TRUE)
++  if (EXISTS "${CMAKE_BINARY_DIR}/options-pinned.h")
++    file(READ "${CMAKE_BINARY_DIR}/options-pinned.h" ABSL_INTERNAL_OPTIONS_PINNED_H_CONTENTS)
++    if ("${ABSL_INTERNAL_OPTIONS_H_PINNED}" STREQUAL "${ABSL_INTERNAL_OPTIONS_PINNED_H_CONTENTS}")
++      set(ABSL_INTERNAL_OPTIONS_H_PINNED_GENERATE FALSE)
++    endif()
++  endif()
++
++  if (ABSL_INTERNAL_OPTIONS_H_PINNED_GENERATE)
++    file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/options-pinned.h" CONTENT "${ABSL_INTERNAL_OPTIONS_H_PINNED}")
++  endif()
+ 
+   install(FILES "${CMAKE_BINARY_DIR}/options-pinned.h"
+          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/absl/base

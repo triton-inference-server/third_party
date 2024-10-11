@@ -118,7 +118,9 @@ ExternalProject_Add(grpc-repo
   TEST_COMMAND ""
   CMAKE_CACHE_ARGS
     -DCMAKE_CXX_STANDARD:STRING=${TRITON_MIN_CXX_STANDARD}
-  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.54.3
+  # TODO(nnoble): remove this patch when the fix for https://github.com/abseil/abseil-cpp/issues/1769 is integrated within our dependencies
+  PATCH_COMMAND patch -N -i ${CMAKE_CURRENT_SOURCE_DIR}/tools/abseil_no_rebuild.patch -d ${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/abseil-cpp || true
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.54.3
 )
 #
 # Build nlohmann/json
