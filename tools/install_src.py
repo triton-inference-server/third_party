@@ -31,6 +31,7 @@ import platform
 import shutil
 import stat
 import sys
+import subprocess
 
 FLAGS = None
 
@@ -80,6 +81,13 @@ if __name__ == '__main__':
         help=
         'Target for build, can be "ubuntu", "windows" or "jetpack". If not specified, uses the current platform.'
     )
+    parser.add_argument(
+        '--patch',
+        required=False,
+        default=None,
+        help=
+        'patch to apply on source clone'
+    )
 
     FLAGS = parser.parse_args()
 
@@ -100,6 +108,11 @@ if __name__ == '__main__':
         shutil.rmtree(dest_dir, onerror=del_rw)
 
     shutil.copytree(FLAGS.src, dest_dir, symlinks=True)
+    
+    # if FLAGS.patch:
+    #     cmd = f"patch -d {dest_dir} < /tmp/tp/tools/fix-install-location.patch"
+    #     log('install_src: pppp src: {} '.format(cmd))
+    #     subprocess.run(cmd, shell=True, check=True, capture_output=True,text=True)
 
     # Remove .git and .github hidden directories from the copied
     # source directories
