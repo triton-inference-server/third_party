@@ -38,6 +38,7 @@ patches or files.
 import os
 import sys
 from enum import Enum
+import argparse
 
 class FileAlreadyPatchedError(Exception):
     pass
@@ -165,44 +166,42 @@ class Patch:
     def __str__(self):
         return f"Patch: {self.filename}\n" + '\n'.join([str(hunk) for hunk in self.hunks])
 
-
-def usage():
-    print("Usage: patch.py <command> [options] <patchfile>")
-    print("Commands:")
-    print("  apply - Apply the patch")
-    print("     -i, --ignore-already-patched - Ignore already patched files")
-    print("     -d, --directory <directory>  - Directory to apply the patch to")
-    print("  parse - Parse the patch file")
-    print("  help  - Show this help message")
-    sys.exit(1)
-
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        usage()
+    parser = argparse.ArgumentParser(description="A basic patch tool.")
+    subparsers = parser.add_subparsers(dest="command", help="Commands")
 
-    command = sys.argv[1]
-    if command == 'help':
-        usage()
-    elif command == 'parse':
-        patch = Patch(sys.argv[2])
+    # Apply command
+    apply_parser = subparsers.add_parser("apply", help="Apply the patch")
+    apply_parser.add_argument("-i", "--ignore-already-patched", action="store_true", help="Ignore already patched files")
+    apply_parser.add_argument("-d", "--directory", type=str, help="Directory to apply the patch to")
+    apply_parser.add_argument("patchfile", type=str, help="Patch file to apply")
+
+    # Parse command
+    parse_parser = subparsers.add_parser("parse", help="Parse the patch file")
+    parse_parser.add_argument("patchfile", type=str, help="Patch file to parse")
+
+    # Help command
+    subparsers.add_parser("help", help="Show this help message")
+
+    args = parser.parse_args()
+
+    if args.command == "help":
+        parser.print_help()
+    elif args.command == "parse":
+        patch = Patch(args.patchfile)
         patch.parse()
         print(patch)
-    elif command == 'apply':
-        ignore_already_patched = False
-        # Parse options
-        for i in range(2, len(sys.argv) - 1):
-            if sys.argv[i] in ['-i', '--ignore-already-patched']:
-                ignore_already_patched = True
-            elif sys.argv[i] in ['-d', '--directory']:
-                os.chdir(sys.argv[i + 1])
-        patch = Patch(sys.argv[-1])
+    elif args.command == "apply":
+        if args.directory:
+            os.chdir(args.directory)
+        patch = Patch(args.patchfile)
         patch.parse()
         try:
             patch.apply()
         except FileAlreadyPatchedError as e:
-            if ignore_already_patched:
+            if args.ignore_already_patched:
                 print(f"Ignoring already patched file: {e}")
             else:
                 raise
     else:
-        usage()
+        parser.print_help()
