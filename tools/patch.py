@@ -79,7 +79,7 @@ class Hunk:
         for line in lines:
             line = line.rstrip('\r\n')
             # Only consider lines within the hunk's range
-            if int(self.location) <= current_line and current_line < int(self.location + self.count):
+            if self.location <= current_line and current_line < self.location + self.count:
                 if self.lines[relative_line].line_type == LineType.MATCH:
                     if self.lines[relative_line].line != line:
                         raise FileNotMatchingError(f"Patch failed: {self.filename}:{current_line} does not match expected line:\nSource: {line}\nTarget: {self.lines[relative_line].line}")
