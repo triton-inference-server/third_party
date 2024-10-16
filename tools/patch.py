@@ -36,7 +36,6 @@ patches or files.
 """
 
 import os
-import sys
 from enum import Enum
 import argparse
 
