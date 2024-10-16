@@ -78,10 +78,8 @@ class Hunk:
         relative_line = 0
         for line in lines:
             line = line.rstrip('\r\n')
-            # Pass through the lines not inside the hunk
-            if current_line < int(self.location) or current_line >= int(self.location + self.count):
-                output.append(line)
-            else:
+            # Only consider lines within the hunk's range
+            if int(self.location) <= current_line and current_line < int(self.location + self.count):
                 if self.lines[relative_line].line_type == LineType.MATCH:
                     if self.lines[relative_line].line != line:
                         raise FileNotMatchingError(f"Patch failed: {self.filename}:{current_line} does not match expected line:\nSource: {line}\nTarget: {self.lines[relative_line].line}")
@@ -106,6 +104,8 @@ class Hunk:
                         raise PatchMalformedError(f"Unexpected line type: {self.lines[relative_line].line_type}")
                 elif self.lines[relative_line].line_type == LineType.REMOVE:
                     relative_line += 1
+            else:
+                output.append(line)
             current_line += 1
         with open(self.filename, 'w') as file:
             file.write('\n'.join(output))
