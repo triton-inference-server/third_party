@@ -407,7 +407,7 @@ set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/${LIB_DIR}/cmake/Crc32c
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc/lib/cmake/grpc
-   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/${LIB_DIR}/cmake/nlohmann_json
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/share/cmake/nlohmann_json
    ${_FINDPACKAGE_PROTOBUF_CONFIG_DIR})
 #
 # Build google-cloud-cpp
@@ -415,7 +415,7 @@ set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
 ExternalProject_Add(google-cloud-cpp
   PREFIX google-cloud-cpp
   GIT_REPOSITORY "https://github.com/googleapis/google-cloud-cpp.git"
-  GIT_TAG "v1.42.0"
+  GIT_TAG "v2.28.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/google-cloud-cpp/src/google-cloud-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -424,10 +424,11 @@ ExternalProject_Add(google-cloud-cpp
     -DCMAKE_CXX_STANDARD:STRING=${TRITON_MIN_CXX_STANDARD}
     -DGOOGLE_CLOUD_CPP_DEPENDENCY_PROVIDER:STRING=package
     -DBUILD_TESTING:BOOL=OFF
+    -DGOOGLE_CLOUD_CPP_WITH_MOCKS:BOOL=OFF
     -DCMAKE_PREFIX_PATH:PATH=${GCS_CMAKE_PREFIX_PATH}
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/google-cloud-cpp
-    -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/${LIB_DIR}/cmake/nlohmann_json
+    -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/share/cmake/nlohmann_json
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
     -DCrc32c_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/${LIB_DIR}/cmake/Crc32c
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
