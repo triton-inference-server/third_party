@@ -289,7 +289,7 @@ ExternalProject_Add(grpc
 ExternalProject_Add(libevent
   PREFIX libevent
   GIT_REPOSITORY "https://github.com/libevent/libevent.git"
-  GIT_TAG "release-2.1.10-stable"
+  GIT_TAG "release-2.1.12-stable"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/libevent/src/libevent"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -463,7 +463,7 @@ ExternalProject_Add(azure-iot-sdk-c
 ExternalProject_Add(azure-sdk
   PREFIX azure-sdk
   GIT_REPOSITORY "https://github.com/Azure/azure-sdk-for-cpp.git"
-  GIT_TAG "azure-storage-blobs_12.12.0"
+  GIT_TAG "azure-storage-blobs_12.13.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-sdk/src/azure-sdk-for-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
