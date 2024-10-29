@@ -101,7 +101,6 @@ if __name__ == '__main__':
 
     shutil.copytree(FLAGS.src, dest_dir, symlinks=True)
 
-
     # Remove .git and .github hidden directories from the copied
     # source directories
     for root, dirs, files in os.walk(dest_dir):
