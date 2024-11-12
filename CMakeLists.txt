@@ -128,7 +128,7 @@ ExternalProject_Add(grpc-repo
 ExternalProject_Add(nlohmann-json
   PREFIX nlohmann-json
   GIT_REPOSITORY "https://github.com/nlohmann/json.git"
-  GIT_TAG "v3.10.5"
+  GIT_TAG "v3.11.3"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/json"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -291,7 +291,7 @@ ExternalProject_Add(grpc
 ExternalProject_Add(libevent
   PREFIX libevent
   GIT_REPOSITORY "https://github.com/libevent/libevent.git"
-  GIT_TAG "release-2.1.8-stable"
+  GIT_TAG "release-2.1.12-stable"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/libevent/src/libevent"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -300,6 +300,7 @@ ExternalProject_Add(libevent
     -DCMAKE_CXX_STANDARD:STRING=${TRITON_MIN_CXX_STANDARD}
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DEVENT__LIBRARY_TYPE:STRING=STATIC
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/libevent
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
@@ -409,7 +410,7 @@ set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/${LIB_DIR}/cmake/Crc32c
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc/lib/cmake/grpc
-   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/${LIB_DIR}/cmake/nlohmann_json
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/share/cmake/nlohmann_json
    ${_FINDPACKAGE_PROTOBUF_CONFIG_DIR})
 #
 # Build google-cloud-cpp
@@ -417,7 +418,7 @@ set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
 ExternalProject_Add(google-cloud-cpp
   PREFIX google-cloud-cpp
   GIT_REPOSITORY "https://github.com/googleapis/google-cloud-cpp.git"
-  GIT_TAG "v1.42.0"
+  GIT_TAG "v2.28.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/google-cloud-cpp/src/google-cloud-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -426,10 +427,11 @@ ExternalProject_Add(google-cloud-cpp
     -DCMAKE_CXX_STANDARD:STRING=${TRITON_MIN_CXX_STANDARD}
     -DGOOGLE_CLOUD_CPP_DEPENDENCY_PROVIDER:STRING=package
     -DBUILD_TESTING:BOOL=OFF
+    -DGOOGLE_CLOUD_CPP_WITH_MOCKS:BOOL=OFF
     -DCMAKE_PREFIX_PATH:PATH=${GCS_CMAKE_PREFIX_PATH}
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/google-cloud-cpp
-    -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/${LIB_DIR}/cmake/nlohmann_json
+    -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/share/cmake/nlohmann_json
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
     -DCrc32c_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/${LIB_DIR}/cmake/Crc32c
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
@@ -441,10 +443,30 @@ ExternalProject_Add(google-cloud-cpp
 # https://github.com/Azure/azure-sdk-for-cpp/blob/2850c5d32c8a86491b49e801433b8f186fa81745/CMakeLists.txt#L27
 # This `set` does not allow us to override `CMAKE_CXX_STANDARD`, 
 # thus I am not passing flag here.
+
+
+ExternalProject_Add(azure-iot-sdk-c
+  PREFIX azure-iot-sdk-c
+  GIT_REPOSITORY "https://github.com/Azure/azure-iot-sdk-c.git"
+  GIT_TAG "LTS_03_2024_Ref02"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-iot-sdk-c/src/azure-iot-sdk-c"
+  EXCLUDE_FROM_ALL ON
+  CMAKE_CACHE_ARGS
+    ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
+    ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
+    -DCMAKE_CXX_STANDARD:STRING=${TRITON_MIN_CXX_STANDARD}
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -Duse_default_uuid:bool=ON
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-iot-sdk-c
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} 
+  DEPENDS curl
+)
+
 ExternalProject_Add(azure-sdk
   PREFIX azure-sdk
   GIT_REPOSITORY "https://github.com/Azure/azure-sdk-for-cpp.git"
-  GIT_TAG "azure-storage-blobs_12.7.0"
+  GIT_TAG "azure-storage-blobs_12.13.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-sdk/src/azure-sdk-for-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -458,9 +480,12 @@ ExternalProject_Add(azure-sdk
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-sdk
     -DDISABLE_AZURE_CORE_OPENTELEMETRY:BOOL=ON
     -DENV{AZURE_SDK_DISABLE_AUTO_VCPKG}:BOOL=ON
+    -DWARNINGS_AS_ERRORS:BOOL=OFF
+    -DCMAKE_PREFIX_PATH:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-iot-sdk-c
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
-  DEPENDS curl
+  DEPENDS curl azure-iot-sdk-c
 )
+
 #
 # Build CNMeM (CUDA memory management library)
 #
