@@ -128,7 +128,7 @@ ExternalProject_Add(grpc-repo
 ExternalProject_Add(nlohmann-json
   PREFIX nlohmann-json
   GIT_REPOSITORY "https://github.com/nlohmann/json.git"
-  GIT_TAG "v3.11.3"
+  GIT_TAG "v3.10.5"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/json"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -291,7 +291,7 @@ ExternalProject_Add(grpc
 ExternalProject_Add(libevent
   PREFIX libevent
   GIT_REPOSITORY "https://github.com/libevent/libevent.git"
-  GIT_TAG "release-2.1.12-stable"
+  GIT_TAG "release-2.1.8-stable"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/libevent/src/libevent"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
