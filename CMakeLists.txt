@@ -112,6 +112,7 @@ ExternalProject_Add(grpc-repo
   GIT_TAG "v1.69.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
   EXCLUDE_FROM_ALL ON
+  UPDATE_COMMAND git submodule update --init --recursive
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
