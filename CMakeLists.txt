@@ -119,7 +119,6 @@ ExternalProject_Add(grpc-repo
   TEST_COMMAND ""
   CMAKE_CACHE_ARGS
     -DCMAKE_CXX_STANDARD:STRING=${TRITON_MIN_CXX_STANDARD}
-  # TODO(nnoble): remove this patch when the fix for https://github.com/abseil/abseil-cpp/issues/1769 is integrated within our dependencies
   COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.69.0
 )
 #
@@ -170,7 +169,7 @@ ExternalProject_Add(utf8_range
   CMAKE_CACHE_ARGS
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/utf8_range
-  DEPENDS grpc-repo
+  DEPENDS grpc-repo absl
 )
 
 #
