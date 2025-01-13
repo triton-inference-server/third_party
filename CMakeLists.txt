@@ -164,6 +164,10 @@ ExternalProject_Add(absl
 #
 # Build protobuf project from grpc-repo
 #
+# Add utf8_range configuration
+set(utf8_range_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/third_party/utf8_range/lib/cmake/utf8_range")
+find_package(utf8_range CONFIG REQUIRED)
+
 ExternalProject_Add(protobuf
   PREFIX protobuf
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf"
