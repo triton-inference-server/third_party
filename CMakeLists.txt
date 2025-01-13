@@ -168,6 +168,8 @@ ExternalProject_Add(utf8_range
   DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    # Disable tests so the subproject doesn’t call find_package(GTest REQUIRED)
+    -DBUILD_TESTING:BOOL=OFF
     -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/utf8_range
   DEPENDS grpc-repo absl
