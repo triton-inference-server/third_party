@@ -171,7 +171,7 @@ ExternalProject_Add(utf8_range
     # Disable tests so the subproject doesn’t call find_package(GTest REQUIRED)
     -DBUILD_TESTING:BOOL=OFF
     -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
-    -DCMAKE_DISABLE_FIND_PACKAGE_GTest:BOOL=ON
+    -DCMAKE_DISABLE_FIND_PACKAGE_GTest:BOOL=OFF
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/utf8_range
   DEPENDS grpc-repo absl
 )
