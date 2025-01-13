@@ -161,6 +161,18 @@ ExternalProject_Add(absl
     -DBUILD_TESTING:BOOL=OFF
   DEPENDS grpc-repo
 )
+
+ExternalProject_Add(utf8_range
+  PREFIX utf8_range
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/third_party/utf8_range"
+  EXCLUDE_FROM_ALL ON
+  DOWNLOAD_COMMAND ""
+  CMAKE_CACHE_ARGS
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/utf8_range
+  DEPENDS grpc-repo
+)
+
 #
 # Build protobuf project from grpc-repo
 #
@@ -187,7 +199,7 @@ ExternalProject_Add(protobuf
     -DBUILD_SHARED_LIBS:STRING=no
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf
     -Dutf8_range_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/third_party/utf8_range
-  DEPENDS grpc-repo absl
+  DEPENDS grpc-repo absl utf8_range
 )
 
 #
