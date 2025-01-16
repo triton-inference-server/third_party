@@ -196,7 +196,7 @@ ExternalProject_Add(protobuf
     -Dprotobuf_BUILD_TESTS:BOOL=OFF
     -Dprotobuf_WITH_ZLIB:BOOL=OFF
     -Dprotobuf_MSVC_STATIC_RUNTIME:BOOL=OFF
-    -Dprotobuf_ABSL_PROVIDER:STRING=package
+    -Dprotobuf_ABSL_PROVIDER:STRING=module
     -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
     -DCMAKE_BUILD_TYPE:STRING=RELEASE
     -DBUILD_SHARED_LIBS:STRING=yes
