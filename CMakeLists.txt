@@ -199,7 +199,7 @@ ExternalProject_Add(protobuf
     -Dprotobuf_ABSL_PROVIDER:STRING=package
     -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
     -DCMAKE_BUILD_TYPE:STRING=RELEASE
-    -DBUILD_SHARED_LIBS:STRING=no
+    -DBUILD_SHARED_LIBS:STRING=yes
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf
     -Dutf8_range_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/utf8_range/${LIB_DIR}/cmake/utf8_range
   DEPENDS grpc-repo absl utf8_range
