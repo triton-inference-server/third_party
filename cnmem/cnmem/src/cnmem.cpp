@@ -504,6 +504,8 @@ cnmemStatus_t Manager::allocateBlockUnsafe(Block *&curr, Block *&prev, std::size
 
     // Try to allocate data from the parent or the device.
     void *data = NULL;
+    cudaMemLocation loc;
+    loc.id = mDevice;
     if( mParent ) {
         CNMEM_CHECK(mParent->allocate(data, size, mIsStreamBlocking));
     }
@@ -511,7 +513,7 @@ cnmemStatus_t Manager::allocateBlockUnsafe(Block *&curr, Block *&prev, std::size
         if (mFlags & CNMEM_FLAGS_MANAGED) {
             CNMEM_DEBUG_INFO("cudaMallocManaged(%lu)\n", size);
             CNMEM_CHECK_CUDA(cudaMallocManaged(&data, size));
-            CNMEM_CHECK_CUDA(cudaMemPrefetchAsync(data, size, mDevice, mStream));
+            CNMEM_CHECK_CUDA(cudaMemPrefetchAsync(data, size, loc, mDevice));
         }
         else {
             CNMEM_DEBUG_INFO("cudaMalloc(%lu)\n", size);
