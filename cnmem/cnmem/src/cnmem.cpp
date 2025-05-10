@@ -511,7 +511,7 @@ cnmemStatus_t Manager::allocateBlockUnsafe(Block *&curr, Block *&prev, std::size
         if (mFlags & CNMEM_FLAGS_MANAGED) {
             CNMEM_DEBUG_INFO("cudaMallocManaged(%lu)\n", size);
             CNMEM_CHECK_CUDA(cudaMallocManaged(&data, size));
-            CNMEM_CHECK_CUDA(cudaMemPrefetchAsync_v2(data, size, mDevice));
+            CNMEM_CHECK_CUDA(cudaMemPrefetchAsync(data, size, mDevice, mStream));
         }
         else {
             CNMEM_DEBUG_INFO("cudaMalloc(%lu)\n", size);
