@@ -3,16 +3,16 @@ cmake_minimum_required(VERSION 2.8.8)
 project(cnmem)
 
 # We need CUDA to build that library.
-find_package(CUDA QUIET REQUIRED)
-message(STATUS "CUDA_VERSION: ${CUDA_VERSION}")
-include_directories(${CUDA_INCLUDE_DIRS})
+find_package(CUDAToolkit QUIET REQUIRED)
+message(STATUS "CUDAToolkit_VERSION: ${CUDAToolkit_VERSION}")
+include_directories(${CUDAToolkit_INCLUDE_DIRS})
 
 # Rules to build the cnmem library.
 include_directories(include)
 add_definitions(-DCNMEM_DLLEXPORT)
 add_library(cnmem STATIC src/cnmem.cpp)
 set_target_properties(cnmem PROPERTIES VERSION 1.0.0 SOVERSION 1)
-target_link_libraries(cnmem LINK_PUBLIC ${CUDA_LIBRARIES})
+target_link_libraries(cnmem LINK_PUBLIC ${CUDAToolkit_LIBRARY_DIR})
 install(TARGETS cnmem RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
 install(FILES include/cnmem.h DESTINATION include)
 
@@ -33,12 +33,12 @@ if(WITH_TESTS)
   if(CMAKE_COMPILER_IS_GNUCC)
     add_definitions(-std=c++11 -DUSE_CPP_11)
   endif(CMAKE_COMPILER_IS_GNUCC)
-  target_link_libraries(cnmem_tests LINK_PUBLIC cnmem ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} -lpthread)
+  target_link_libraries(cnmem_tests LINK_PUBLIC cnmem ${CUDAToolkit_LIBRARY_DIR} ${GTEST_LIBRARIES} -lpthread)
   install(TARGETS cnmem_tests RUNTIME DESTINATION bin)
 
   # Tests that launch kernels to force reading and writing to memory
   cuda_add_executable(cnmem_kernel_tests tests/cnmem_kernel_test.cu)
-  target_link_libraries(cnmem_kernel_tests cnmem ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} -lpthread)
+  target_link_libraries(cnmem_kernel_tests cnmem ${CUDAToolkit_LIBRARY_DIR} ${GTEST_LIBRARIES} -lpthread)
   install(TARGETS cnmem_kernel_tests RUNTIME DESTINATION bin)
 
   # On Windows, we copy the Google test DLL to the bin folder.

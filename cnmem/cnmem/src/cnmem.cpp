@@ -497,17 +497,19 @@ cnmemStatus_t Manager::allocate(void *&ptr, std::size_t size, bool isBlocking) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
 cnmemStatus_t Manager::allocateBlockUnsafe(Block *&curr, Block *&prev, std::size_t size) {
     // Reset the outputs.
     curr = prev = NULL;
 
     // Try to allocate data from the parent or the device.
     void *data = NULL;
+#define STRINGIFY_HELPER(x) #x
+#define STRINGIFY(x) STRINGIFY_HELPER(x)
 
-#if CUDA_VERSION >= 13000
-        cudaMemLocation loc;
-        loc.id = mDevice;
+#pragma message("Preprocessor value CUDART_VERSION: " STRINGIFY(CUDART_VERSION))
+#if CUDART_VERSION >= 13000
+    cudaMemLocation loc;
+    loc.id = mDevice;
 #endif
 
     if( mParent ) {
@@ -518,7 +520,7 @@ cnmemStatus_t Manager::allocateBlockUnsafe(Block *&curr, Block *&prev, std::size
             CNMEM_DEBUG_INFO("cudaMallocManaged(%lu)\n", size);
             CNMEM_CHECK_CUDA(cudaMallocManaged(&data, size));
 
-#if CUDA_VERSION >= 13000
+#if CUDART_VERSION >= 13000
             CNMEM_CHECK_CUDA(cudaMemPrefetchAsync(data, size, loc, mDevice));
 #else
             CNMEM_CHECK_CUDA(cudaMemPrefetchAsync(data, size, mDevice));
