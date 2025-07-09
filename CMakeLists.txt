@@ -23,7 +23,7 @@
 # OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.31.8)
 project(tritonthirdparty LANGUAGES C CXX)
 #
 # ExternalProject Dependencies
@@ -441,7 +441,7 @@ ExternalProject_Add(google-cloud-cpp
 # Build azure-sdk (need azure-storage-blobs)
 # [FIXME] azure-sdk sets CMake Standard to 14, without `CACHE`:
 # https://github.com/Azure/azure-sdk-for-cpp/blob/2850c5d32c8a86491b49e801433b8f186fa81745/CMakeLists.txt#L27
-# This `set` does not allow us to override `CMAKE_CXX_STANDARD`, 
+# This `set` does not allow us to override `CMAKE_CXX_STANDARD`,
 # thus I am not passing flag here.
 
 
@@ -459,7 +459,7 @@ ExternalProject_Add(azure-iot-sdk-c
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -Duse_default_uuid:bool=ON
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-iot-sdk-c
-  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} 
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
   DEPENDS curl
 )
 
@@ -506,7 +506,7 @@ ExternalProject_Add(cnmem
 # Build aws-sdk-cpp
 # FIXME] aws-sdk-cpp sets CMake Standard to 11, without `CACHE`:
 # https://github.com/aws/aws-sdk-cpp/blob/6e9ef07d76cb9403a1b8626efa2eeff8a82c53e8/CMakeLists.txt#L353
-# This `set` does not allow us to override `CMAKE_CXX_STANDARD`, 
+# This `set` does not allow us to override `CMAKE_CXX_STANDARD`,
 # thus I am not passing flag here.
 ExternalProject_Add(aws-sdk-cpp
   PREFIX aws-sdk-cpp
@@ -551,7 +551,7 @@ if (NOT WIN32)
       ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
       -DBUILD_SHARED_LIBS:STRING=OFF
       -DBUILD_TESTING:BOOL=OFF
-      -DWITH_EXAMPLES:BOOL=OFF 
+      -DWITH_EXAMPLES:BOOL=OFF
       -DWITH_BENCHMARK:BOOL=OFF
       -DWITH_ABSEIL:BOOL=OFF
       -DWITH_OTLP_GRPC:BOOL=OFF
