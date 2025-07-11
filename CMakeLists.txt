@@ -106,6 +106,10 @@ ExternalProject_Add(curl
     ${LIBCURL_EXTRA_BUILD_ARGS}
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
+#
+# Build grpc-repo project from grpc-repo
+# Example: https://github.com/grpc/grpc/blob/232dceb3a38fa15e8ce5c58ba6b9f9d379076f7e/examples/cpp/helloworld/cmake_externalproject/CMakeLists.txt
+#
 ExternalProject_Add(grpc-repo
   PREFIX grpc-repo
   GIT_REPOSITORY "https://github.com/grpc/grpc.git"
@@ -171,7 +175,7 @@ ExternalProject_Add(utf8_range
         -Dutf8_range_ENABLE_TESTS:BOOL=OFF
         -Dprotobuf_VERSION:STRING=0.0.1
         -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
-  DEPENDS absl
+  DEPENDS grpc-repo absl
 )
 #
 # Build protobuf project from grpc-repo
