@@ -474,7 +474,7 @@ ExternalProject_Add(google-cloud-cpp
 ExternalProject_Add(azure-iot-sdk-c
   PREFIX azure-iot-sdk-c
   GIT_REPOSITORY "https://github.com/Azure/azure-iot-sdk-c.git"
-  GIT_TAG "LTS_03_2024_Ref02"
+  GIT_TAG "LTS_03_2025"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-iot-sdk-c/src/azure-iot-sdk-c"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -485,6 +485,7 @@ ExternalProject_Add(azure-iot-sdk-c
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -Duse_default_uuid:bool=ON
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-iot-sdk-c
+    -DCMAKE_POLICY_VERSION_MINIMUM:STRING=3.5
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
   DEPENDS curl
 )
