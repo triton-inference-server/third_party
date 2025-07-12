@@ -564,9 +564,10 @@ if (NOT WIN32)
   set(PROTO_LIB_PATH "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/${LIB_DIR}/libprotobuf.a")
   ExternalProject_Add(opentelemetry-cpp
     PREFIX opentelemetry-cpp
-    SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/opentelemetry-cpp"
+    GIT_REPOSITORY "https://github.com/open-telemetry/opentelemetry-cpp.git"
+    GIT_TAG "v1.22.0"
+    SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/opentelemetry-cpp/src/opentelemetry-cpp"
     EXCLUDE_FROM_ALL ON
-    DOWNLOAD_COMMAND ""
     CMAKE_CACHE_ARGS
       -DCMAKE_CXX_STANDARD:STRING=${TRITON_MIN_CXX_STANDARD}
       -DProtobuf_LIBRARIES:STRING=${PROTO_LIB_PATH}
@@ -588,7 +589,7 @@ if (NOT WIN32)
       -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/opentelemetry-cpp
-      -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
+      -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
       -DCMAKE_POLICY_VERSION_MINIMUM:STRING=3.5
     PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
     DEPENDS grpc nlohmann-json curl protobuf
