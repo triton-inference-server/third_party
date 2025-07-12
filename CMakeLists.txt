@@ -565,7 +565,7 @@ if (NOT WIN32)
   ExternalProject_Add(opentelemetry-cpp
     PREFIX opentelemetry-cpp
     GIT_REPOSITORY "https://github.com/open-telemetry/opentelemetry-cpp.git"
-    GIT_TAG "v1.13.0"
+    GIT_TAG "v1.22.0"
     SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/opentelemetry-cpp/src/opentelemetry-cpp"
     EXCLUDE_FROM_ALL ON
     CMAKE_CACHE_ARGS
