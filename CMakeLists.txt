@@ -122,6 +122,8 @@ ExternalProject_Add(grpc-repo
   TEST_COMMAND ""
   CMAKE_CACHE_ARGS
     -DCMAKE_CXX_STANDARD:STRING=${TRITON_MIN_CXX_STANDARD}
+  # TODO(nnoble): remove this patch when the fix for https://github.com/abseil/abseil-cpp/issues/1769 is integrated within our dependencies
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/patch.py apply -i -d ${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/abseil-cpp ${CMAKE_CURRENT_SOURCE_DIR}/tools/abseil_no_rebuild.patch
   COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.54.3
 )
 #
@@ -169,7 +171,7 @@ ExternalProject_Add(absl
 #
 ExternalProject_Add(protobuf
   PREFIX protobuf
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/protobuf/cmake"
   EXCLUDE_FROM_ALL ON
   DOWNLOAD_COMMAND ""
   CMAKE_CACHE_ARGS
@@ -251,7 +253,6 @@ ExternalProject_Add(c-ares
     -DCARES_STATIC_PIC:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares
-    -DCMAKE_POLICY_VERSION_MINIMUM:STRING=3.5
   DEPENDS grpc-repo
 )
 #
@@ -306,7 +307,6 @@ ExternalProject_Add(libevent
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DEVENT__LIBRARY_TYPE:STRING=STATIC
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/libevent
-    -DCMAKE_POLICY_VERSION_MINIMUM:STRING=3.5
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
 #
@@ -332,7 +332,6 @@ ExternalProject_Add(libevhtp
     -DCMAKE_PREFIX_PATH:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/libevent
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/libevhtp
-    -DCMAKE_POLICY_VERSION_MINIMUM:STRING=3.5
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
   DEPENDS libevent
 )
@@ -354,7 +353,6 @@ ExternalProject_Add(libevhtp
     -DLibevent_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/libevent/lib/cmake/libevent
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/libevhtp
-    -DCMAKE_POLICY_VERSION_MINIMUM:STRING=3.5
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
   DEPENDS libevent
 )
@@ -404,7 +402,6 @@ ExternalProject_Add(crc32c
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c
-    -DCMAKE_POLICY_VERSION_MINIMUM:STRING=3.5
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
 # This is necessary because google-cloud-cpp
@@ -426,7 +423,7 @@ set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
 ExternalProject_Add(google-cloud-cpp
   PREFIX google-cloud-cpp
   GIT_REPOSITORY "https://github.com/googleapis/google-cloud-cpp.git"
-  GIT_TAG "v2.39.0"
+  GIT_TAG "v2.28.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/google-cloud-cpp/src/google-cloud-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -456,7 +453,7 @@ ExternalProject_Add(google-cloud-cpp
 ExternalProject_Add(azure-iot-sdk-c
   PREFIX azure-iot-sdk-c
   GIT_REPOSITORY "https://github.com/Azure/azure-iot-sdk-c.git"
-  GIT_TAG "LTS_03_2025"
+  GIT_TAG "LTS_03_2024_Ref02"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-iot-sdk-c/src/azure-iot-sdk-c"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -467,7 +464,6 @@ ExternalProject_Add(azure-iot-sdk-c
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -Duse_default_uuid:bool=ON
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-iot-sdk-c
-    -DCMAKE_POLICY_VERSION_MINIMUM:STRING=3.5
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
   DEPENDS curl
 )
@@ -520,7 +516,7 @@ ExternalProject_Add(cnmem
 ExternalProject_Add(aws-sdk-cpp
   PREFIX aws-sdk-cpp
   GIT_REPOSITORY "https://github.com/aws/aws-sdk-cpp.git"
-  GIT_TAG "1.11.603"
+  GIT_TAG "1.11.60"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/aws-sdk-cpp/src/aws-sdk-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -547,7 +543,7 @@ if (NOT WIN32)
   ExternalProject_Add(opentelemetry-cpp
     PREFIX opentelemetry-cpp
     GIT_REPOSITORY "https://github.com/open-telemetry/opentelemetry-cpp.git"
-    GIT_TAG "v1.22.0"
+    GIT_TAG "v1.13.0"
     SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/opentelemetry-cpp/src/opentelemetry-cpp"
     EXCLUDE_FROM_ALL ON
     CMAKE_CACHE_ARGS
@@ -571,8 +567,6 @@ if (NOT WIN32)
       -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/opentelemetry-cpp
-      -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
-      -DCMAKE_POLICY_VERSION_MINIMUM:STRING=3.5
     PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
     DEPENDS grpc nlohmann-json curl protobuf
   )
