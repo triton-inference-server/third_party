@@ -113,7 +113,7 @@ ExternalProject_Add(curl
 ExternalProject_Add(grpc-repo
   PREFIX grpc-repo
   GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.73.1"
+  GIT_TAG "v1.54.3"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
   EXCLUDE_FROM_ALL ON
   CONFIGURE_COMMAND ""
@@ -164,21 +164,6 @@ ExternalProject_Add(absl
   DEPENDS grpc-repo
 )
 
-# Builds utf8_range project from the git submodule.
-ExternalProject_Add(utf8_range
-  PREFIX utf8_range
-  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc/third_party/utf8_range"
-  EXCLUDE_FROM_ALL ON
-  DOWNLOAD_COMMAND ""
-  CMAKE_CACHE_ARGS
-        -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=TRUE
-        -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/utf8_range
-        -DCMAKE_CXX_STANDARD:STRING=17
-        -Dutf8_range_ENABLE_TESTS:BOOL=OFF
-        -Dprotobuf_VERSION:STRING=0.0.1
-        -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
-  DEPENDS grpc-repo absl
-)
 #
 # Build protobuf project from grpc-repo
 #
@@ -197,11 +182,10 @@ ExternalProject_Add(protobuf
     -Dprotobuf_MSVC_STATIC_RUNTIME:BOOL=OFF
     -Dprotobuf_ABSL_PROVIDER:STRING=package
     -Dabsl_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/${LIB_DIR}/cmake/absl
-    -Dutf8_range_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/utf8_range/${LIB_DIR}/cmake/utf8_range
     -DCMAKE_BUILD_TYPE:STRING=RELEASE
     -DBUILD_SHARED_LIBS:STRING=no
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf
-  DEPENDS grpc-repo absl utf8_range
+  DEPENDS grpc-repo absl
 )
 
 #
@@ -297,7 +281,6 @@ ExternalProject_Add(grpc
     -Dc-ares_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/${LIB_DIR}/cmake/c-ares
     -Dre2_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/re2/${LIB_DIR}/cmake/re2
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
-    -Dutf8_range_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/utf8_range/${LIB_DIR}/cmake/utf8_range
     ${_CMAKE_ARGS_OPENSSL_ROOT_DIR}
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
@@ -456,7 +439,6 @@ ExternalProject_Add(google-cloud-cpp
     -DCMAKE_PREFIX_PATH:PATH=${GCS_CMAKE_PREFIX_PATH}
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/google-cloud-cpp
-    -Dutf8_range_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/utf8_range/${LIB_DIR}/cmake/utf8_range
     -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/share/cmake/nlohmann_json
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
     -DCrc32c_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/${LIB_DIR}/cmake/Crc32c
