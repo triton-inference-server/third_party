@@ -24,7 +24,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # CMakeLists to build the cnmem library.
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 3.31.8)
 project(cnmem)
 
 # We need CUDA to build that library.
