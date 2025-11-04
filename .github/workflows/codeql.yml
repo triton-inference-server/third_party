@@ -26,6 +26,9 @@
 
 name: "CodeQL"
 
+env:
+  PATHS_IGNORE: libevhtp,cnmem
+
 on:
   push:
     branches: [ 'main' ]
