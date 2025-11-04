@@ -1658,7 +1658,7 @@ hdrline_start:
                     {
                         res      = hook_hdr_key_run(p, hooks, p->buf, p->buf_idx);
 
-                        /* figure out if the value of this header is valuable */
+                        /* figure out if the value of this header is valueable */
                         p->heval = eval_hdr_val_none;
 
                         switch (p->buf_idx + 1) {

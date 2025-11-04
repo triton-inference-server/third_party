@@ -500,7 +500,7 @@ strnlen(const char * s, size_t maxlen)
  * @brief Implementation of strndup if none exists.
  *
  * @param s - const char * to null terminated string
- * @param n - size_t maximum length of string
+ * @param n - size_t maximum legnth of string
  *
  * @return length limited string duplicate or NULL if fail
  *
@@ -602,7 +602,7 @@ htp__hook_path_(struct evhtp_request * request, struct evhtp_path * path)
  *
  * once a full key: value header has been parsed, this will call the hook
  *
- * @param request the request structure
+ * @param request the request strucutre
  * @param header the header structure
  *
  * @return EVHTP_RES_OK on success, otherwise something else.
@@ -637,7 +637,7 @@ htp__hook_headers_(struct evhtp_request * request, evhtp_headers_t * headers)
  *        the data is stored in the request->buffer_in so the user may either
  *        leave it, or drain upon being called.
  *
- * @param request the request structure
+ * @param request the request strucutre
  * @param buf a evbuffer containing body data
  *
  * @return EVHTP_RES_OK on success, otherwise something else.
@@ -757,7 +757,7 @@ htp__hook_connection_fini_(struct evhtp_connection * connection)
  * @brief runs the user-defined hook when a connection error occurs
  *
  * @param request the request structure
- * @param errtype the error that occurred
+ * @param errtype the error that ocurred
  */
 static inline void
 htp__hook_error_(struct evhtp_request * request, evhtp_error_flags errtype)
@@ -771,7 +771,7 @@ htp__hook_error_(struct evhtp_request * request, evhtp_error_flags errtype)
  * @brief runs the user-defined hook when a connection error occurs
  *
  * @param connection the connection structure
- * @param errtype the error that occurred
+ * @param errtype the error that ocurred
  */
 static inline evhtp_res
 htp__hook_connection_error_(struct evhtp_connection * connection, evhtp_error_flags errtype)
@@ -2225,7 +2225,7 @@ check_proto:
     evhtp_modp_u32toa((uint32_t)code, out_buf);
 
     /* create the initial reply status via scatter-gather io (note: this used to
-     * be a formatted write which led to some spurious performance problems.
+     * be a formatted write which led to some spurrious performance problems.
      * This now uses iovec/scatter/gather to create the status reply portion
      * of the header.
      */

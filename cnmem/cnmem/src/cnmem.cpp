@@ -328,7 +328,7 @@ class Manager {
     Mutex mMutex;
 
 public:
-    /// Create an uninitialized manager.
+    /// Create an unitialized manager.
     Manager();
     /// Dtor.
     ~Manager();
@@ -1132,7 +1132,7 @@ cnmemStatus_t cnmemInit(int numDevices, const cnmemDevice_t *devices, unsigned f
             child->setFlags(flags & ~CNMEM_FLAGS_CANNOT_GROW);
             if( devices[i].streamSizes && devices[i].streamSizes[j] > 0 ) {
                 //https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#sequential-but-misaligned-access-pattern
-                //Align stream blocks so stream base addresses are aligned to CNMEM_GRANULARITY
+                //Align stream blocks so stream base addresses are alligned to CNMEM_GRANULARITY
                 devices[i].streamSizes[j] = cnmem::ceilInt(devices[i].streamSizes[j], CNMEM_GRANULARITY);
                 CNMEM_CHECK(child->reserve(devices[i].streamSizes[j]));
             }

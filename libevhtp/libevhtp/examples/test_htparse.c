@@ -320,7 +320,7 @@ struct testobj t10 = {
 };
 
 struct testobj t11 = {
-    .name = "[FAILURE TEST] POST request with invalid chunk length",
+    .name = "[FALURE TEST] POST request with invalid chunk length",
     .type = htp_type_request,
     .data = "POST /test/ HTTP/1.1\r\n"
             "Transfer-Encoding: chunked\r\n\r\n"
