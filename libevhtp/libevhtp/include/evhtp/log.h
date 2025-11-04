@@ -32,4 +32,3 @@ EVHTP_EXPORT void * evhtp_log_new(const char * format);
 EVHTP_EXPORT void   evhtp_log_request_f(void * log, evhtp_request_t * request, FILE * fp);
 
 #endif
-

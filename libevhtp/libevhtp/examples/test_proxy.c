@@ -126,4 +126,3 @@ main(int argc, char ** argv) {
     printf("Clean exit\n");
     return 0;
 }
-

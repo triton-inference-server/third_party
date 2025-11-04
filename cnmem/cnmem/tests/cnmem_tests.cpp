@@ -45,7 +45,7 @@ static std::size_t getFreeMemory() {
 class CnmemTest : public testing::TestWithParam<unsigned>{
     /// We determine the amount of free memory.
     std::size_t mFreeMem;
-    
+
 protected:
     /// Do we test memory leaks.
     bool mTestLeaks;
@@ -53,7 +53,7 @@ protected:
     bool mFinalize;
     /// Do we use managed memory.
     unsigned pool_flags;
-    
+
 public:
     /// Ctor.
     CnmemTest() :
@@ -67,7 +67,7 @@ public:
 
 void CnmemTest::TearDown() {
     if( mFinalize ) {
-        ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFinalize()); 
+        ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFinalize());
     }
     if( mTestLeaks ) {
         ASSERT_EQ(mFreeMem, getFreeMemory());
@@ -176,9 +176,9 @@ TEST_P(CnmemTest, freeTwoStreams) {
     void *ptr0, *ptr1;
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMalloc(&ptr0, 1024, streams[0]));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMalloc(&ptr1, 1024, streams[1]));
-    ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr1, streams[1])); 
+    ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr1, streams[1]));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr0, streams[0]));
-    
+
     ASSERT_EQ(cudaSuccess, cudaStreamDestroy(streams[0]));
     ASSERT_EQ(cudaSuccess, cudaStreamDestroy(streams[1]));
 }
@@ -210,9 +210,9 @@ TEST_P(CnmemTest, addStream) {
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMalloc(&ptr1, 1024, streams[1]));
 
     // Clean up.
-    ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr1, streams[1])); 
+    ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr1, streams[1]));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr0, streams[0]));
-    
+
     ASSERT_EQ(cudaSuccess, cudaStreamDestroy(streams[0]));
     ASSERT_EQ(cudaSuccess, cudaStreamDestroy(streams[1]));
 }
@@ -232,9 +232,9 @@ TEST_P(CnmemTest, freeWrongStream) {
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemInit(1, &device, pool_flags));
     void *ptr;
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMalloc(&ptr, 1024, streams[0]));
-    ASSERT_EQ(CNMEM_STATUS_INVALID_ARGUMENT, cnmemFree(ptr, streams[1])); 
+    ASSERT_EQ(CNMEM_STATUS_INVALID_ARGUMENT, cnmemFree(ptr, streams[1]));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr, streams[0]));
-    
+
     ASSERT_EQ(cudaSuccess, cudaStreamDestroy(streams[0]));
     ASSERT_EQ(cudaSuccess, cudaStreamDestroy(streams[1]));
 }
@@ -331,7 +331,7 @@ TEST_P(CnmemTest, allocateAndFreeTwo) {
     void *ptr1;
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMalloc(&ptr1, 512, NULL));
     ASSERT_NE((void*) NULL, ptr1);
-    
+
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr1, NULL));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr0, NULL));
 }
@@ -356,7 +356,7 @@ TEST_P(CnmemTest, allocateAndFreeAll) {
     void *ptr3;
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMalloc(&ptr3, 512, NULL));
     ASSERT_NE((void*) NULL, ptr3);
-    
+
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr3, NULL));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr2, NULL));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr1, NULL));
@@ -377,7 +377,7 @@ TEST_P(CnmemTest, allocateAndFreeAnyOrder) {
     void *ptr1;
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMalloc(&ptr1, 512, NULL));
     ASSERT_NE((void*) NULL, ptr1);
-    
+
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr0, NULL));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr1, NULL));
 }
@@ -405,7 +405,7 @@ TEST_P(CnmemTest, allocateTooMuchAndGrow) {
     void *ptr4;
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMalloc(&ptr4, 512, NULL));
     ASSERT_NE((void*) NULL, ptr4);
-    
+
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr4, NULL));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr3, NULL));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr2, NULL));
@@ -435,7 +435,7 @@ TEST_P(CnmemTest, allocateTooMuchNoGrow) {
     ASSERT_NE((void*) NULL, ptr3);
     void *ptr4;
     ASSERT_EQ(CNMEM_STATUS_OUT_OF_MEMORY, cnmemMalloc(&ptr4, 512, NULL));
-    
+
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr3, NULL));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr2, NULL));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr1, NULL));
@@ -448,7 +448,7 @@ TEST_P(CnmemTest, allocateAndSteal) {
     cudaStream_t streams[2];
     ASSERT_EQ(cudaSuccess, cudaStreamCreate(&streams[0]));
     ASSERT_EQ(cudaSuccess, cudaStreamCreate(&streams[1]));
-    
+
     cnmemDevice_t device;
     memset(&device, 0, sizeof(device));
     device.size = 3*1024;
@@ -571,7 +571,7 @@ TEST_P(CnmemTest, allocateAndSteal4) {
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMalloc(&ptr4, 1024, streams[0]));
     void *ptr5;
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMalloc(&ptr5, 1024, streams[1]));
-    
+
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr0, streams[0]));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr1, streams[0]));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr2, streams[0]));
@@ -665,14 +665,14 @@ TEST_P(CnmemTest, allocateConcurrentNoCompete) {
     cudaStream_t streams[2];
     ASSERT_EQ(cudaSuccess, cudaStreamCreate(&streams[0]));
     ASSERT_EQ(cudaSuccess, cudaStreamCreate(&streams[1]));
-    
+
     cnmemDevice_t device;
     memset(&device, 0, sizeof(device));
     device.size = 6*1024;
     device.numStreams = 2;
     device.streams = streams;
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemInit(1, &device, pool_flags | CNMEM_FLAGS_CANNOT_GROW));
-    
+
     // In this test, each manager has enough memory to accommodate the threads.
     std::vector<std::thread*> threads(2);
     for( int i = 0 ; i < 2 ; ++i )
@@ -697,7 +697,7 @@ TEST_P(CnmemTest, allocateConcurrentCompete) {
     device.numStreams = 2;
     device.streams = streams;
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemInit(1, &device, pool_flags | CNMEM_FLAGS_CANNOT_GROW));
-    
+
     // In this test, the threads compete for the memory of the root manager.
     std::vector<std::thread*> threads(2);
     for( int i = 0; i < 2; ++i )
@@ -738,7 +738,7 @@ TEST_P(CnmemTest, allocateConcurrentSteal) {
         delete threads[i];
     threads.clear();
 
-    mTestLeaks = false; // For some reasons, it reports a leak. 
+    mTestLeaks = false; // For some reasons, it reports a leak.
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -767,7 +767,7 @@ TEST_P(CnmemTest, allocateConcurrentMultiStreamsPerThreadNoGrow) {
         delete threads[i];
     threads.clear();
 
-    mTestLeaks = false; // For some reasons, it reports a leak. 
+    mTestLeaks = false; // For some reasons, it reports a leak.
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -796,7 +796,7 @@ TEST_P(CnmemTest, allocateConcurrentMultiStreamsPerThreadGrow) {
         delete threads[i];
     threads.clear();
 
-    mTestLeaks = false; // For some reasons, it reports a leak. 
+    mTestLeaks = false; // For some reasons, it reports a leak.
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -835,7 +835,7 @@ TEST_P(CnmemTest, registerAndAllocateConcurrentStreamsGrow) {
         delete threads[i];
     threads.clear();
 
-    mTestLeaks = false; // For some reasons, it reports a leak. 
+    mTestLeaks = false; // For some reasons, it reports a leak.
 }
 
 TEST_P(CnmemTest, registerAndAllocateConcurrentMultiStreamsPerThread) {
@@ -862,7 +862,7 @@ TEST_P(CnmemTest, registerAndAllocateConcurrentMultiStreamsPerThread) {
         delete threads[i];
     threads.clear();
 
-    mTestLeaks = false; // For some reasons, it reports a leak. 
+    mTestLeaks = false; // For some reasons, it reports a leak.
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -886,14 +886,14 @@ TEST_P(CnmemTest, testPrintMemoryState) {
     cudaStream_t streams[2];
     ASSERT_EQ(cudaSuccess, cudaStreamCreate(&streams[0]));
     ASSERT_EQ(cudaSuccess, cudaStreamCreate(&streams[1]));
-    
+
     cnmemDevice_t device;
     memset(&device, 0, sizeof(device));
     device.size = 4096;
     device.numStreams = 2;
     device.streams = streams;
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemInit(1, &device, pool_flags | CNMEM_FLAGS_CANNOT_GROW));
-    
+
     // In this test, each manager has enough memory to accommodate the threads.
     std::vector<std::thread*> threads(2);
     for( int i = 0 ; i < 2 ; ++i )
@@ -904,7 +904,7 @@ TEST_P(CnmemTest, testPrintMemoryState) {
         delete threads[i];
     threads.clear();
 
-    mTestLeaks = false; // For some reasons, it reports a leak. 
+    mTestLeaks = false; // For some reasons, it reports a leak.
 }
 
 #endif // defined USE_CPP_11
@@ -916,18 +916,18 @@ TEST_P(CnmemTest, memoryUsage) {
     memset(&device, 0, sizeof(device));
     device.size = 4096;
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemInit(1, &device, pool_flags));
-    
+
     std::size_t totalMem, freeMem;
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMemGetInfo(&freeMem, &totalMem, cudaStreamDefault));
     ASSERT_EQ(4096, totalMem);
     ASSERT_EQ(4096, freeMem);
-    
+
     void *ptr;
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMalloc(&ptr, 1024, NULL));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMemGetInfo(&freeMem, &totalMem, cudaStreamDefault));
     ASSERT_EQ(4096, totalMem);
     ASSERT_EQ(3072, freeMem);
-    
+
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr, NULL));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemMemGetInfo(&freeMem, &totalMem, cudaStreamDefault));
     ASSERT_EQ(4096, totalMem);
@@ -1019,4 +1019,3 @@ int main(int argc, char **argv) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-

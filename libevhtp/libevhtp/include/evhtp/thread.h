@@ -69,4 +69,3 @@ EVHTP_EXPORT evthr_pool_t * evthr_pool_wexit_new(int nthreads, evthr_init_cb, ev
 #endif
 
 #endif /* __EVTHR_H__ */
-

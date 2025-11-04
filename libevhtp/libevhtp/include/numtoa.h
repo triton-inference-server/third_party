@@ -47,4 +47,3 @@ EVHTP_EXPORT size_t evhtp_modp_u64toa(uint64_t value, char * str);
 #endif
 
 #endif
-

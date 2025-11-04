@@ -1,6 +1,6 @@
 # CNMeM Library
 
-Simple library to help the Deep Learning frameworks manage CUDA memory. 
+Simple library to help the Deep Learning frameworks manage CUDA memory.
 
 CNMeM is not intended to be a general purpose memory management library. It was designed as a simple
 tool for applications which work on a limited number of large memory buffers.
@@ -10,13 +10,13 @@ encounter an issue with the library on other operating systems, please submit a 
 
 # Prerequisites
 
-CNMeM relies on the CUDA toolkit. It uses C++ STL and the Pthread library on Linux. On Windows, it uses 
+CNMeM relies on the CUDA toolkit. It uses C++ STL and the Pthread library on Linux. On Windows, it uses
 the native Win32 threading library. The build system uses CMake. The unit tests are written using
 Google tests (but are not mandatory).
 
 ## CUDA
 
-The CUDA toolkit is required. We recommend using CUDA >= 7.0 even if earlier versions will work. 
+The CUDA toolkit is required. We recommend using CUDA >= 7.0 even if earlier versions will work.
 * Download from the [CUDA website](https://developer.nvidia.com/cuda-downloads)
 * Follow the installation instructions
 * Don't forget to set your path. For example:
@@ -51,6 +51,6 @@ To build the tests, you need to add an extra option to the cmake command.
 ## Link with CNMeM
 
 The source folder contains a header file 'include/cnmem.h' and the build directory contains the
-library 'libcnmem.so', 'cnmem.lib/cnmem.dll' or 'libcnmem.dylib', depending on your operating 
+library 'libcnmem.so', 'cnmem.lib/cnmem.dll' or 'libcnmem.dylib', depending on your operating
 system.
 

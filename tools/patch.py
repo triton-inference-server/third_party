@@ -35,23 +35,28 @@ It's also not optimized for performance, so it may be slow for large
 patches or files.
 """
 
+import argparse
 import os
 from enum import Enum
-import argparse
+
 
 class FileAlreadyPatchedError(Exception):
     pass
 
+
 class FileNotMatchingError(Exception):
     pass
+
 
 class PatchMalformedError(Exception):
     pass
 
+
 class LineType(Enum):
-    MATCH = ' '
-    ADD = '+'
-    REMOVE = '-'
+    MATCH = " "
+    ADD = "+"
+    REMOVE = "-"
+
 
 class PatchLine:
     def __init__(self, line, line_type):
@@ -61,6 +66,7 @@ class PatchLine:
     def __str__(self):
         return f"{self.line_type.value} {self.line}"
 
+
 class Hunk:
     def __init__(self, filename, location, count):
         self.filename = filename
@@ -69,25 +75,32 @@ class Hunk:
         self.lines = []
 
     def apply(self):
-        with open(self.filename, 'r') as file:
+        with open(self.filename, "r") as file:
             lines = file.readlines()
 
         output = []
         current_line = 1
         relative_line = 0
         for line in lines:
-            line = line.rstrip('\r\n')
+            line = line.rstrip("\r\n")
             # Only consider lines within the hunk's range
-            if self.location <= current_line and current_line < self.location + self.count:
+            if (
+                self.location <= current_line
+                and current_line < self.location + self.count
+            ):
                 if self.lines[relative_line].line_type == LineType.MATCH:
                     if self.lines[relative_line].line != line:
-                        raise FileNotMatchingError(f"Patch failed: {self.filename}:{current_line} does not match expected line:\nSource: {line}\nTarget: {self.lines[relative_line].line}")
+                        raise FileNotMatchingError(
+                            f"Patch failed: {self.filename}:{current_line} does not match expected line:\nSource: {line}\nTarget: {self.lines[relative_line].line}"
+                        )
                     output.append(line)
                     relative_line += 1
                 elif self.lines[relative_line].line_type == LineType.ADD:
                     # Verify we're not already patched
                     if self.lines[relative_line].line == line:
-                        raise FileAlreadyPatchedError(f"Patch failed: {self.filename}:{current_line} already patched")
+                        raise FileAlreadyPatchedError(
+                            f"Patch failed: {self.filename}:{current_line} already patched"
+                        )
                     # Write lines as long as we have a streak of ADD lines
                     while self.lines[relative_line].line_type == LineType.ADD:
                         output.append(self.lines[relative_line].line)
@@ -96,21 +109,28 @@ class Hunk:
                     if self.lines[relative_line].line_type == LineType.MATCH:
                         # We still want to verify the line matches
                         if self.lines[relative_line].line != line:
-                            raise FileNotMatchingError(f"Patch failed: {self.filename}:{current_line} does not match expected line:\nSource: {line}\nTarget: {self.lines[relative_line].line}")
+                            raise FileNotMatchingError(
+                                f"Patch failed: {self.filename}:{current_line} does not match expected line:\nSource: {line}\nTarget: {self.lines[relative_line].line}"
+                            )
                         output.append(line)
                         relative_line += 1
                     else:
-                        raise PatchMalformedError(f"Unexpected line type: {self.lines[relative_line].line_type}")
+                        raise PatchMalformedError(
+                            f"Unexpected line type: {self.lines[relative_line].line_type}"
+                        )
                 elif self.lines[relative_line].line_type == LineType.REMOVE:
                     relative_line += 1
             else:
                 output.append(line)
             current_line += 1
-        with open(self.filename, 'w') as file:
-            file.write('\n'.join(output))
+        with open(self.filename, "w") as file:
+            file.write("\n".join(output))
 
     def __str__(self):
-        return f"Hunk: {self.filename} {self.location},{self.count}\n" + '\n'.join([str(line) for line in self.lines])
+        return f"Hunk: {self.filename} {self.location},{self.count}\n" + "\n".join(
+            [str(line) for line in self.lines]
+        )
+
 
 class Patch:
     def __init__(self, filename):
@@ -118,38 +138,38 @@ class Patch:
         self.hunks = []
 
     def parse(self):
-        with open(self.filename, 'r') as file:
+        with open(self.filename, "r") as file:
             lines = file.readlines()
 
         hunk = None
         current_filename = None
         for line in lines:
-            line = line.rstrip('\r\n')
+            line = line.rstrip("\r\n")
             # Lines will start with '---', '+++', '@@', '-', ' ', or '+'. We
             # will not support patch files coming from git, with lines starting
             # with 'diff' or 'index'.
-            if line.startswith('---'):
+            if line.startswith("---"):
                 # Ignore "old" filename
                 continue
-            elif line.startswith('+++'):
+            elif line.startswith("+++"):
                 # Store "new" filename
-                current_filename = line[4:].lstrip(' ').split()[0]
-            elif line.startswith('@@') and line.endswith('@@'):
+                current_filename = line[4:].lstrip(" ").split()[0]
+            elif line.startswith("@@") and line.endswith("@@"):
                 # Parse the hunk header's line numbers.
                 # We only care about the new location, and old count. I know
                 # this looks odd, but it makes sense when you look at how the
                 # hunk is applied.
                 old, new = line[3:-3].split()
-                location = new.split(',')[0][1:]
-                count = old.split(',')[1]
+                location = new.split(",")[0][1:]
+                count = old.split(",")[1]
                 if hunk:
                     self.hunks.append(hunk)
                 hunk = Hunk(current_filename, location, count)
-            elif line.startswith('-'):
+            elif line.startswith("-"):
                 hunk.lines.append(PatchLine(line[1:], LineType.REMOVE))
-            elif line.startswith('+'):
+            elif line.startswith("+"):
                 hunk.lines.append(PatchLine(line[1:], LineType.ADD))
-            elif line.startswith(' '):
+            elif line.startswith(" "):
                 hunk.lines.append(PatchLine(line[1:], LineType.MATCH))
             else:
                 # Throw an error if we encounter an unexpected line
@@ -163,7 +183,10 @@ class Patch:
             hunk.apply()
 
     def __str__(self):
-        return f"Patch: {self.filename}\n" + '\n'.join([str(hunk) for hunk in self.hunks])
+        return f"Patch: {self.filename}\n" + "\n".join(
+            [str(hunk) for hunk in self.hunks]
+        )
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="A basic patch tool.")
@@ -171,8 +194,15 @@ if __name__ == "__main__":
 
     # Apply command
     apply_parser = subparsers.add_parser("apply", help="Apply the patch")
-    apply_parser.add_argument("-i", "--ignore-already-patched", action="store_true", help="Ignore already patched files")
-    apply_parser.add_argument("-d", "--directory", type=str, help="Directory to apply the patch to")
+    apply_parser.add_argument(
+        "-i",
+        "--ignore-already-patched",
+        action="store_true",
+        help="Ignore already patched files",
+    )
+    apply_parser.add_argument(
+        "-d", "--directory", type=str, help="Directory to apply the patch to"
+    )
     apply_parser.add_argument("patchfile", type=str, help="Patch file to apply")
 
     # Parse command

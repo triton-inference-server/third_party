@@ -126,4 +126,3 @@ EVHTP_EXPORT htparser     * htparser_new(void);
 #endif
 
 #endif
-

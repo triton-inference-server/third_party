@@ -13,13 +13,13 @@ static std::size_t getFreeMemory() {
 class CnmemTest : public ::testing::Test {
     /// We determine the amount of free memory.
     std::size_t mFreeMem;
-    
+
 protected:
     /// Do we test memory leaks.
     bool mTestLeaks;
     /// Do we skip finalization.
     bool mFinalize;
-    
+
 public:
     /// Ctor.
     CnmemTest() : mFreeMem(getFreeMemory()), mTestLeaks(true), mFinalize(true) {}
@@ -29,7 +29,7 @@ public:
 
 void CnmemTest::TearDown() {
     if( mFinalize ) {
-        ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFinalize()); 
+        ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFinalize());
     }
     if( mTestLeaks ) {
         ASSERT_EQ(mFreeMem, getFreeMemory());
@@ -110,9 +110,9 @@ void testAlign()
     ASSERT_EQ(cudaSuccess, cudaStreamSynchronize(streams[0]));
     ASSERT_EQ(cudaSuccess, cudaStreamSynchronize(streams[1]));
 
-    ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr1, streams[1])); 
+    ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr1, streams[1]));
     ASSERT_EQ(CNMEM_STATUS_SUCCESS, cnmemFree(ptr0, streams[0]));
-    
+
     ASSERT_EQ(cudaSuccess, cudaStreamDestroy(streams[0]));
     ASSERT_EQ(cudaSuccess, cudaStreamDestroy(streams[1]));
 
@@ -147,4 +147,3 @@ int main(int argc, char **argv) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
