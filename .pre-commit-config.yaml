@@ -50,6 +50,7 @@ repos:
   rev: v2.2.4
   hooks:
   - id: codespell
+    exclude: (libevhtp/libevhtp/ChangeLog)
 # More details about these pre-commit hooks here:
 # https://pre-commit.com/hooks.html
 - repo: https://github.com/pre-commit/pre-commit-hooks

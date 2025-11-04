@@ -116,7 +116,7 @@ enum evhtp_hook_type {
     evhtp_hook_on_header,       /**< type which defines to hook after one header has been parsed */
     evhtp_hook_on_headers,      /**< type which defines to hook after all headers have been parsed */
     evhtp_hook_on_path,         /**< type which defines to hook once a path has been parsed */
-    evhtp_hook_on_read,         /**< type which defines to hook whenever the parser recieves data in a body */
+    evhtp_hook_on_read,         /**< type which defines to hook whenever the parser receives data in a body */
     evhtp_hook_on_request_fini, /**< type which defines to hook before the request is free'd */
     evhtp_hook_on_connection_fini,
     evhtp_hook_on_new_chunk,
@@ -361,7 +361,7 @@ TAILQ_HEAD(evhtp_kvs, evhtp_kv);
 
 
 /**
- * @brief a generic container representing an entire URI strucutre
+ * @brief a generic container representing an entire URI structure
  */
 struct evhtp_uri {
     evhtp_authority_t * authority;
@@ -863,7 +863,7 @@ EVHTP_EXPORT int evhtp_bind_sockaddr(evhtp_t * htp, struct sockaddr *,
 /**
  * @brief Enable thread-pool support for an evhtp_t context. Connectios are
  *       distributed across 'nthreads'. An optional "on-start" callback can
- *       be set which allows you to manipulate the thread-specific inforation
+ *       be set which allows you to manipulate the thread-specific information
  *       (such as the thread-specific event_base).
  *
  * @param htp

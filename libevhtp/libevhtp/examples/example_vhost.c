@@ -70,7 +70,7 @@ main(int argc, char ** argv) {
      */
     evhtp_set_cb(htp_vhost_2, "/vhost", vhost_2__callback_, "google.com domains");
 
-    /* if Host: evhtp.io is present, the callbacks fro htp_vhost_1 are
+    /* if Host: evhtp.io is present, the callbacks from htp_vhost_1 are
      * used. We do this by adding the vhost_1 evhtp to the main htp ctx.
      */
     evhtp_add_vhost(htp, "evhtp.io", htp_vhost_1);

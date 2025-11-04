@@ -408,7 +408,7 @@ ExternalProject_Add(crc32c
 # does not pass protobuf_DIR and gRPC_DIR etc to its
 # external projects but expects them in CMAKE_PREFIX_PATH.
 #
-# absl must preceed grpc to ensure that the absl from the newer grpc
+# absl must precede grpc to ensure that the absl from the newer grpc
 # repo is used and not the absl from the older grpc.
 set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/${LIB_DIR}/cmake/c-ares
@@ -535,7 +535,7 @@ ExternalProject_Add(aws-sdk-cpp
 # [FIXME] Remove `NOT WIN32` condition when Windows build works on Triton (JIRA DLIS-4786)
 # OpenTelemetry requires a location of protobuf to be passed in cmake.
 # PROTO_LIB_PATH is set for where protobuf library ('libprotobuf.a') is located on Ubuntu.
-# Windows may have another extention for libprotobuf and different location of installation.
+# Windows may have another extension for libprotobuf and different location of installation.
 # `PROTO_LIB_PATH` should be properly set for Windows
 #
 if (NOT WIN32)

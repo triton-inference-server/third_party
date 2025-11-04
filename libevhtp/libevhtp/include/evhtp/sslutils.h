@@ -101,7 +101,7 @@ EVHTP_EXPORT unsigned char * htp_sslutil_cert_tostr(evhtp_ssl_t * ssl);
 
 
 /**
- * @brief convert X509 extentions to string
+ * @brief convert X509 extensions to string
  * @ingroup htp_sslutils
  *
  * @param ssl SSL context

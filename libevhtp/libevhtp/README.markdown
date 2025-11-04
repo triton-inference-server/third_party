@@ -32,7 +32,7 @@ probably not very awesome, it's best to look at test.c to see advanced usage.
 ## Overview
 ***
 
-Libevhtp was created as a replacement API for Libevent's current HTTP API.  The reality of libevent's http interface is that it was created as a JIT server, meaning the developer never thought of it being used for creating a full-fledged HTTP service. Infact I am under the impression that the libevent http API was designed almost as an example of what you can do with libevent. It's not Apache in a box, but more and more developers are attempting to use it as so.
+Libevhtp was created as a replacement API for Libevent's current HTTP API.  The reality of libevent's http interface is that it was created as a JIT server, meaning the developer never thought of it being used for creating a full-fledged HTTP service. In fact I am under the impression that the libevent http API was designed almost as an example of what you can do with libevent. It's not Apache in a box, but more and more developers are attempting to use it as so.
 
 ### Libevent's HTTP pitfalls
 ***
@@ -118,7 +118,7 @@ with redis.
 
 ## Performance stuff
 
-While we never documented any benchmark publically,
+While we never documented any benchmark publicly,
 the popular open source project [ZIMG](http://zimg.buaa.us) did a bit of that
 for us.The ZIMG team decided to move away from NGINX to libevhtp for their
 software, and the results were pretty outstanding. Here is a graph showing their
