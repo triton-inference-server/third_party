@@ -6,7 +6,7 @@
        PATTERN "testdata" EXCLUDE
 +      PATTERN "options.h" EXCLUDE
      )
-
+ 
    file(READ "absl/base/options.h" ABSL_INTERNAL_OPTIONS_H_CONTENTS)
 @@ -230,7 +231,17 @@
        ABSL_INTERNAL_OPTIONS_H_PINNED
