@@ -63,7 +63,7 @@ def GetCompilationInfoForFile(database, filename):
     return database.GetCompilationInfoForFile(filename)
 
 
-def FindNearest(path, target, build_folder):
+def FindNearest(path, target, build_folder=None):
     candidate = os.path.join(path, target)
     if os.path.isfile(candidate) or os.path.isdir(candidate):
         logging.info("Found nearest " + target + " at " + candidate)
