@@ -24,6 +24,6 @@
 +  if (ABSL_INTERNAL_OPTIONS_H_PINNED_GENERATE)
 +    file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/options-pinned.h" CONTENT "${ABSL_INTERNAL_OPTIONS_H_PINNED}")
 +  endif()
-
+ 
    install(FILES "${CMAKE_BINARY_DIR}/options-pinned.h"
           DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/absl/base
