@@ -29,25 +29,30 @@ repos:
   rev: 5.12.0
   hooks:
   - id: isort
+    exclude: "\\.patch$"
 - repo: https://github.com/psf/black
   rev: 23.1.0
   hooks:
   - id: black
+    exclude: "\\.patch$"
     types_or: [python, cython]
 - repo: https://github.com/PyCQA/flake8
   rev: 7.3.0
   hooks:
   - id: flake8
+    exclude: "\\.patch$"
     args: [--max-line-length=88, --select=C,E,F,W,B,B950, --extend-ignore = E203,E501]
     types_or: [python, cython]
 - repo: https://github.com/codespell-project/codespell
   rev: v2.2.4
   hooks:
   - id: codespell
+    exclude: "\\.patch$"
 - repo: https://github.com/pre-commit/mirrors-clang-format
   rev: v16.0.5
   hooks:
   - id: clang-format
+    exclude: "\\.patch$"
     types_or: [c, c++, cuda, proto, textproto, java]
     args: ["-fallback-style=none", "-style=file", "-i"]
 # More details about these pre-commit hooks here:
@@ -56,14 +61,25 @@ repos:
   rev: v6.0.0
   hooks:
   - id: check-case-conflict
+    exclude: "\\.patch$"
   - id: check-executables-have-shebangs
+    exclude: "\\.patch$"
   - id: check-merge-conflict
+    exclude: "\\.patch$"
   - id: check-json
+    exclude: "\\.patch$"
   - id: check-toml
+    exclude: "\\.patch$"
   - id: check-yaml
+    exclude: "\\.patch$"
   - id: check-shebang-scripts-are-executable
+    exclude: "\\.patch$"
   - id: end-of-file-fixer
+    exclude: "\\.patch$"
     types_or: [c, c++, cuda, proto, textproto, java, python]
   - id: mixed-line-ending
+    exclude: "\\.patch$"
   - id: requirements-txt-fixer
+    exclude: "\\.patch$"
   - id: trailing-whitespace
+    exclude: "\\.patch$"
