@@ -38,8 +38,46 @@ add_definitions(-DCNMEM_DLLEXPORT)
 add_library(cnmem STATIC src/cnmem.cpp)
 set_target_properties(cnmem PROPERTIES VERSION 1.0.0 SOVERSION 1)
 target_link_libraries(cnmem LINK_PUBLIC ${CUDAToolkit_LIBRARY_DIR})
-install(TARGETS cnmem RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
+install(TARGETS cnmem 
+  EXPORT CnmemTargets
+  RUNTIME DESTINATION bin 
+  ARCHIVE DESTINATION lib 
+  LIBRARY DESTINATION lib)
 install(FILES include/cnmem.h DESTINATION include)
+
+# Export the targets
+install(EXPORT CnmemTargets
+  FILE CnmemTargets.cmake
+  NAMESPACE cnmem::
+  DESTINATION cmake)
+
+# Create and install package config file
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/CnmemConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/CnmemConfig.cmake
+  INSTALL_DESTINATION cmake
+  NO_CHECK_REQUIRED_COMPONENTS_MACRO
+)
+
+# Create and install package version file
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/CnmemConfigVersion.cmake
+  VERSION 1.0.0
+  COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/CnmemConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/CnmemConfigVersion.cmake
+  DESTINATION cmake
+)
+
+# Export targets for build tree
+export(EXPORT CnmemTargets
+  FILE ${CMAKE_CURRENT_BINARY_DIR}/CnmemTargets.cmake
+  NAMESPACE cnmem::
+)
 
 # Add the tests.
 if(WITH_TESTS)
