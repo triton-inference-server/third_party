@@ -8,6 +8,8 @@
        src="https://scan.coverity.com/projects/15294/badge.svg"/>
 </a>
 
+libevhp was copied from https://github.com/Yellow-Camper/libevhtp
+
 This document describes details on using the evhtp API. This document is
 probably not very awesome, it's best to look at test.c to see advanced usage.
 
