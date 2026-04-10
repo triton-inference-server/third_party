@@ -69,6 +69,14 @@ set(evhtp_dir_headers
   "include/evhtp/parser.h"
   "include/evhtp/log.h")
 
+if(LINUX)
+  file(STRINGS "/etc/os-release" DISTRO_ID_LIKE REGEX "ID_LIKE")
+  if(${DISTRO_ID_LIKE} MATCHES "rhel|centos")
+    set(OPENSSL_ROOT_DIR "/usr/lib64/openssl3")
+    set(OPENSSL_INCLUDE_DIR "/usr/include/openssl3")
+  endif(${DISTRO_ID_LIKE} MATCHES "rhel|centos")
+endif(LINUX)
+
 if(NOT EVHTP_DISABLE_SSL)
     find_package(OpenSSL)
     if(OPENSSL_FOUND)
