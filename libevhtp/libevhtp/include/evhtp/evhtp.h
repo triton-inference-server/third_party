@@ -417,6 +417,7 @@ struct evhtp_request {
     evhtp_proto          proto;         /**< HTTP protocol used */
     htp_method           method;        /**< HTTP method used */
     evhtp_res            status;        /**< The HTTP response code or other error conditions */
+    size_t               chunk_count;   /**< number of chunks received so far */
     #define EVHTP_REQ_FLAG_KEEPALIVE (1 << 1)
     #define EVHTP_REQ_FLAG_FINISHED  (1 << 2)
     #define EVHTP_REQ_FLAG_CHUNKED   (1 << 3)
