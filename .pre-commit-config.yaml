@@ -84,7 +84,7 @@ repos:
   - id: trailing-whitespace
     exclude: "\\.patch$"
 
-- repo: https://github.com/triton-inference-server/pre-commit-hooks
+- repo: https://github.com/triton-inference-server/developer_tools
   rev: v0.1.0
   hooks:
   - id: add-license
