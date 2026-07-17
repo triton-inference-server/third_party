@@ -228,8 +228,10 @@ ExternalProject_Add(googletest
 # platform
 if (WIN32)
   set(_FINDPACKAGE_PROTOBUF_CONFIG_DIR "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/cmake")
+  set(_FINDPACKAGE_UTF8_RANGE_CONFIG_DIR "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/cmake/utf8_range")
 else()
   set(_FINDPACKAGE_PROTOBUF_CONFIG_DIR "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/${LIB_DIR}/cmake/protobuf")
+  set(_FINDPACKAGE_UTF8_RANGE_CONFIG_DIR "${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/${LIB_DIR}/cmake/utf8_range")
 endif()
 #
 # Build c-ares project from grpc-repo
@@ -280,6 +282,7 @@ ExternalProject_Add(grpc
     -Dc-ares_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/${LIB_DIR}/cmake/c-ares
     -Dre2_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/re2/${LIB_DIR}/cmake/re2
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
+    -Dutf8_range_DIR:PATH=${_FINDPACKAGE_UTF8_RANGE_CONFIG_DIR}
     ${_CMAKE_ARGS_OPENSSL_ROOT_DIR}
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
     ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
@@ -414,7 +417,8 @@ set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/${LIB_DIR}/cmake/Crc32c
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc/lib/cmake/grpc
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/share/cmake/nlohmann_json
-   ${_FINDPACKAGE_PROTOBUF_CONFIG_DIR})
+   ${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
+   ${_FINDPACKAGE_UTF8_RANGE_CONFIG_DIR})
 #
 # Build google-cloud-cpp
 #
@@ -436,6 +440,7 @@ ExternalProject_Add(google-cloud-cpp
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/google-cloud-cpp
     -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/share/cmake/nlohmann_json
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
+    -Dutf8_range_DIR:PATH=${_FINDPACKAGE_UTF8_RANGE_CONFIG_DIR}
     -DCrc32c_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/${LIB_DIR}/cmake/Crc32c
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
   DEPENDS grpc c-ares protobuf crc32c absl nlohmann-json
