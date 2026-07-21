@@ -26,6 +26,10 @@
 
 default_install_hook_types: [pre-commit, commit-msg]
 
+# Vendored patch files are byte- and whitespace-exact; any hook that
+# reformats or "fixes" them corrupts the patch.
+exclude: "\\.patch$"
+
 repos:
 - repo: https://github.com/PyCQA/isort
   rev: 5.12.0
