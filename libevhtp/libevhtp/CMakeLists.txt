@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.31.8)
+cmake_minimum_required(VERSION 3.10)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -60,8 +60,13 @@ set(LIBEVHTP_SOURCE_FILES
     triton_timestamp.cc)
 
 find_package(Libevent REQUIRED)
-list(APPEND LIBEVHTP_EXTERNAL_LIBS ${LIBEVENT_LIBRARIES})
-list(APPEND LIBEVHTP_EXTERNAL_INCLUDES ${LIBEVENT_INCLUDE_DIRS})
+if(TARGET libevent::libevent)
+    # Conan / modern cmake: include dirs propagate via INTERFACE
+    list(APPEND LIBEVHTP_EXTERNAL_LIBS libevent::libevent)
+else()
+    list(APPEND LIBEVHTP_EXTERNAL_LIBS ${LIBEVENT_LIBRARIES})
+    list(APPEND LIBEVHTP_EXTERNAL_INCLUDES ${LIBEVENT_INCLUDE_DIRS})
+endif()
 list(APPEND package_deps Libevent)
 
 set(evhtp_dir_headers
