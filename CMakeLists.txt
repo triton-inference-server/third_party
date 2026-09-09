@@ -76,7 +76,7 @@ endif(LINUX)
 set(TRITON_CORE_HEADERS_ONLY OFF)
 
 # C++ standard
-set(TRITON_MIN_CXX_STANDARD 17 CACHE STRING "The minimum C++ standard whose features are requested to build this target.")
+set(TRITON_MIN_CXX_STANDARD 20 CACHE STRING "The minimum C++ standard whose features are requested to build this target.")
 
 #
 # Build libcurl
