@@ -75,19 +75,22 @@ statically or dynamically linked dependencies for Triton components.
 
 **Contents:**
 
-- `CMakeLists.txt`: a CMake `ExternalProject` superbuild that fetches pinned
-  upstream releases from GitHub (for example curl, gRPC, protobuf, abseil,
-  re2, c-ares, libevent, nlohmann/json, prometheus-cpp, crc32c,
-  google-cloud-cpp, aws-sdk-cpp, azure-sdk-for-cpp, azure-iot-sdk-c,
-  opentelemetry-cpp) and installs them under
-  `TRITON_THIRD_PARTY_INSTALL_PREFIX`.
+- `CMakeLists.txt`: a CMake `ExternalProject` superbuild that fetches upstream
+  releases from GitHub by tag or commit (curl, gRPC, libevent, nlohmann/json,
+  prometheus-cpp, crc32c, google-cloud-cpp, aws-sdk-cpp, azure-sdk-for-cpp,
+  azure-iot-sdk-c, opentelemetry-cpp) and installs them under
+  `TRITON_THIRD_PARTY_INSTALL_PREFIX`. protobuf, abseil, re2, c-ares and
+  googletest are not pinned separately: they are built from the pinned gRPC
+  checkout (its `third_party/` directory), so their versions follow the gRPC
+  tag.
 - `libevhtp/`: a vendored, patched copy of libevhtp (an event-driven HTTP
   server library written in C), built with SSL disabled
   (`EVHTP_DISABLE_SSL=ON`) and used by Triton's HTTP endpoint.
 - `cnmem/`: a vendored, patched copy of the cnmem GPU memory pool library,
   with the changes recorded as `*.patch` files.
-- `tools/patch.py` and `tools/install_src.py`: helper scripts that apply
-  patches and copy source trees at build time.
+- `tools/install_src.py` copies source trees at build time (it is the
+  `PATCH_COMMAND` for most dependencies). `tools/patch.py` is a small
+  unified-diff patch tool; `CMakeLists.txt` does not invoke it.
 
 **Primary security responsibility:** keeping the pinned third-party
 dependency versions current and free of known vulnerabilities, and ensuring
@@ -127,11 +130,12 @@ official NVIDIA labels.
    or retagged upstream tag, a compromised upstream repository, or a network
    attacker defeating TLS could inject malicious code into the build.
    Tag-pinned entries are more exposed than commit-pinned ones.
-4. **Patch tampering or silent drift:** Local modifications are carried as
-   patch files (`cnmem/*.patch`) and applied by `tools/patch.py`, and a
-   patched copy of libevhtp is vendored in-tree. A malicious or mistaken
-   change to these files alters the behavior of security-relevant code
-   without an upstream review trail.
+4. **Vendored-source tampering or silent drift:** `cnmem/` and `libevhtp/`
+   are vendored in-tree already patched, and the build uses them as they are.
+   The `cnmem/*.patch` files only document the changes, and no build step
+   checks the vendored source against upstream or against those patches. A
+   malicious or mistaken change to these directories alters the behavior of
+   security-relevant code without an upstream review trail.
 5. **Unsafe file handling in build helpers:** `tools/install_src.py` removes
    and recreates a destination directory and copies a source tree with
    `shutil.rmtree` and `shutil.copytree(symlinks=True)`. A mis-set
@@ -152,14 +156,18 @@ official NVIDIA labels.
 - **Consumers validate input.** Code in this repository does not validate
   application-level input. Triton components that link these libraries are
   responsible for validation, authorization, and resource limits.
-- **Patches are applied exactly as reviewed.** The patch tooling assumes the
-  target files match the expected upstream content and fails if they do not.
-  It does not authenticate the patch source.
+- **Vendored sources are reviewed.** The patched `cnmem/` and `libevhtp/`
+  sources are used exactly as committed. No build-time check compares them to
+  upstream or to the `*.patch` files, so their integrity depends on code
+  review of those directories.
 - **Maintainers review dependency updates.** Version bumps in
   `CMakeLists.txt` and changes to vendored directories are assumed to go
-  through code review and the repository's pre-commit and CodeQL checks.
+  through code review. Automated checks do not cover the vendored code:
+  pre-commit excludes `libevhtp` and `cnmem`, and the CodeQL pull-request
+  workflow ignores those paths and analyzes Python only.
 
 ## Supported Versions
 
-Security fixes are made on the default branch and on the currently supported
-Triton release branches. Older release branches are not maintained.
+This repository does not publish a list of supported release branches.
+Security fixes are made on the default branch; users on a release branch should
+confirm with the maintainers whether a fix will be backported.
