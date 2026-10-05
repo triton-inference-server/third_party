@@ -30,144 +30,51 @@
 
 ## Reporting a Vulnerability
 
-**Do not report security vulnerabilities through public GitHub issues,
-discussions, or pull requests.**
+NVIDIA is dedicated to the security and trust of our software products and services, including all source code repositories managed through our organization.
 
-To report a potential security vulnerability in this repository or any other
-NVIDIA product, use one of the following channels:
+To report a potential security vulnerability, please use one of the following channels:
 
-1. **NVIDIA Vulnerability Disclosure Program** (preferred):
-   https://www.nvidia.com/en-us/security/
-2. **Email:** [psirt@nvidia.com](mailto:psirt@nvidia.com). Encrypt sensitive
-   reports with NVIDIA's public PGP key:
-   https://www.nvidia.com/en-us/security/pgp-key
-3. **GitHub Private Vulnerability Reporting:** use the "Report a
-   vulnerability" button on this repository's Security tab, if enabled.
+1. **NVIDIA Vulnerability Disclosure Program** (preferred): https://www.nvidia.com/en-us/security/
+2. **Web form:** [Security Vulnerability Submission Form](https://www.nvidia.com/object/submit-security-vulnerability.html)
+3. **Email:** [NVIDIA PSIRT](mailto:psirt@nvidia.com). Please encrypt sensitive reports with NVIDIA's [PGP key](https://www.nvidia.com/en-us/security/pgp-key).
+4. **GitHub Private Vulnerability Reporting (where enabled):** use the "Report a vulnerability" button on the Security tab of this repository.
 
-**OEM partners should contact their NVIDIA Customer Program Manager.**
+**Do not open a public issue or pull request to report a vulnerability.**
 
 Please include:
 
-1. Product name and version, branch, or commit that contains the vulnerability
-2. Type of vulnerability (for example code execution, denial of service,
-   buffer overflow)
-3. Step-by-step instructions to reproduce the issue
-4. Proof-of-concept or exploit code, if available
-5. Potential impact, including how an attacker could exploit the issue
+* Product or component name and version or branch
+* Type of vulnerability
+* Steps to reproduce
+* Proof of concept, if available
+* Potential impact and how it could be exploited
 
-NVIDIA PSIRT acknowledges reports, assesses severity, coordinates a fix and
-disclosure timeline with the reporter, and publishes Security Bulletins at
-https://www.nvidia.com/en-us/security/.
+See https://www.nvidia.com/en-us/security/ for past NVIDIA Security Bulletins and Notices.
 
-Vulnerabilities in the upstream projects listed below (for example curl,
-gRPC, libevent) should also be reported to those projects. Reporting to NVIDIA
-PSIRT first is welcome when the issue affects Triton Inference Server.
+## Security Architecture and Context
 
-## Security Architecture & Context
+**Project:** Third-party source packages that are modified for use in Triton.
 
-**Project:** Triton Third-Party Packages. This repository holds the build
-definitions and patched sources for third-party libraries that Triton
-Inference Server must modify before use.
+**Software type:** Examples and bundled third-party source packages.
 
-**Software classification:** Library / build tooling (not a standalone
-network service). Nothing in this repository is run as a service. It produces
-statically or dynamically linked dependencies for Triton components.
+**Security boundaries:** The main security boundary is between this code and the environments, credentials and networks where it is built or run.
 
-**Contents:**
+**Repository Exposure Classification:** Public.
 
-- `CMakeLists.txt`: a CMake `ExternalProject` superbuild that fetches upstream
-  releases from GitHub by tag or commit (curl, gRPC, libevent, nlohmann/json,
-  prometheus-cpp, crc32c, google-cloud-cpp, aws-sdk-cpp, azure-sdk-for-cpp,
-  azure-iot-sdk-c, opentelemetry-cpp) and installs them under
-  `TRITON_THIRD_PARTY_INSTALL_PREFIX`. protobuf, abseil, re2, c-ares and
-  googletest are not pinned separately: they are built from the pinned gRPC
-  checkout (its `third_party/` directory), so their versions follow the gRPC
-  tag.
-- `libevhtp/`: a vendored, patched copy of libevhtp (an event-driven HTTP
-  server library written in C), built with SSL disabled
-  (`EVHTP_DISABLE_SSL=ON`) and used by Triton's HTTP endpoint.
-- `cnmem/`: a vendored, patched copy of the cnmem GPU memory pool library,
-  with the changes recorded as `*.patch` files.
-- `tools/install_src.py` copies source trees at build time (it is the
-  `PATCH_COMMAND` for most dependencies). `tools/patch.py` is a small
-  unified-diff patch tool; `CMakeLists.txt` does not invoke it.
-
-**Primary security responsibility:** keeping the pinned third-party
-dependency versions current and free of known vulnerabilities, and ensuring
-local patches do not weaken the upstream code.
-
-**Key security boundaries and interfaces:**
-
-- Build time: network fetches of upstream source by tag or commit.
-- Run time (consumers): parsing of untrusted HTTP requests through the
-  vendored libevhtp and its parser (`libevhtp/libevhtp/parser.c`,
-  `evhtp.c`); GPU memory management through cnmem.
-
-**Repository Exposure Classification:** Public. Basis: the repository is
-publicly visible on GitHub.
-
-**Service Exposure Classification:** Internal-Sensitive (confidence: medium).
-Basis: the repository is a build-time dependency source and not a deployed
-service; its code reaches network-facing deployments only through Triton
-Inference Server builds. These classifications are descriptive and are not
-official NVIDIA labels.
+**Service Exposure Classification:** Deployment-dependent. Exposure depends on how the software is deployed and configured by the operator.
 
 ## Threat Model
 
-1. **Memory-safety flaws in vendored libevhtp:** The HTTP request parser and
-   connection handling in `libevhtp/libevhtp/` are C code that processes
-   attacker-controlled bytes when linked into Triton's HTTP endpoint. Parser
-   or buffer-handling defects could lead to denial of service or memory
-   corruption in the consuming server. The vendored copy does not receive
-   upstream fixes automatically.
-2. **Known vulnerabilities in pinned upstream dependencies:** The superbuild
-   pins fixed versions of curl, gRPC, protobuf, libevent, c-ares, and the
-   cloud SDKs. Pinned versions age, and disclosed CVEs in those versions
-   propagate into every Triton component that builds against this repository
-   until the pins are updated.
-3. **Supply-chain compromise at fetch time:** `ExternalProject_Add` clones
-   upstream repositories over HTTPS by tag or commit at build time. A moved
-   or retagged upstream tag, a compromised upstream repository, or a network
-   attacker defeating TLS could inject malicious code into the build.
-   Tag-pinned entries are more exposed than commit-pinned ones.
-4. **Vendored-source tampering or silent drift:** `cnmem/` and `libevhtp/`
-   are vendored in-tree already patched, and the build uses them as they are.
-   The `cnmem/*.patch` files only document the changes, and no build step
-   checks the vendored source against upstream or against those patches. A
-   malicious or mistaken change to these directories alters the behavior of
-   security-relevant code without an upstream review trail.
-5. **Unsafe file handling in build helpers:** `tools/install_src.py` removes
-   and recreates a destination directory and copies a source tree with
-   `shutil.rmtree` and `shutil.copytree(symlinks=True)`. A mis-set
-   `--dest` or `--src` argument, or a symlink inside a source tree, could
-   delete or expose files outside the intended location.
+1. **Not hardened:** Examples and modified third-party sources are for development and reference, and may omit production security controls.
+2. **Vulnerable or outdated dependencies:** Bundled or referenced third-party code may contain known vulnerabilities or lag behind upstream fixes.
+3. **Supply chain:** Sources and models fetched at build or run time may be tampered with or unpinned.
+4. **Exposure by default:** Example deployments may expose services without authentication or encryption.
+5. **Credentials and sensitive data:** Credentials and data handled by examples may leak through logs, environment variables or build artifacts.
 
 ## Critical Security Assumptions
 
-- **Build environment is trusted.** The build host, compilers, CMake, Python,
-  and network path to GitHub are assumed uncompromised. This repository does
-  not verify checksums or signatures of fetched upstream sources.
-- **Upstream tags are immutable.** Pinned Git tags are assumed to keep
-  pointing at the same reviewed commit.
-- **libevhtp runs without TLS.** The vendored libevhtp is built with SSL
-  disabled. Consumers are assumed to terminate TLS externally or to operate
-  on a trusted network, and to apply their own request size limits,
-  timeouts, and authentication.
-- **Consumers validate input.** Code in this repository does not validate
-  application-level input. Triton components that link these libraries are
-  responsible for validation, authorization, and resource limits.
-- **Vendored sources are reviewed.** The patched `cnmem/` and `libevhtp/`
-  sources are used exactly as committed. No build-time check compares them to
-  upstream or to the `*.patch` files, so their integrity depends on code
-  review of those directories.
-- **Maintainers review dependency updates.** Version bumps in
-  `CMakeLists.txt` and changes to vendored directories are assumed to go
-  through code review. Automated checks do not cover the vendored code:
-  pre-commit excludes `libevhtp` and `cnmem`, and the CodeQL pull-request
-  workflow ignores those paths and analyzes Python only.
-
-## Supported Versions
-
-This repository does not publish a list of supported release branches.
-Security fixes are made on the default branch; users on a release branch should
-confirm with the maintainers whether a fix will be backported.
+* The code is used for development and evaluation, and is reviewed before any production use.
+* Deployers add authentication, authorization and TLS before exposing services.
+* Dependencies are kept up to date and obtained from trusted sources.
+* Credentials used with the examples are protected and rotated.
+* Host operating system, driver and hardware security are the operator's responsibility.
