@@ -5,10 +5,14 @@
 #include <limits.h>
 #ifndef _WIN32
 #include <sys/queue.h>
-#include <sys/ioctl.h>
 #include <unistd.h>
 #else
 #include "sys/queue.h"
+#endif
+
+#ifdef __linux__
+#include <sys/eventfd.h>
+#define EVTHR_USE_EVENTFD 1
 #endif
 
 #include <pthread.h>
@@ -19,25 +23,35 @@
 #include "internal.h"
 #include "evhtp/thread.h"
 
-#ifdef _WIN32
-__pragma(pack(push, 1))
-#endif
+/*
+ * Cross-thread command hand-off.
+ *
+ * Commands (a callback + argument) are queued in an in-memory FIFO owned by the
+ * target thread and the thread is woken through a "doorbell" descriptor (an
+ * eventfd on Linux, a socketpair elsewhere). The doorbell carries no data: it
+ * is only rung when the queue goes from empty to non-empty, and the thread
+ * drains the whole queue each time it wakes.
+ *
+ * This replaces the original design, which serialized every command through a
+ * SOCK_STREAM socketpair and consumed one command per event-loop iteration.
+ * That socket buffer (kernel default, ~208 KB, a few hundred commands once skb
+ * overhead is charged) was a hard cliff: when it filled, evthr_defer() failed
+ * with EVTHR_RES_RETRY and callers that did not retry lost the command for
+ * good. With an in-memory queue a hand-off can only fail on allocation
+ * failure, ordering per queue is preserved, and a burst of commands costs one
+ * wakeup instead of one per command.
+ */
+
 struct evthr_cmd {
-    uint8_t  stop;
-    void   * args;
-    evthr_cb cb;
-}
-#ifdef _WIN32
-;
-__pragma(pack(pop))
-#pragma pop
-#else
-__attribute__((packed));
-#endif
+    uint8_t            stop;
+    void             * args;
+    evthr_cb           cb;
+    struct evthr_cmd * next;
+};
 
 struct evthr {
-    evutil_socket_t rdr;
-    evutil_socket_t wdr;
+    evutil_socket_t rdr;            /**< doorbell read end (== wdr for eventfd) */
+    evutil_socket_t wdr;            /**< doorbell write end */
     char            err;
     ev_t          * event;
     evbase_t      * evbase;
@@ -49,10 +63,11 @@ struct evthr {
     void          * aux;
     int             busy;
 
-#ifdef EVTHR_SHARED_PIPE
-    int            pool_rdr;
-    struct event * shared_pool_ev;
-#endif
+    pthread_mutex_t    q_lock;
+    struct evthr_cmd * q_head;
+    struct evthr_cmd * q_tail;
+    unsigned int       q_len;       /**< commands queued and not yet taken by the thread */
+
     TAILQ_ENTRY(evthr) next;
 };
 
@@ -62,36 +77,87 @@ typedef struct evthr_cmd        evthr_cmd_t;
 typedef struct evthr_pool_slist evthr_pool_slist_t;
 
 struct evthr_pool {
-#ifdef EVTHR_SHARED_PIPE
-    int rdr;
-    int wdr;
-#endif
     int                nthreads;
     evthr_pool_slist_t threads;
 };
 
-#define _evthr_read(thr, cmd, sock) \
-    (recv(sock, cmd, sizeof(evthr_cmd_t), 0) == sizeof(evthr_cmd_t)) ? 1 : 0
+/* Wake the thread. A failure here is harmless: the doorbell can only be
+ * "full" if it already holds an unread wakeup, so the thread is going to run
+ * anyway. */
+static void
+_evthr_ring(evthr_t * thread)
+{
+#ifdef EVTHR_USE_EVENTFD
+    uint64_t one = 1;
+    ssize_t  n;
+
+    n = write(thread->wdr, &one, sizeof(one));
+    (void)n;
+#else
+    char one = 1;
+
+    (void)send(thread->wdr, &one, sizeof(one), 0);
+#endif
+}
+
+/* Clear the doorbell. Must run BEFORE the queue is taken, otherwise a ring
+ * placed between the two steps would be cleared and its command left in the
+ * queue until the next unrelated wakeup. */
+static void
+_evthr_silence(evutil_socket_t sock)
+{
+#ifdef EVTHR_USE_EVENTFD
+    uint64_t count;
+    ssize_t  n;
+
+    n = read(sock, &count, sizeof(count));
+    (void)n;
+#else
+    char buf[64];
+
+    while (recv(sock, buf, sizeof(buf), 0) > 0) {
+    }
+#endif
+}
 
 static void
 _evthr_read_cmd(evutil_socket_t sock, short which, void * args)
 {
-    evthr_t   * thread;
-    evthr_cmd_t cmd;
-    int         stopped;
+    evthr_t     * thread;
+    evthr_cmd_t * cmd;
+    int           stopped;
 
     if (!(thread = (evthr_t *)args)) {
         return;
     }
 
+    _evthr_silence(sock);
+
+    pthread_mutex_lock(&thread->q_lock);
+    cmd            = thread->q_head;
+    thread->q_head = NULL;
+    thread->q_tail = NULL;
+    thread->q_len  = 0;
+    pthread_mutex_unlock(&thread->q_lock);
+
     stopped = 0;
 
-    if (evhtp_likely(_evthr_read(thread, &cmd, sock) == 1)) {
-        stopped = cmd.stop;
+    /* Run everything that was queued, in order. Commands queued while we run
+     * (including from these callbacks) ring the doorbell again and are picked
+     * up on the next loop iteration, so socket events are not starved. */
+    while (cmd != NULL) {
+        evthr_cmd_t * next = cmd->next;
 
-        if (evhtp_likely(cmd.cb != NULL)) {
-            (cmd.cb)(thread, cmd.args, thread->arg);
+        if (cmd->stop) {
+            stopped = 1;
         }
+
+        if (evhtp_likely(cmd->cb != NULL)) {
+            (cmd->cb)(thread, cmd->args, thread->arg);
+        }
+
+        free(cmd);
+        cmd = next;
     }
 
     if (evhtp_unlikely(stopped == 1)) {
@@ -120,15 +186,6 @@ _evthr_loop(void * args)
 
     event_add(thread->event, NULL);
 
-#ifdef EVTHR_SHARED_PIPE
-    if (thread->pool_rdr > 0) {
-        thread->shared_pool_ev = event_new(thread->evbase, thread->pool_rdr,
-                                           EV_READ | EV_PERSIST, _evthr_read_cmd, args);
-        event_add(thread->shared_pool_ev, NULL);
-    }
-
-#endif
-
     pthread_mutex_lock(&thread->lock);
     if (thread->init_cb != NULL) {
         (thread->init_cb)(thread, thread->arg);
@@ -152,33 +209,58 @@ _evthr_loop(void * args)
     pthread_exit(NULL);
 } /* _evthr_loop */
 
-evthr_res
-evthr_defer(evthr_t * thread, evthr_cb cb, void * arg)
+static evthr_res
+_evthr_enqueue(evthr_t * thread, evthr_cb cb, void * arg, uint8_t stop)
 {
-    evthr_cmd_t cmd = {
-        .cb   = cb,
-        .args = arg,
-        .stop = 0
-    };
+    evthr_cmd_t * cmd;
+    int           was_empty;
 
-    if (send(thread->wdr, &cmd, sizeof(cmd), 0) <= 0) {
+    if (thread == NULL) {
+        return EVTHR_RES_FATAL;
+    }
+
+    if (!(cmd = malloc(sizeof(*cmd)))) {
         return EVTHR_RES_RETRY;
+    }
+
+    cmd->cb   = cb;
+    cmd->args = arg;
+    cmd->stop = stop;
+    cmd->next = NULL;
+
+    pthread_mutex_lock(&thread->q_lock);
+    was_empty = (thread->q_head == NULL);
+
+    if (was_empty) {
+        thread->q_head = cmd;
+    } else {
+        thread->q_tail->next = cmd;
+    }
+
+    thread->q_tail = cmd;
+    thread->q_len++;
+    pthread_mutex_unlock(&thread->q_lock);
+
+    if (was_empty) {
+        _evthr_ring(thread);
     }
 
     return EVTHR_RES_OK;
 }
 
 evthr_res
+evthr_defer(evthr_t * thread, evthr_cb cb, void * arg)
+{
+    return _evthr_enqueue(thread, cb, arg, 0);
+}
+
+evthr_res
 evthr_stop(evthr_t * thread)
 {
-    evthr_cmd_t cmd = {
-        .cb   = NULL,
-        .args = NULL,
-        .stop = 1
-    };
+    evthr_res res;
 
-    if (send(thread->wdr, &cmd, sizeof(evthr_cmd_t), 0) < 0) {
-        return EVTHR_RES_RETRY;
+    if ((res = _evthr_enqueue(thread, NULL, NULL, 1)) != EVTHR_RES_OK) {
+        return res;
     }
 
     pthread_join(*thread->thr, NULL);
@@ -241,32 +323,57 @@ static evthr_t *
 _evthr_new(evthr_init_cb init_cb, evthr_exit_cb exit_cb, void * args)
 {
     evthr_t * thread;
-    evutil_socket_t       fds[2];
-
-    if (evutil_socketpair(AF_UNIX, SOCK_STREAM, 0, fds) == -1) {
-        return NULL;
-    }
-
-    evutil_make_socket_nonblocking(fds[0]);
-    evutil_make_socket_nonblocking(fds[1]);
 
     if (!(thread = calloc(sizeof(evthr_t), 1))) {
         return NULL;
     }
 
+    if (pthread_mutex_init(&thread->lock, NULL)) {
+        free(thread);
+        return NULL;
+    }
+
+    if (pthread_mutex_init(&thread->q_lock, NULL)) {
+        pthread_mutex_destroy(&thread->lock);
+        free(thread);
+        return NULL;
+    }
+
+#ifdef EVTHR_USE_EVENTFD
+    {
+        int efd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+
+        if (efd == -1) {
+            evthr_free(thread);
+            return NULL;
+        }
+
+        thread->rdr = efd;
+        thread->wdr = efd;
+    }
+#else
+    {
+        evutil_socket_t fds[2];
+
+        if (evutil_socketpair(AF_UNIX, SOCK_STREAM, 0, fds) == -1) {
+            evthr_free(thread);
+            return NULL;
+        }
+
+        evutil_make_socket_nonblocking(fds[0]);
+        evutil_make_socket_nonblocking(fds[1]);
+
+        thread->rdr = fds[0];
+        thread->wdr = fds[1];
+    }
+#endif
+
     thread->thr     = malloc(sizeof(pthread_t));
     thread->arg     = args;
-    thread->rdr     = fds[0];
-    thread->wdr     = fds[1];
     thread->busy    = 0;
 
     thread->init_cb = init_cb;
     thread->exit_cb = exit_cb;
-
-    if (pthread_mutex_init(&thread->lock, NULL)) {
-        evthr_free(thread);
-        return NULL;
-    }
 
     return thread;
 } /* evthr_new */
@@ -300,6 +407,8 @@ evthr_start(evthr_t * thread)
 void
 evthr_free(evthr_t * thread)
 {
+    evthr_cmd_t * cmd;
+
     if (thread == NULL) {
         return;
     }
@@ -308,7 +417,7 @@ evthr_free(evthr_t * thread)
         close(thread->rdr);
     }
 
-    if (thread->wdr > 0) {
+    if (thread->wdr > 0 && thread->wdr != thread->rdr) {
         close(thread->wdr);
     }
 
@@ -320,16 +429,22 @@ evthr_free(evthr_t * thread)
         event_free(thread->event);
     }
 
-#ifdef EVTHR_SHARED_PIPE
-    if (thread->shared_pool_ev) {
-        event_free(thread->shared_pool_ev);
-    }
-
-#endif
-
     if (thread->evbase) {
         event_base_free(thread->evbase);
     }
+
+    /* Commands queued after the stop command are dropped, as before. */
+    cmd = thread->q_head;
+
+    while (cmd != NULL) {
+        evthr_cmd_t * next = cmd->next;
+
+        free(cmd);
+        cmd = next;
+    }
+
+    pthread_mutex_destroy(&thread->q_lock);
+    pthread_mutex_destroy(&thread->lock);
 
     free(thread);
 } /* evthr_free */
@@ -370,40 +485,29 @@ evthr_pool_stop(evthr_pool_t * pool)
     return EVTHR_RES_OK;
 }
 
+/* Load hint for placement, called from the acceptor thread. q_len is read
+ * under q_lock so that the read is ordered against the producers and the
+ * worker; the value is still only a hint, since the queue may change right
+ * after the lock is released. */
 static inline int
 get_backlog_(evthr_t * thread)
 {
+    unsigned int len;
+
     if (thread->busy) {
         return INT_MAX;
     }
-    int backlog = 0;
-    int bytes_returned = 0;
 
-#ifdef _WIN32
-    WSAIoctl(thread->rdr, FIONREAD, NULL, 0, &backlog, 4, &bytes_returned, NULL, NULL);
-#else
-    ioctl(thread->rdr, FIONREAD, &backlog);
-#endif
+    pthread_mutex_lock(&thread->q_lock);
+    len = thread->q_len;
+    pthread_mutex_unlock(&thread->q_lock);
 
-    return (int)(backlog / sizeof(evthr_cmd_t));
+    return (int)len;
 }
 
 evthr_res
 evthr_pool_defer(evthr_pool_t * pool, evthr_cb cb, void * arg)
 {
-#ifdef EVTHR_SHARED_PIPE
-    evthr_cmd_t cmd = {
-        .cb   = cb,
-        .args = arg,
-        .stop = 0
-    };
-
-    if (evhtp_unlikely(send(pool->wdr, &cmd, sizeof(cmd), 0) == -1)) {
-        return EVTHR_RES_RETRY;
-    }
-
-    return EVTHR_RES_OK;
-#endif
     evthr_t * thread      = NULL;
     evthr_t * min_thread  = NULL;
     int       min_backlog = 0;
@@ -415,7 +519,6 @@ evthr_pool_defer(evthr_pool_t * pool, evthr_cb cb, void * arg)
     if (cb == NULL) {
         return EVTHR_RES_NOCB;
     }
-
 
     TAILQ_FOREACH(thread, &pool->threads, next) {
         int backlog = get_backlog_(thread);
@@ -443,10 +546,6 @@ _evthr_pool_new(int           nthreads,
     evthr_pool_t * pool;
     int            i;
 
-#ifdef EVTHR_SHARED_PIPE
-    int            fds[2];
-#endif
-
     if (nthreads == 0) {
         return NULL;
     }
@@ -458,18 +557,6 @@ _evthr_pool_new(int           nthreads,
     pool->nthreads = nthreads;
     TAILQ_INIT(&pool->threads);
 
-#ifdef EVTHR_SHARED_PIPE
-    if (evutil_socketpair(AF_UNIX, SOCK_DGRAM, 0, fds) == -1) {
-        return NULL;
-    }
-
-    evutil_make_socket_nonblocking(fds[0]);
-    evutil_make_socket_nonblocking(fds[1]);
-
-    pool->rdr = fds[0];
-    pool->wdr = fds[1];
-#endif
-
     for (i = 0; i < nthreads; i++) {
         evthr_t * thread;
 
@@ -477,10 +564,6 @@ _evthr_pool_new(int           nthreads,
             evthr_pool_free(pool);
             return NULL;
         }
-
-#ifdef EVTHR_SHARED_PIPE
-        thread->pool_rdr = fds[0];
-#endif
 
         TAILQ_INSERT_TAIL(&pool->threads, thread, next);
     }
