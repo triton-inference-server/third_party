@@ -67,6 +67,7 @@ struct evthr_pool {
     int wdr;
 #endif
     int                nthreads;
+    evthr_t          * round_robin_next;
     evthr_pool_slist_t threads;
 };
 
@@ -404,9 +405,10 @@ evthr_pool_defer(evthr_pool_t * pool, evthr_cb cb, void * arg)
 
     return EVTHR_RES_OK;
 #endif
-    evthr_t * thread      = NULL;
-    evthr_t * min_thread  = NULL;
-    int       min_backlog = 0;
+    evthr_t    * current_thread = NULL;
+    evthr_t    * min_thread     = NULL;
+    int          min_backlog    = 0;
+    unsigned int i;
 
     if (pool == NULL) {
         return EVTHR_RES_FATAL;
@@ -416,19 +418,41 @@ evthr_pool_defer(evthr_pool_t * pool, evthr_cb cb, void * arg)
         return EVTHR_RES_NOCB;
     }
 
+    if (pool->round_robin_next == NULL) {
+        pool->round_robin_next = TAILQ_FIRST(&pool->threads);
+    }
 
-    TAILQ_FOREACH(thread, &pool->threads, next) {
-        int backlog = get_backlog_(thread);
+    current_thread = pool->round_robin_next;
+
+    if (current_thread == NULL) {
+        return EVTHR_RES_FATAL;
+    }
+
+    if (!(pool->round_robin_next = TAILQ_NEXT(current_thread, next))) {
+        pool->round_robin_next = TAILQ_FIRST(&pool->threads);
+    }
+
+    /* Select a thread that is not busy (backlog=0) */
+    for (i = 0; i < (unsigned int)pool->nthreads; i++) {
+        int backlog = get_backlog_(current_thread);
 
         if (backlog == 0) {
-            min_thread = thread;
+            min_thread = current_thread;
             break;
         }
 
         if (min_thread == NULL || backlog < min_backlog) {
-            min_thread  = thread;
+            min_thread  = current_thread;
             min_backlog = backlog;
         }
+
+        if (!(current_thread = TAILQ_NEXT(current_thread, next))) {
+            current_thread = TAILQ_FIRST(&pool->threads);
+        }
+    }
+
+    if (min_thread == NULL) {
+        return EVTHR_RES_FATAL;
     }
 
     return evthr_defer(min_thread, cb, arg);
