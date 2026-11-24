@@ -113,7 +113,7 @@ ExternalProject_Add(curl
 ExternalProject_Add(grpc-repo
   PREFIX grpc-repo
   GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.81.1"
+  GIT_TAG "v1.85.4"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/grpc-repo/src/grpc"
   EXCLUDE_FROM_ALL ON
   CONFIGURE_COMMAND ""
@@ -122,7 +122,7 @@ ExternalProject_Add(grpc-repo
   TEST_COMMAND ""
   CMAKE_CACHE_ARGS
     -DCMAKE_CXX_STANDARD:STRING=${TRITON_MIN_CXX_STANDARD}
-  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.81.1
+  PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG} --dest-basename=grpc_1.85.4
 )
 #
 # Build nlohmann/json
@@ -475,7 +475,7 @@ ExternalProject_Add(azure-iot-sdk-c
 ExternalProject_Add(azure-sdk
   PREFIX azure-sdk
   GIT_REPOSITORY "https://github.com/Azure/azure-sdk-for-cpp.git"
-  GIT_TAG "azure-storage-blobs_12.13.0"
+  GIT_TAG "azure-storage-blobs_12.18.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-sdk/src/azure-sdk-for-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -488,6 +488,11 @@ ExternalProject_Add(azure-sdk
     -DCURL_LIBRARY:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/${LIB_DIR}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-sdk
     -DDISABLE_AZURE_CORE_OPENTELEMETRY:BOOL=ON
+    -DDISABLE_AMQP:BOOL=ON
+    -DDISABLE_RUST_IN_BUILD:BOOL=ON
+    # GCC 15 no longer pulls <cstdint> in transitively, and 12.18.0's
+    # storage-common headers use the fixed-width types without including it.
+    "-DCMAKE_CXX_FLAGS:STRING=-include cstdint"
     -DENV{AZURE_SDK_DISABLE_AUTO_VCPKG}:BOOL=ON
     -DWARNINGS_AS_ERRORS:BOOL=OFF
     -DCMAKE_PREFIX_PATH:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-iot-sdk-c
@@ -517,6 +522,18 @@ ExternalProject_Add(cnmem
 # https://github.com/aws/aws-sdk-cpp/blob/6e9ef07d76cb9403a1b8626efa2eeff8a82c53e8/CMakeLists.txt#L353
 # This `set` does not allow us to override `CMAKE_CXX_STANDARD`,
 # thus I am not passing flag here.
+# aws-c-cal and s2n link the static libcrypto.a when it exists, which puts a
+# second copy of OpenSSL into libtritonserver.so next to the shared
+# libcrypto.so that curl and azure-sdk already pull in. On Ubuntu 26.04 the
+# static archive also needs libjitterentropy.a, which is not installed, so the
+# link fails. Their Findcrypto modules take the cached crypto_STATIC_LIBRARY
+# for static builds, so point it at the shared library.
+find_library(TRITON_LIBCRYPTO_SHARED NAMES libcrypto.so)
+if(TRITON_LIBCRYPTO_SHARED)
+  set(_AWS_CRYPTO_ARGS
+      "-Dcrypto_STATIC_LIBRARY:FILEPATH=${TRITON_LIBCRYPTO_SHARED}")
+endif()
+
 ExternalProject_Add(aws-sdk-cpp
   PREFIX aws-sdk-cpp
   GIT_REPOSITORY "https://github.com/aws/aws-sdk-cpp.git"
@@ -531,6 +548,7 @@ ExternalProject_Add(aws-sdk-cpp
     -DMINIMIZE_SIZE:BOOL=ON
     -DENABLE_TESTING:BOOL=OFF
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+    ${_AWS_CRYPTO_ARGS}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/aws-sdk-cpp
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
