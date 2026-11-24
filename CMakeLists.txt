@@ -475,7 +475,7 @@ ExternalProject_Add(azure-iot-sdk-c
 ExternalProject_Add(azure-sdk
   PREFIX azure-sdk
   GIT_REPOSITORY "https://github.com/Azure/azure-sdk-for-cpp.git"
-  GIT_TAG "azure-storage-blobs_12.19.1"
+  GIT_TAG "azure-storage-blobs_12.18.0"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/azure-sdk/src/azure-sdk-for-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -488,6 +488,11 @@ ExternalProject_Add(azure-sdk
     -DCURL_LIBRARY:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/curl/${LIB_DIR}
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-sdk
     -DDISABLE_AZURE_CORE_OPENTELEMETRY:BOOL=ON
+    -DDISABLE_AMQP:BOOL=ON
+    -DDISABLE_RUST_IN_BUILD:BOOL=ON
+    # GCC 15 no longer pulls <cstdint> in transitively, and 12.18.0's
+    # storage-common headers use the fixed-width types without including it.
+    "-DCMAKE_CXX_FLAGS:STRING=-include cstdint"
     -DENV{AZURE_SDK_DISABLE_AUTO_VCPKG}:BOOL=ON
     -DWARNINGS_AS_ERRORS:BOOL=OFF
     -DCMAKE_PREFIX_PATH:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/azure-iot-sdk-c
