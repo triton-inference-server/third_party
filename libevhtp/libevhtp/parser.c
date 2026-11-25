@@ -193,6 +193,12 @@ static uint32_t usual[] = {
     0xffffffff
 };
 
+static inline int
+is_usual_char(unsigned char ch)
+{
+    return (usual[ch >> 5] & (1U << (ch & 0x1f))) != 0;
+}
+
 static int8_t unhex[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -808,7 +814,7 @@ htparser_run(htparser * p, htparse_hooks * hooks, const char * data, size_t len)
             case s_method:
                 log_debug("[%p] s_method", p);
 
-                do {
+                for (;;) {
                     if (ch == ' ')
                     {
                         p->method  = get_method(p->buf, p->buf_idx);
@@ -834,8 +840,12 @@ htparser_run(htparser * p, htparse_hooks * hooks, const char * data, size_t len)
                         HTP_SET_BUF(ch);
                     }
 
+                    if (i + 1 == len) {
+                        break;
+                    }
+
                     ch = data[++i];
-                } while (i < len);
+                }
 
                 break;
             case s_spaces_before_uri:
@@ -1156,7 +1166,7 @@ htparser_run(htparser * p, htparse_hooks * hooks, const char * data, size_t len)
 
                 res = 0;
 
-                if (usual[ch >> 5] & (1 << (ch & 0x1f)))
+                if (is_usual_char(ch))
                 {
                     HTP_SET_BUF(ch);
 
@@ -1225,17 +1235,26 @@ htparser_run(htparser * p, htparse_hooks * hooks, const char * data, size_t len)
 
                 res = 0;
 
-                do {
+                for (;;) {
                     log_debug("[%p] s_check_uri", p);
 
-                    if (usual[ch >> 5] & (1 << (ch & 0x1f))) {
+                    if (is_usual_char(ch)) {
                         HTP_SET_BUF(ch);
                     } else {
                         break;
                     }
 
+                    if (i + 1 == len) {
+                        break;
+                    }
+
                     ch = data[++i];
-                } while (i < len);
+                }
+
+                if (is_usual_char(ch)) {
+                    /* out of input mid-URI; resume in the next buffer */
+                    break;
+                }
 
                 switch (ch) {
                     case ' ':
@@ -1307,15 +1326,24 @@ htparser_run(htparser * p, htparse_hooks * hooks, const char * data, size_t len)
 
                 res = 0;
 
-                do {
-                    if (usual[ch >> 5] & (1 << (ch & 0x1f))) {
+                for (;;) {
+                    if (is_usual_char(ch)) {
                         HTP_SET_BUF(ch);
                     } else {
                         break;
                     }
 
+                    if (i + 1 == len) {
+                        break;
+                    }
+
                     ch = data[++i];
-                } while (i < len);
+                }
+
+                if (is_usual_char(ch)) {
+                    /* out of input mid-URI; resume in the next buffer */
+                    break;
+                }
 
                 switch (ch) {
                     case ' ':
@@ -1653,7 +1681,7 @@ hdrline_start:
             case s_hdrline_hdr_key:
                 log_debug("[%p] s_hdrline_hdr_key", p);
 
-                do {
+                for (;;) {
                     if (evhtp_unlikely(ch == ':'))
                     {
                         res      = hook_hdr_key_run(p, hooks, p->buf, p->buf_idx);
@@ -1729,8 +1757,12 @@ hdrline_start:
                         break;
                     }
 
+                    if (i + 1 == len) {
+                        break;
+                    }
+
                     ch = data[++i];
-                } while (i < len);
+                }
 
                 break;
 
@@ -1770,7 +1802,7 @@ hdrline_start:
             case s_hdrline_hdr_val:
                 err = 0;
 
-                do {
+                for (;;) {
                     log_debug("[%p] s_hdrline_hdr_val", p);
                     if (ch == CR)
                     {
@@ -1912,8 +1944,12 @@ hdrline_start:
                         break;
                     }
 
+                    if (i + 1 == len) {
+                        break;
+                    }
+
                     ch = data[++i];
-                } while (i < len);
+                }
 
                 break;
             case s_hdrline_hdr_almost_done:
